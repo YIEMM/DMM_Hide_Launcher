@@ -1,0 +1,2 @@
+F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\bin\Release\net8.0-windows\publish\win-x86\DMMDZZ_Game_Start.pdb
+F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\bin\Release\net8.0-windows\publish\win-x86\DMMDZZ_Game_Start.exe
