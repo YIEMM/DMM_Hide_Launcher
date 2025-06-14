@@ -29,8 +29,8 @@ namespace CookieID_4399
             }
             else
             {
-                Console.WriteLine("none");
-                var WPF = Application.Current.Windows.OfType<DMMDZZ_Game_Start.MainWindow>().FirstOrDefault(); WPF.ID_4399.Text = "none";
+                Console.WriteLine("4399ID=none");
+                var WPF = Application.Current.Windows.OfType<DMMDZZ_Game_Start.MainWindow>().FirstOrDefault(); WPF.ID_4399.Text = "";
             }
         }
         private static void Show4399ID(string cookiePath)
@@ -75,6 +75,7 @@ namespace CookieID_4399
                 {
                     //MessageBox.Show("未找到当前4399登录账号", "未找到",
                     //    MessageBoxButton.OK, MessageBoxImage.Information);
+                    var WPF = Application.Current.Windows.OfType<DMMDZZ_Game_Start.MainWindow>().FirstOrDefault(); WPF.ID_4399.Text = "未登录账号(？)";
                 }
             }
             catch (Exception ex)

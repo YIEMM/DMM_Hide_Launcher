@@ -2,7 +2,6 @@ F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\bin\Release\net8.0-windows\win-x86\DM
 F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\bin\Release\net8.0-windows\win-x86\DMMDZZ_Game_Start.deps.json
 F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\bin\Release\net8.0-windows\win-x86\DMMDZZ_Game_Start.runtimeconfig.json
 F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\bin\Release\net8.0-windows\win-x86\DMMDZZ_Game_Start.dll
-F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\bin\Release\net8.0-windows\win-x86\DMMDZZ_Game_Start.pdb
 F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\bin\Release\net8.0-windows\win-x86\Microsoft.Win32.SystemEvents.dll
 F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\obj\Release\net8.0-windows\win-x86\DMMDZZ_Game_Start.csproj.AssemblyReference.cache
 F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\obj\Release\net8.0-windows\win-x86\MainStart.g.cs
@@ -15,14 +14,11 @@ F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\obj\Release\net8.0-windows\win-x86\Ma
 F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\obj\Release\net8.0-windows\win-x86\User_Edit.baml
 F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\obj\Release\net8.0-windows\win-x86\DMMDZZ_Game_Start.g.resources
 F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\obj\Release\net8.0-windows\win-x86\DMMDZZ_Game_Start.GeneratedMSBuildEditorConfig.editorconfig
-F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\obj\Release\net8.0-windows\win-x86\DMMDZZ_Game_Start.AssemblyInfoInputs.cache
-F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\obj\Release\net8.0-windows\win-x86\DMMDZZ_Game_Start.AssemblyInfo.cs
 F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\obj\Release\net8.0-windows\win-x86\DMMDZZ_Game_Start.csproj.CoreCompileInputs.cache
 F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\obj\Release\net8.0-windows\win-x86\DMMDZZ_Game_Start.csproj.Fody.CopyLocal.cache
 F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\obj\Release\net8.0-windows\win-x86\DMMDZZ_Game_Start.csproj.Fody.RuntimeCopyLocal.cache
 F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\obj\Release\net8.0-windows\win-x86\DMMDZZ_G.5F4218E7.Up2Date
 F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\obj\Release\net8.0-windows\win-x86\DMMDZZ_Game_Start.dll
 F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\obj\Release\net8.0-windows\win-x86\refint\DMMDZZ_Game_Start.dll
-F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\obj\Release\net8.0-windows\win-x86\DMMDZZ_Game_Start.pdb
 F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\obj\Release\net8.0-windows\win-x86\DMMDZZ_Game_Start.genruntimeconfig.cache
 F:\out\DMMDZZ_Game_Start\DMMDZZ_Game_Start\obj\Release\net8.0-windows\win-x86\ref\DMMDZZ_Game_Start.dll

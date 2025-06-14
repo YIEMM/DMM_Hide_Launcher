@@ -152,7 +152,6 @@ namespace DMMDZZ_Game_Start
                     Load49ID();
                     LoadAccounts();
                 }
-
                 }
                 catch (Exception ex)
                 {
@@ -162,6 +161,8 @@ namespace DMMDZZ_Game_Start
             else
             {
                 CreateDefaultConfigFile();
+                await Task.Delay(1000);
+                LoadConfig();
             }
         }
 
