@@ -1,1 +1,1 @@
-# DMM_Hide_Laucher
+# DMM_Hide_Launcher
