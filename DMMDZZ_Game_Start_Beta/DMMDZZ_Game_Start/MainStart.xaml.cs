@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -29,7 +30,8 @@ namespace DMMDZZ_Game_Start
     public partial class MainWindow : AdonisWindow
     {
         public ObservableCollection<Account> Accounts { get; set; }
-        private static readonly string xmlUrl = "https://update.version.brmyx.com/get_verion_control_xml_string.xml?pfID=36&appId=com.bairimeng.dmmdzz.pc.36";
+        public static string Game_Version;
+        public static string xmlUrl = "https://update.version.brmyx.com/get_verion_control_xml_string.xml?pfID=36&appId=com.bairimeng.dmmdzz.pc.36&versionKey=";
         private string gamePath;
         private string GamePath;
         private readonly string configFileName = "config.xml";
@@ -65,8 +67,10 @@ namespace DMMDZZ_Game_Start
         {
             try
             {
-                var extractedData = await FetchXmlData();
-
+                var Version_Xml_Data = await Http_Load_XmlData();
+                Game_Version = Version_Xml_Data["version"][0];
+                Version_Reload();
+                var extractedData = await Http_Load_XmlData();
                 if (extractedData["fixNoteContent"].Count > 0 && XML_Text != null)
                 {
                     XML_Text.Text = extractedData["fixNoteContent"][0];
@@ -104,11 +108,11 @@ namespace DMMDZZ_Game_Start
             }
         }
 
-        private async Task<Dictionary<string, List<string>>> FetchXmlData()
+        private async Task<Dictionary<string, List<string>>> Http_Load_XmlData()
         {
             try
             {
-                HttpResponseMessage response = await httpClient.GetAsync(xmlUrl);
+                HttpResponseMessage response = await httpClient.GetAsync(xmlUrl + Game_Version);
                 response.EnsureSuccessStatusCode();
 
                 string xmlContent = await response.Content.ReadAsStringAsync();
@@ -126,6 +130,28 @@ namespace DMMDZZ_Game_Start
             catch (Exception ex)
             {
                 throw new Exception($"获取更新信息失败: {ex.Message}", ex);
+            }
+
+        }
+        private async void Version_Reload()
+        {
+            try
+            {
+                string[] parts = Game_Version.Split('.');
+
+                if (parts.Length == 4)
+                {
+                    parts[3] = "0";
+                    Game_Version = string.Join(".", parts);
+                }
+                else
+                {
+
+                }
+            }
+            catch (Exception ex)
+            {                 
+                   MessageBox.Show($"版本号处理失败: {ex.Message}");
             }
         }
 

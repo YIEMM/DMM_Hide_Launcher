@@ -60,7 +60,7 @@ namespace DMMDZZ_Game_Start {
             
             #line default
             #line hidden
-            System.Uri resourceLocater = new System.Uri("/DMMDZZ_Game_Start;component/app.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/DMM_Hide_Laucher;component/app.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\App.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

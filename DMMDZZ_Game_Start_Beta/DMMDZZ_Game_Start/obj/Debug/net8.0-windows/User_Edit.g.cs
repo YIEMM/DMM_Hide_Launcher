@@ -117,7 +117,7 @@ namespace DMMDZZ_Game_Start {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/DMMDZZ_Game_Start;component/user_edit.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/DMM_Hide_Laucher;component/user_edit.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\User_Edit.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);
