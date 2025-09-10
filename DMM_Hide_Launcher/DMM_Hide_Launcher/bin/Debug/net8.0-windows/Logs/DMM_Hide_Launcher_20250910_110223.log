@@ -1,0 +1,231 @@
+﻿[2025-09-10 11:02:25.054] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.ForceAttachConsole]: 开始附加控制台
+[2025-09-10 11:02:25.060] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.ForceAttachConsole]: 当前无控制台或控制台不可用，尝试附加新控制台
+[2025-09-10 11:02:25.254] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.ForceAttachConsole]: AllocConsole 结果: True
+[2025-09-10 11:02:25.258] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.ForceAttachConsole]: 设置控制台UTF-8编码 - 输出: True, 输入: True
+[2025-09-10 11:02:25.261] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.ForceAttachConsole]: 已成功重新初始化标准输出流并设置UTF8编码
+[2025-09-10 11:02:25.264] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.ForceAttachConsole]: 中文测试显示 - App.Log
+[2025-09-10 11:02:25.265] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.ForceAttachConsole]: 控制台附加完成
+[2025-09-10 11:02:25.266] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.LogStartupInfo]: 开始处理命令行参数
+[2025-09-10 11:02:25.267] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.LogStartupInfo]: 应用程序基目录: F:\out\DMM_Hide_Launcher_Beta\DMM_Hide_Launcher\bin\Debug\net8.0-windows\
+[2025-09-10 11:02:25.268] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.LogStartupInfo]: 日志文件路径: F:\out\DMM_Hide_Launcher_Beta\DMM_Hide_Launcher\bin\Debug\net8.0-windows\Logs\DMM_Hide_Launcher_20250910_110223.log
+[2025-09-10 11:02:25.269] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.LogStartupInfo]: 接收到 1 个命令行参数: --log
+[2025-09-10 11:02:25.269] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.LogStartupInfo]: 日志模式已启用
+[2025-09-10 11:02:25.270] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.LogStartupInfo]: 命令行参数处理完成 - 调试模式: False, 日志模式: True
+[2025-09-10 11:02:25.272] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.OnStartup]: 配置全局异常处理机制
+[2025-09-10 11:02:25.273] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.OnStartup]: 应用程序启动完成
+[2025-09-10 11:02:25.538] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow..ctor]: 程序启动，主窗口初始化开始
+[2025-09-10 11:02:25.545] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<LoadConfig>d__21.MoveNext]: 开始加载配置文件: config.xml
+[2025-09-10 11:02:25.546] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<LoadConfig>d__21.MoveNext]: 配置文件不存在，创建默认配置文件
+[2025-09-10 11:02:25.546] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.CreateDefaultConfigFile]: 开始创建默认配置文件
+[2025-09-10 11:02:25.547] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.CreateDefaultConfigFile]: 配置文件不存在，创建新的默认配置文件
+[2025-09-10 11:02:25.553] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.CreateDefaultConfigFile]: 默认配置文件创建/保存成功
+[2025-09-10 11:02:25.557] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow..ctor]: 配置文件加载成功
+[2025-09-10 11:02:25.561] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<Load_Update_XML_First>d__18.MoveNext]: 开始从小米应用商店获取版本信息
+[2025-09-10 11:02:25.605] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow..ctor]: XML数据加载成功
+[2025-09-10 11:02:25.608] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow..ctor]: 主窗口初始化完成
+[2025-09-10 11:02:26.310] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<Load_Update_XML_First>d__18.MoveNext]: 成功获取游戏版本号: 8.33.0
+[2025-09-10 11:02:26.314] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<Version_Reload>d__20.MoveNext]: 开始处理版本号: 8.33.0
+[2025-09-10 11:02:26.315] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<Version_Reload>d__20.MoveNext]: 版本号拆分为 3 部分: 8, 33, 0
+[2025-09-10 11:02:26.316] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<Version_Reload>d__20.MoveNext]: 版本号不足4位，末尾添加.0
+[2025-09-10 11:02:26.317] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<Version_Reload>d__20.MoveNext]: 处理后的版本号: 8.33.0.0
+[2025-09-10 11:02:26.319] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<Load_Update_XML_Second>d__19.MoveNext]: 开始从更新服务器获取XML数据，URL: https://update.version.brmyx.com/get_verion_control_xml_string.xml?pfID=36&appId=com.bairimeng.dmmdzz.pc.36&versionKey=8.33.0.0
+[2025-09-10 11:02:26.546] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<Load_Update_XML_Second>d__19.MoveNext]: 成功解析XML更新数据
+[2025-09-10 11:02:26.573] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<LoadConfig>d__21.MoveNext]: 开始加载配置文件: config.xml
+[2025-09-10 11:02:26.574] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<LoadConfig>d__21.MoveNext]: 配置文件存在，开始解析
+[2025-09-10 11:02:26.576] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<LoadConfig>d__21.MoveNext]: 配置文件解析成功，游戏路径: 
+[2025-09-10 11:02:26.578] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<LoadConfig>d__21.MoveNext]: 配置文件解析成功，7K账号: 
+[2025-09-10 11:02:26.689] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<LoadConfig>d__21.MoveNext]: 窗口已加载，准备加载49ID和账号信息
+[2025-09-10 11:02:26.715] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.LoadAccounts]: 开始加载账号信息: accounts.json
+[2025-09-10 11:02:26.716] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.LoadAccounts]: 账号文件不存在，跳过加载
+[2025-09-10 11:02:27.344] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.Button_Theme_Click]: 开始主题切换操作
+[2025-09-10 11:02:27.369] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.Button_Theme_Click]: 当前为亮色主题，准备切换到暗色主题
+[2025-09-10 11:02:27.455] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.Button_Theme_Click]: 主题切换完成，当前主题: 暗色
+[2025-09-10 11:02:27.515] ERROR [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.App_DispatcherUnhandledException]: UI线程异常: Could not find a part of the path 'F:\public\moon.ico'.
+异常类型: System.IO.DirectoryNotFoundException
+异常消息: Could not find a part of the path 'F:\public\moon.ico'.
+堆栈跟踪:    at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share)
+   at System.Windows.Media.Imaging.BitmapDecoder.SetupDecoderFromUriOrStream(Uri uri, Stream stream, BitmapCacheOption cacheOption, Guid& clsId, Boolean& isOriginalWritable, Stream& uriStream, UnmanagedMemoryStream& unmanagedMemoryStream, SafeFileHandle& safeFilehandle)
+   at System.Windows.Media.Imaging.BitmapDecoder.CreateFromUriOrStream(Uri baseUri, Uri uri, Stream stream, BitmapCreateOptions createOptions, BitmapCacheOption cacheOption, RequestCachePolicy uriCachePolicy, Boolean insertInDecoderCache)
+   at System.Windows.Media.Imaging.BitmapImage.FinalizeCreation()
+   at System.Windows.Media.Imaging.BitmapSource.CompleteDelayedCreation()
+   at System.Windows.Media.Imaging.BitmapSource.get_WicSourceHandle()
+   at System.Windows.Media.Imaging.BitmapSource.get_DUCECompatiblePtr()
+   at System.Windows.Media.Imaging.BitmapSource.UpdateBitmapSourceResource(Channel channel, Boolean skipOnChannelCheck)
+   at System.Windows.Media.Imaging.BitmapSource.AddRefOnChannelCore(Channel channel)
+   at System.Windows.Media.Imaging.BitmapSource.System.Windows.Media.Composition.DUCE.IResource.AddRefOnChannel(Channel channel)
+   at System.Windows.Media.ImageBrush.AddRefOnChannelCore(Channel channel)
+   at System.Windows.Media.Brush.System.Windows.Media.Composition.DUCE.IResource.AddRefOnChannel(Channel channel)
+   at System.Windows.Media.RenderData.System.Windows.Media.Composition.DUCE.IResource.AddRefOnChannel(Channel channel)
+   at System.Windows.UIElement.RenderContent(RenderContext ctx, Boolean isOnChannel)
+   at System.Windows.Media.Visual.UpdateContent(RenderContext ctx, VisualProxyFlags flags, Boolean isOnChannel)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.Render(RenderContext ctx, UInt32 childIndex)
+   at System.Windows.Media.CompositionTarget.Compile(Channel channel)
+   at System.Windows.Media.CompositionTarget.System.Windows.Media.ICompositionTarget.Render(Boolean inResize, Channel channel)
+   at System.Windows.Media.MediaContext.Render(ICompositionTarget resizedCompositionTarget)
+   at System.Windows.Media.MediaContext.RenderMessageHandlerCore(Object resizedCompositionTarget)
+   at System.Windows.Media.MediaContext.RenderMessageHandler(Object resizedCompositionTarget)
+   at System.Windows.Threading.ExceptionWrapper.InternalRealCall(Delegate callback, Object args, Int32 numArgs)
+   at System.Windows.Threading.ExceptionWrapper.TryCatchWhen(Object source, Delegate callback, Object args, Int32 numArgs, Delegate catchHandler)
+[2025-09-10 11:02:28.012] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.Button_Theme_Click]: 开始主题切换操作
+[2025-09-10 11:02:28.024] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.Button_Theme_Click]: 当前为暗色主题，准备切换到亮色主题
+[2025-09-10 11:02:28.089] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.Button_Theme_Click]: 主题切换完成，当前主题: 亮色
+[2025-09-10 11:02:28.147] ERROR [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.App_DispatcherUnhandledException]: UI线程异常: Could not find a part of the path 'F:\public\sun.ico'.
+异常类型: System.IO.DirectoryNotFoundException
+异常消息: Could not find a part of the path 'F:\public\sun.ico'.
+堆栈跟踪:    at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share)
+   at System.Windows.Media.Imaging.BitmapDecoder.SetupDecoderFromUriOrStream(Uri uri, Stream stream, BitmapCacheOption cacheOption, Guid& clsId, Boolean& isOriginalWritable, Stream& uriStream, UnmanagedMemoryStream& unmanagedMemoryStream, SafeFileHandle& safeFilehandle)
+   at System.Windows.Media.Imaging.BitmapDecoder.CreateFromUriOrStream(Uri baseUri, Uri uri, Stream stream, BitmapCreateOptions createOptions, BitmapCacheOption cacheOption, RequestCachePolicy uriCachePolicy, Boolean insertInDecoderCache)
+   at System.Windows.Media.Imaging.BitmapImage.FinalizeCreation()
+   at System.Windows.Media.Imaging.BitmapSource.CompleteDelayedCreation()
+   at System.Windows.Media.Imaging.BitmapSource.get_WicSourceHandle()
+   at System.Windows.Media.Imaging.BitmapSource.get_DUCECompatiblePtr()
+   at System.Windows.Media.Imaging.BitmapSource.UpdateBitmapSourceResource(Channel channel, Boolean skipOnChannelCheck)
+   at System.Windows.Media.Imaging.BitmapSource.AddRefOnChannelCore(Channel channel)
+   at System.Windows.Media.Imaging.BitmapSource.System.Windows.Media.Composition.DUCE.IResource.AddRefOnChannel(Channel channel)
+   at System.Windows.Media.ImageBrush.AddRefOnChannelCore(Channel channel)
+   at System.Windows.Media.Brush.System.Windows.Media.Composition.DUCE.IResource.AddRefOnChannel(Channel channel)
+   at System.Windows.Media.RenderData.System.Windows.Media.Composition.DUCE.IResource.AddRefOnChannel(Channel channel)
+   at System.Windows.UIElement.RenderContent(RenderContext ctx, Boolean isOnChannel)
+   at System.Windows.Media.Visual.UpdateContent(RenderContext ctx, VisualProxyFlags flags, Boolean isOnChannel)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.Render(RenderContext ctx, UInt32 childIndex)
+   at System.Windows.Media.CompositionTarget.Compile(Channel channel)
+   at System.Windows.Media.CompositionTarget.System.Windows.Media.ICompositionTarget.Render(Boolean inResize, Channel channel)
+   at System.Windows.Media.MediaContext.Render(ICompositionTarget resizedCompositionTarget)
+   at System.Windows.Media.MediaContext.RenderMessageHandlerCore(Object resizedCompositionTarget)
+   at System.Windows.Media.MediaContext.RenderMessageHandler(Object resizedCompositionTarget)
+   at System.Windows.Threading.ExceptionWrapper.InternalRealCall(Delegate callback, Object args, Int32 numArgs)
+   at System.Windows.Threading.ExceptionWrapper.TryCatchWhen(Object source, Delegate callback, Object args, Int32 numArgs, Delegate catchHandler)
+[2025-09-10 11:02:35.715] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.Button_Theme_Click]: 开始主题切换操作
+[2025-09-10 11:02:35.723] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.Button_Theme_Click]: 当前为亮色主题，准备切换到暗色主题
+[2025-09-10 11:02:35.754] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.Button_Theme_Click]: 主题切换完成，当前主题: 暗色
+[2025-09-10 11:02:35.797] ERROR [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.App_DispatcherUnhandledException]: UI线程异常: Could not find a part of the path 'F:\public\moon.ico'.
+异常类型: System.IO.DirectoryNotFoundException
+异常消息: Could not find a part of the path 'F:\public\moon.ico'.
+堆栈跟踪:    at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share)
+   at System.Windows.Media.Imaging.BitmapDecoder.SetupDecoderFromUriOrStream(Uri uri, Stream stream, BitmapCacheOption cacheOption, Guid& clsId, Boolean& isOriginalWritable, Stream& uriStream, UnmanagedMemoryStream& unmanagedMemoryStream, SafeFileHandle& safeFilehandle)
+   at System.Windows.Media.Imaging.BitmapDecoder.CreateFromUriOrStream(Uri baseUri, Uri uri, Stream stream, BitmapCreateOptions createOptions, BitmapCacheOption cacheOption, RequestCachePolicy uriCachePolicy, Boolean insertInDecoderCache)
+   at System.Windows.Media.Imaging.BitmapImage.FinalizeCreation()
+   at System.Windows.Media.Imaging.BitmapSource.CompleteDelayedCreation()
+   at System.Windows.Media.Imaging.BitmapSource.get_WicSourceHandle()
+   at System.Windows.Media.Imaging.BitmapSource.get_DUCECompatiblePtr()
+   at System.Windows.Media.Imaging.BitmapSource.UpdateBitmapSourceResource(Channel channel, Boolean skipOnChannelCheck)
+   at System.Windows.Media.Imaging.BitmapSource.AddRefOnChannelCore(Channel channel)
+   at System.Windows.Media.Imaging.BitmapSource.System.Windows.Media.Composition.DUCE.IResource.AddRefOnChannel(Channel channel)
+   at System.Windows.Media.ImageBrush.AddRefOnChannelCore(Channel channel)
+   at System.Windows.Media.Brush.System.Windows.Media.Composition.DUCE.IResource.AddRefOnChannel(Channel channel)
+   at System.Windows.Media.RenderData.System.Windows.Media.Composition.DUCE.IResource.AddRefOnChannel(Channel channel)
+   at System.Windows.UIElement.RenderContent(RenderContext ctx, Boolean isOnChannel)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.MediaContext.Render(ICompositionTarget resizedCompositionTarget)
+   at System.Windows.Media.MediaContext.RenderMessageHandlerCore(Object resizedCompositionTarget)
+   at System.Windows.Media.MediaContext.RenderMessageHandler(Object resizedCompositionTarget)
+   at System.Windows.Threading.ExceptionWrapper.InternalRealCall(Delegate callback, Object args, Int32 numArgs)
+   at System.Windows.Threading.ExceptionWrapper.TryCatchWhen(Object source, Delegate callback, Object args, Int32 numArgs, Delegate catchHandler)
+[2025-09-10 11:02:36.469] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.Button_Theme_Click]: 开始主题切换操作
+[2025-09-10 11:02:36.478] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.Button_Theme_Click]: 当前为暗色主题，准备切换到亮色主题
+[2025-09-10 11:02:36.518] INFO [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.Button_Theme_Click]: 主题切换完成，当前主题: 亮色
+[2025-09-10 11:02:36.554] ERROR [进程ID: 11924] [线程ID: 1] [DMMDZZ_Game_Start.App.App_DispatcherUnhandledException]: UI线程异常: Could not find a part of the path 'F:\public\sun.ico'.
+异常类型: System.IO.DirectoryNotFoundException
+异常消息: Could not find a part of the path 'F:\public\sun.ico'.
+堆栈跟踪:    at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share)
+   at System.Windows.Media.Imaging.BitmapDecoder.SetupDecoderFromUriOrStream(Uri uri, Stream stream, BitmapCacheOption cacheOption, Guid& clsId, Boolean& isOriginalWritable, Stream& uriStream, UnmanagedMemoryStream& unmanagedMemoryStream, SafeFileHandle& safeFilehandle)
+   at System.Windows.Media.Imaging.BitmapDecoder.CreateFromUriOrStream(Uri baseUri, Uri uri, Stream stream, BitmapCreateOptions createOptions, BitmapCacheOption cacheOption, RequestCachePolicy uriCachePolicy, Boolean insertInDecoderCache)
+   at System.Windows.Media.Imaging.BitmapImage.FinalizeCreation()
+   at System.Windows.Media.Imaging.BitmapSource.CompleteDelayedCreation()
+   at System.Windows.Media.Imaging.BitmapSource.get_WicSourceHandle()
+   at System.Windows.Media.Imaging.BitmapSource.get_DUCECompatiblePtr()
+   at System.Windows.Media.Imaging.BitmapSource.UpdateBitmapSourceResource(Channel channel, Boolean skipOnChannelCheck)
+   at System.Windows.Media.Imaging.BitmapSource.AddRefOnChannelCore(Channel channel)
+   at System.Windows.Media.Imaging.BitmapSource.System.Windows.Media.Composition.DUCE.IResource.AddRefOnChannel(Channel channel)
+   at System.Windows.Media.ImageBrush.AddRefOnChannelCore(Channel channel)
+   at System.Windows.Media.Brush.System.Windows.Media.Composition.DUCE.IResource.AddRefOnChannel(Channel channel)
+   at System.Windows.Media.RenderData.System.Windows.Media.Composition.DUCE.IResource.AddRefOnChannel(Channel channel)
+   at System.Windows.UIElement.RenderContent(RenderContext ctx, Boolean isOnChannel)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.Visual.UpdateChildren(RenderContext ctx, ResourceHandle handle)
+   at System.Windows.Media.Visual.RenderRecursive(RenderContext ctx)
+   at System.Windows.Media.MediaContext.Render(ICompositionTarget resizedCompositionTarget)
+   at System.Windows.Media.MediaContext.RenderMessageHandlerCore(Object resizedCompositionTarget)
+   at System.Windows.Media.MediaContext.RenderMessageHandler(Object resizedCompositionTarget)
+   at System.Windows.Threading.ExceptionWrapper.InternalRealCall(Delegate callback, Object args, Int32 numArgs)
+   at System.Windows.Threading.ExceptionWrapper.TryCatchWhen(Object source, Delegate callback, Object args, Int32 numArgs, Delegate catchHandler)

@@ -1,0 +1,34 @@
+﻿[2025-09-10 11:27:56.091] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.App.ForceAttachConsole]: 开始附加控制台
+[2025-09-10 11:27:56.096] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.App.ForceAttachConsole]: 当前无控制台或控制台不可用，尝试附加新控制台
+[2025-09-10 11:27:56.220] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.App.ForceAttachConsole]: AllocConsole 结果: True
+[2025-09-10 11:27:56.221] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.App.ForceAttachConsole]: 设置控制台UTF-8编码 - 输出: True, 输入: True
+[2025-09-10 11:27:56.224] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.App.ForceAttachConsole]: 已成功重新初始化标准输出流并设置UTF8编码
+[2025-09-10 11:27:56.226] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.App.ForceAttachConsole]: 中文测试显示 - App.Log
+[2025-09-10 11:27:56.227] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.App.ForceAttachConsole]: 控制台附加完成
+[2025-09-10 11:27:56.229] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.App.LogStartupInfo]: 开始处理命令行参数
+[2025-09-10 11:27:56.230] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.App.LogStartupInfo]: 应用程序基目录: F:\out\DMM_Hide_Launcher_Beta\DMM_Hide_Launcher\bin\Debug\net8.0-windows\
+[2025-09-10 11:27:56.262] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.App.LogStartupInfo]: 日志文件路径: F:\out\DMM_Hide_Launcher_Beta\DMM_Hide_Launcher\bin\Debug\net8.0-windows\Logs\DMM_Hide_Launcher_20250910_112755.log
+[2025-09-10 11:27:56.263] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.App.LogStartupInfo]: 接收到 1 个命令行参数: --log
+[2025-09-10 11:27:56.264] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.App.LogStartupInfo]: 日志模式已启用
+[2025-09-10 11:27:56.265] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.App.LogStartupInfo]: 命令行参数处理完成 - 调试模式: False, 日志模式: True
+[2025-09-10 11:27:56.265] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.App.OnStartup]: 配置全局异常处理机制
+[2025-09-10 11:27:56.266] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.App.OnStartup]: 应用程序启动完成
+[2025-09-10 11:27:56.494] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow..ctor]: 程序启动，主窗口初始化开始
+[2025-09-10 11:27:56.498] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<LoadConfig>d__21.MoveNext]: 开始加载配置文件: config.xml
+[2025-09-10 11:27:56.498] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<LoadConfig>d__21.MoveNext]: 配置文件存在，开始解析
+[2025-09-10 11:27:56.500] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<LoadConfig>d__21.MoveNext]: 配置文件解析成功，游戏路径: 
+[2025-09-10 11:27:56.501] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<LoadConfig>d__21.MoveNext]: 配置文件解析成功，7K账号: 
+[2025-09-10 11:27:56.504] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow..ctor]: 配置文件加载成功
+[2025-09-10 11:27:56.508] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<Load_Update_XML_First>d__18.MoveNext]: 开始从小米应用商店获取版本信息
+[2025-09-10 11:27:56.540] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow..ctor]: XML数据加载成功
+[2025-09-10 11:27:56.542] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow..ctor]: 主窗口初始化完成
+[2025-09-10 11:27:56.812] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<LoadConfig>d__21.MoveNext]: 窗口已加载，准备加载49ID和账号信息
+[2025-09-10 11:27:56.830] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.LoadAccounts]: 开始加载账号信息: accounts.json
+[2025-09-10 11:27:56.831] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow.LoadAccounts]: 账号文件不存在，跳过加载
+[2025-09-10 11:27:56.842] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<Load_Update_XML_First>d__18.MoveNext]: 成功获取游戏版本号: 8.33.0
+[2025-09-10 11:27:56.846] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<Version_Reload>d__20.MoveNext]: 开始处理版本号: 8.33.0
+[2025-09-10 11:27:56.847] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<Version_Reload>d__20.MoveNext]: 版本号拆分为 3 部分: 8, 33, 0
+[2025-09-10 11:27:56.848] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<Version_Reload>d__20.MoveNext]: 版本号不足4位，末尾添加.0
+[2025-09-10 11:27:56.849] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<Version_Reload>d__20.MoveNext]: 处理后的版本号: 8.33.0.0
+[2025-09-10 11:27:56.851] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<Load_Update_XML_Second>d__19.MoveNext]: 开始从更新服务器获取XML数据，URL: https://update.version.brmyx.com/get_verion_control_xml_string.xml?pfID=36&appId=com.bairimeng.dmmdzz.pc.36&versionKey=8.33.0.0
+[2025-09-10 11:27:57.168] INFO [进程ID: 13440] [线程ID: 1] [DMMDZZ_Game_Start.MainWindow+<Load_Update_XML_Second>d__19.MoveNext]: 成功解析XML更新数据
