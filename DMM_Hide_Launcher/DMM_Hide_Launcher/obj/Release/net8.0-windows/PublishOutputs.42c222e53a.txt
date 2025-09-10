@@ -1,5 +1,0 @@
-F:\out\DMM_Hide_Launcher_Beta\DMM_Hide_Launcher\bin\Release\net8.0-windows\publish\DMM_Hide_Launcher.exe
-F:\out\DMM_Hide_Launcher_Beta\DMM_Hide_Launcher\bin\Release\net8.0-windows\publish\DMM_Hide_Launcher.dll
-F:\out\DMM_Hide_Launcher_Beta\DMM_Hide_Launcher\bin\Release\net8.0-windows\publish\DMM_Hide_Launcher.runtimeconfig.json
-F:\out\DMM_Hide_Launcher_Beta\DMM_Hide_Launcher\bin\Release\net8.0-windows\publish\runtimes\win\lib\net8.0\Microsoft.Win32.SystemEvents.dll
-F:\out\DMM_Hide_Launcher_Beta\DMM_Hide_Launcher\bin\Release\net8.0-windows\publish\DMM_Hide_Launcher.deps.json
