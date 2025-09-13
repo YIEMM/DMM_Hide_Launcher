@@ -6,7 +6,7 @@ using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxButton = AdonisUI.Controls.MessageBoxButton;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
 
-namespace DMMDZZ_Game_Start.Others
+namespace DMM_Hide_Launcher.Others
 {
     public partial class ChoosePathFind : AdonisWindow
     {

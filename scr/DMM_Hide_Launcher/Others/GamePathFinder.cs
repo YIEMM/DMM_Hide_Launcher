@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Win32;
 
-namespace Others
+namespace DMM_Hide_Launcher.Others
 {
     public class GamePathFinder
     {

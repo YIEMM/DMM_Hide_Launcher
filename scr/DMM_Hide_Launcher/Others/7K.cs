@@ -15,7 +15,7 @@ using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxButton = AdonisUI.Controls.MessageBoxButton;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
 
-namespace Login_7k7k
+namespace DMM_Hide_Launcher.Others
 {
     /// <summary>
     /// HTTP请求器类

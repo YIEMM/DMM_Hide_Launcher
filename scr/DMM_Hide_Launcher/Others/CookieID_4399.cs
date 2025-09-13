@@ -5,7 +5,7 @@ using System.Windows;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 
-namespace CookieID_4399
+namespace DMM_Hide_Launcher.Others
 {
     public class CookieLoader
     {
@@ -30,7 +30,7 @@ namespace CookieID_4399
             else
             {
                 Console.WriteLine("4399ID=none");
-                var WPF = Application.Current.Windows.OfType<DMMDZZ_Game_Start.MainWindow>().FirstOrDefault(); WPF.ID_4399.Text = "";
+                var WPF = Application.Current.Windows.OfType<DMM_Hide_Launcher.MainWindow>().FirstOrDefault(); WPF.ID_4399.Text = "";
             }
         }
         private static void Show4399ID(string cookiePath)
@@ -75,7 +75,7 @@ namespace CookieID_4399
                 {
                     //MessageBox.Show("未找到当前4399登录账号", "未找到",
                     //    MessageBoxButton.OK, MessageBoxImage.Information);
-                    var WPF = Application.Current.Windows.OfType<DMMDZZ_Game_Start.MainWindow>().FirstOrDefault(); WPF.ID_4399.Text = "未登录账号(？)";
+                    var WPF = Application.Current.Windows.OfType<DMM_Hide_Launcher.MainWindow>().FirstOrDefault(); WPF.ID_4399.Text = "未登录账号(？)";
                 }
             }
             catch (Exception ex)
@@ -101,7 +101,7 @@ namespace CookieID_4399
 
                 // 3. 进一步处理（示例：检查是否包含数字）
                 string extractedId = ExtractNumericId(processedValue);
-                var WPF = Application.Current.Windows.OfType<DMMDZZ_Game_Start.MainWindow>().FirstOrDefault(); WPF.ID_4399.Text = processedValue;
+                var WPF = Application.Current.Windows.OfType<DMM_Hide_Launcher.MainWindow>().FirstOrDefault(); WPF.ID_4399.Text = processedValue;
                 //// 4. 显示处理结果
                 //MessageBox.Show(
                 //    $"处理后的值: {processedValue}\n",
@@ -136,7 +136,7 @@ namespace CookieID_4399
             try
             {
                 Match match = Regex.Match(input, @"\d+");
-                var WPF = Application.Current.Windows.OfType<DMMDZZ_Game_Start.MainWindow>().FirstOrDefault(); WPF.ID_4399.Text = match.Value;
+                var WPF = Application.Current.Windows.OfType<DMM_Hide_Launcher.MainWindow>().FirstOrDefault(); WPF.ID_4399.Text = match.Value;
                 return match.Success ? match.Value : "未找到";
             }
             catch (Exception ex)

@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
 
-namespace DMMDZZ_Game_Start
+namespace DMM_Hide_Launcher
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -398,6 +398,11 @@ namespace DMMDZZ_Game_Start
                 // 如果写入错误日志失败，至少尝试输出到控制台
                 Console.WriteLine("写入错误日志失败: " + ex.Message);
             }
+        }
+
+        internal static void LogWarning(string v)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,10 +1,8 @@
 using AdonisUI;
 using AdonisUI.Controls;
 using HandyControl.Controls;
-using Login_7k7k;
 using Newtonsoft.Json;
-using Others;
-using DMMDZZ_Game_Start.Others;
+using DMM_Hide_Launcher.Others;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -21,7 +19,7 @@ using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
 using System.Windows.Media;
 
 
-namespace DMMDZZ_Game_Start
+namespace DMM_Hide_Launcher
 {
     /// <summary>
     /// 主窗口交互逻辑类
@@ -85,9 +83,29 @@ namespace DMMDZZ_Game_Start
         private bool _isDark;
 
         /// <summary>
-        /// 主窗口构造函数
-        /// 初始化窗口组件并开始加载程序资源
+        /// <summary>
+        /// 窗口激活时调用
+        /// 设置当前窗口为Growl通知的父容器，实现只在激活窗口显示通知的功能
+        /// 确保通知信息只在当前可见的窗口显示，避免UI挤压和重叠问题
         /// </summary>
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+            // 设置Growl通知的父容器为当前窗口的GrowlPanel，使通知在当前窗口显示
+            Growl.SetGrowlParent(GrowlPanel_MainStart, true);
+        }
+        
+        /// <summary>
+        /// 窗口失去焦点时调用
+        /// 取消当前窗口作为Growl通知的父容器，实现只在激活窗口显示通知的功能
+        /// </summary>
+        protected override void OnDeactivated(EventArgs e)
+        {
+            base.OnDeactivated(e);
+            // 取消设置Growl通知的父容器，使通知不在当前非激活窗口显示
+            Growl.SetGrowlParent(GrowlPanel_MainStart, false);
+        }
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -462,7 +480,7 @@ namespace DMMDZZ_Game_Start
 
         private void Load49ID()
         {
-            CookieID_4399.CookieLoader.Load4399ID(GamePath);
+            DMM_Hide_Launcher.Others.CookieLoader.Load4399ID(GamePath);
         }
 
         private void Start_Game_4399_Click(object sender, RoutedEventArgs e)
@@ -764,7 +782,7 @@ namespace DMMDZZ_Game_Start
             {
                 App.Log($"切换至账号: {account.Username}");
                 User_Text.Text = account.Username;
-                Password.Password = account.Password;
+                Password.Password = CryptoHelper.DecryptString(account.Password);
                 _selectedAccount = account;
                 User_Tab.SelectedIndex = 1;
                 App.Log("账号切换完成，切换到游戏启动标签页");

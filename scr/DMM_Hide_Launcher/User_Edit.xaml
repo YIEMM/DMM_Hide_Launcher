@@ -1,9 +1,9 @@
-﻿<adonisControls:AdonisWindow x:Name="MainStart" x:Class="DMMDZZ_Game_Start.User_Edit"
+<adonisControls:AdonisWindow x:Name="MainStart" x:Class="DMM_Hide_Launcher.User_Edit"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DMMDZZ_Game_Start"
+        xmlns:local="clr-namespace:DMM_Hide_Launcher"
         mc:Ignorable="d"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         xmlns:controls="https://handyorg.github.io/handycontrol"
@@ -11,13 +11,17 @@
         xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
         xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
         Title="账号编辑" Height="350" Width="400" MinHeight="300" MinWidth="515" 
-        WindowStartupLocation="CenterOwner" Closed="User_Edit_Closed" FontFamily="{DynamicResource MiSansFont}">
+        WindowStartupLocation="CenterOwner" Closed="User_Edit_Closed" FontFamily="{DynamicResource MiSansFont}"
+        AllowDrop="True" DragEnter="Window_DragEnter" DragOver="Window_DragOver" Drop="Window_Drop">
     <Grid Margin="10">
+        <!-- 网格行定义 -->
         <Grid.RowDefinitions>
             <RowDefinition Height="86"/>
             <RowDefinition Height="200*"/>
             <RowDefinition Height="29*" MinHeight="29"/>
         </Grid.RowDefinitions>
+
+
 
         <Grid Grid.Row="0" Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
@@ -29,12 +33,12 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Text="用户名:" Grid.Row="0" Grid.Column="0" Margin="0,5,5,5" VerticalAlignment="Center"/>
-            <controls:TextBox x:Name="txtUsername" Grid.Row="0" Grid.Column="1" Margin="0,5,0,5" MaxLength="20"
-                     controls:InfoElement.Placeholder="请输入用户名"/>
+            <TextBlock Text="用户名" Grid.Row="0" Grid.Column="0" Margin="8,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            <controls:TextBox x:Name="txtUsername" Grid.Row="0" Grid.Column="1" Margin="0,5,8,5" MaxLength="20"
+                     controls:InfoElement.Placeholder="请输入用户名" />
 
-            <TextBlock Text="密码:" Grid.Row="1" Grid.Column="0" Margin="0,5,5,5" VerticalAlignment="Center"/>
-            <controls:PasswordBox x:Name="txtPassword" Grid.Row="1" Grid.Column="1" Margin="0,5,0,5"
+            <TextBlock Text="密码" Grid.Row="1" Grid.Column="0" Margin="8,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <controls:PasswordBox x:Name="txtPassword" Grid.Row="1" Grid.Column="1" Margin="0,5,8,5"
                          controls:InfoElement.Placeholder="请输入密码" MaxLength="18"/>
         </Grid>
         <Grid Grid.Row="1">
@@ -60,8 +64,13 @@
                 </ItemsControl>
             </controls:ScrollViewer>
         </Grid>
-        <Button x:Name="btnSave" Content="保存" Width="55" Click="BtnSave_Click" Height="25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Grid.Row="2" Margin="0,0,0,2" adonisExtensions:CornerRadiusExtension.CornerRadius="4" adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4" adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10"/>
-        <Button x:Name="btnCancel" Content="取消" Width="58" Click="BtnCancel_Click" VerticalAlignment="Bottom" Margin="60,0,0,2" HorizontalAlignment="Left" Height="25" Grid.Row="2" adonisExtensions:CornerRadiusExtension.CornerRadius="4" adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4" adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10"/>
-
+        <Button x:Name="btnSave" Content="保存" Width="55" Click="BtnSave_Click" Height="25" HorizontalAlignment="Right" VerticalAlignment="Bottom" Grid.Row="2" Margin="0,0,65,2" adonisExtensions:CornerRadiusExtension.CornerRadius="4" adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4" adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10"/>
+        <Button x:Name="btnCancel" Content="取消" Width="58" Click="BtnCancel_Click" VerticalAlignment="Bottom" Margin="60,0,0,2" HorizontalAlignment="Right" Height="25" Grid.Row="2" adonisExtensions:CornerRadiusExtension.CornerRadius="4" adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4" adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10"/>
+        <Button x:Name="btnExport" Content="导出" Width="41" Click="BtnExport_Click" VerticalAlignment="Bottom" HorizontalAlignment="Left" Height="25" Grid.Row="2" adonisExtensions:CornerRadiusExtension.CornerRadius="4" adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4" adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10"/>
+        <Button x:Name="btnImport" Content="导入" Width="41" Click="BtnImport_Click" VerticalAlignment="Bottom" Margin="47,0,0,0" HorizontalAlignment="Left" Height="25" Grid.Row="2" adonisExtensions:CornerRadiusExtension.CornerRadius="4" adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4" adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10"/>
+        <!-- 信息通知容器 -->
+        <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Right" Grid.RowSpan="3">
+            <StackPanel x:Name="GrowlPanel_User_Edit" VerticalAlignment="Top" Margin="0,-10,0,0"/>
+        </ScrollViewer>
     </Grid>
 </adonisControls:AdonisWindow>
