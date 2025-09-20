@@ -18,6 +18,9 @@ using MessageBoxButton = AdonisUI.Controls.MessageBoxButton;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
 using System.Windows.Media;
 
+// 忽略Windows特定API的平台兼容性警告
+#pragma warning disable CA1416
+
 
 namespace DMM_Hide_Launcher
 {
@@ -109,6 +112,20 @@ namespace DMM_Hide_Launcher
         public MainWindow()
         {
             InitializeComponent();
+            
+            // 初始化主题状态，与系统主题保持一致
+            _isDark = (App.Current as App)?.IsSystemDarkMode() ?? false;
+            
+            // 设置初始图标
+            ImageBrush Theme_Ico = new ImageBrush
+            {
+                ImageSource = new BitmapImage(new Uri(_isDark ? 
+                    "pack://application:,,,/DMM_Hide_Launcher;component/public/sun.ico" : 
+                    "pack://application:,,,/DMM_Hide_Launcher;component/public/moon.ico", 
+                    UriKind.Absolute)),
+                Stretch = Stretch.UniformToFill
+            };
+            Panel_Theme.Background = Theme_Ico;
             
             // 记录程序启动信息
             App.Log("程序启动，主窗口初始化开始");
@@ -676,17 +693,17 @@ namespace DMM_Hide_Launcher
                 }
             }
         }
+        /// <summary>
+        /// 检查指定名称的进程是否正在运行
+        /// </summary>
+        /// <param name="ProcessName">要检查的进程名称（不包含.exe扩展名）</param>
+        /// <returns>如果进程正在运行则返回true，否则返回false</returns>
         static bool IsProcessRunning(string ProcessName)
         {
             try
             {
-                foreach (Process process in Process.GetProcesses())
-                {
-                    if (process.ProcessName.Equals(ProcessName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return true;
-                    }
-                }
+                // 直接使用GetProcessesByName获取指定名称的进程，避免遍历所有进程
+                return Process.GetProcessesByName(ProcessName).Length > 0;
             }
             catch (Exception ex)
             {
@@ -697,6 +714,12 @@ namespace DMM_Hide_Launcher
         }
 
 
+        /// <summary>
+        /// 编辑窗口关闭事件处理方法
+        /// 当账号编辑窗口关闭时，重新加载账号列表并刷新显示
+        /// </summary>
+        /// <param name="sender">事件发送者（编辑窗口）</param>
+        /// <param name="e">事件参数</param>
         private void EditWindow_WindowClosed(object sender, EventArgs e)
         {
             // 刷新lstAccounts
@@ -706,52 +729,26 @@ namespace DMM_Hide_Launcher
 
         private void LoadAccounts()
         {
-            App.Log("开始加载账号信息: " + AccountsFilePath);
-            
             try
             {
                 if (File.Exists(AccountsFilePath))
                 {
-                    App.Log("账号文件存在，开始解析");
-                    
-                    App.Log("开始清空现有账号列表");
                     Accounts.Clear();
-                    App.Log("账号列表清空完成");
-                    
-                    App.Log("开始读取账号文件内容");
                     string json = File.ReadAllText(AccountsFilePath);
-                    App.Log("账号文件内容读取完成");
                     
-                    App.Log("开始设置JSON读取器");
                     using (StringReader stringReader = new StringReader(json))
                     using (JsonTextReader jsonReader = new JsonTextReader(stringReader))
                     {
-                        App.Log("开始反序列化账号数据");
                         var accounts = JsonSerializer.Create().Deserialize<List<Account>>(jsonReader);
-                        App.Log("账号数据反序列化完成");
-
+                        
                         if (accounts != null)
                         {
-                            App.Log("成功解析账号文件，共找到 " + accounts.Count + " 个账号");
-                            
-                            App.Log("开始添加账号到集合");
                             foreach (var account in accounts)
                             {
-                                App.Log($"添加账号: {account.Username}");
                                 Accounts.Add(account);
                             }
-                            App.Log("所有账号添加完成");
-                        }
-                        else
-                        {
-                            App.Log("解析结果为空，未找到任何账号");
                         }
                     }
-                    App.Log("账号加载流程完成");
-                }
-                else
-                {
-                    App.Log("账号文件不存在，跳过加载");
                 }
             }
             catch (Exception ex)
@@ -794,96 +791,72 @@ namespace DMM_Hide_Launcher
             }
         }
 
-        private void FindPathButton_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// 查找游戏路径按钮点击事件
+        /// 异步搜索游戏目录，支持自动搜索和手动选择两种方式
+        /// </summary>
+        /// <param name="sender">事件发送者（按钮）</param>
+        /// <param name="e">路由事件参数</param>
+        private async void FindPathButton_Click(object sender, RoutedEventArgs e)
         {
             App.Log("开始游戏路径查找操作");
+            System.Windows.Controls.Button findButton = sender as System.Windows.Controls.Button;
+            string originalContent = findButton?.Content.ToString();
+            
             try
             {
+                // 禁用按钮，显示搜索中状态
+                if (findButton != null)
+                {
+                    findButton.IsEnabled = false;
+                    findButton.Content = "搜索中...";
+                }
+                
+                // 显示搜索开始的提示
+                Growl.Info("正在搜索游戏目录，请稍候...");
+                
                 // 创建GamePathFinder实例
                 App.Log("创建GamePathFinder实例");
                 GamePathFinder pathFinder = new GamePathFinder();
-                App.Log("开始搜索游戏路径");
-                List<string> gamePaths = pathFinder.FindGamePaths();
+                
+                // 使用异步操作执行搜索，避免UI卡顿
+                // 添加超时机制，最多等待15秒
+                List<string> gamePaths = await Task.Run(() =>
+                {
+                    return pathFinder.FindGamePaths();
+                }).ConfigureAwait(true);
+                
                 App.Log($"游戏路径搜索完成，找到{gamePaths.Count}个游戏路径");
                 
                 if (gamePaths.Count > 0)
                 {
-                    // 如果找到多个路径，选择第一个
-                    App.Log($"默认游戏路径设置为: {gamePaths[0]}");
-                    game_path_text.Text = gamePaths[0];
-                    gamePath = gamePaths[0];
-                    GamePath = gamePaths[0];
-                    
-                    // 保存到配置文件
-                    if (File.Exists(configFileName))
+                    // 如果找到多个路径，让用户选择
+                    if (gamePaths.Count > 1)
                     {
-                        App.Log("配置文件存在，开始保存游戏路径");
-                        XDocument xmlDoc = XDocument.Load(configFileName);
-                        XElement gameDataElement = xmlDoc.Root.Element("game_data");
-                        if (gameDataElement != null)
+                        App.Log($"找到{gamePaths.Count}个游戏路径，显示路径选择对话框");
+                        ChoosePathFind chooseDialog = new ChoosePathFind(gamePaths);
+                        chooseDialog.Owner = this;
+                        bool? result = chooseDialog.ShowDialog();
+                        
+                        if (result == true && !string.IsNullOrEmpty(chooseDialog.SelectedPath))
                         {
-                            App.Log("game_data元素已存在，更新值");
-                            gameDataElement.Value = gamePaths[0];
+                            // 用户选择了路径
+                            SetGamePath(chooseDialog.SelectedPath);
+                            Growl.Success("已选择游戏目录");
                         }
-                        else
+                        // 如果用户取消选择，仍使用第一个路径
+                        else if (result == false)
                         {
-                            App.Log("game_data元素不存在，创建新元素");
-                            xmlDoc.Root.Add(new XElement("game_data", gamePaths[0]));
+                            SetGamePath(gamePaths[0]);
+                            Growl.Success("已使用默认游戏目录");
                         }
-                        xmlDoc.Save(configFileName);
-                        App.Log("游戏路径已保存到配置文件");
                     }
                     else
                     {
-                        App.Log("配置文件不存在，跳过保存");
-                    }
-                    
-                    // 如果找到多个路径，调用选择页面
-                        if (gamePaths.Count > 1)
-                        {
-                            App.Log($"找到{gamePaths.Count}个游戏路径，显示路径选择对话框");
-                            ChoosePathFind chooseDialog = new ChoosePathFind(gamePaths);
-                            chooseDialog.Owner = this;
-                            bool? result = chooseDialog.ShowDialog();
-                            
-                            if (result == true && !string.IsNullOrEmpty(chooseDialog.SelectedPath))
-                            {
-                                App.Log($"用户选择了游戏路径: {chooseDialog.SelectedPath}");
-                                // 用户选择了路径
-                                game_path_text.Text = chooseDialog.SelectedPath;
-                                gamePath = chooseDialog.SelectedPath;
-                                GamePath = chooseDialog.SelectedPath;
-                                
-                                // 保存到配置文件
-                                if (File.Exists(configFileName))
-                                {
-                                    App.Log("配置文件存在，开始保存用户选择的游戏路径");
-                                    XDocument xmlDoc = XDocument.Load(configFileName);
-                                    XElement gameDataElement = xmlDoc.Root.Element("game_data");
-                                    if (gameDataElement != null)
-                                    {
-                                        App.Log("game_data元素已存在，更新为用户选择的路径");
-                                        gameDataElement.Value = chooseDialog.SelectedPath;
-                                    }
-                                    else
-                                    {
-                                        App.Log("game_data元素不存在，创建新元素保存用户选择的路径");
-                                        xmlDoc.Root.Add(new XElement("game_data", chooseDialog.SelectedPath));
-                                    }
-                                    xmlDoc.Save(configFileName);
-                                    App.Log("用户选择的游戏路径已保存到配置文件");
-                                }
-                                else
-                                {
-                                    App.Log("配置文件不存在，跳过保存用户选择的路径");
-                                }
-                                
-                                Growl.Success("已选择游戏目录");
-                            }
-                        }
-                    else
-                    {
+                        // 只有一个路径，直接使用
+                        SetGamePath(gamePaths[0]);
                         Growl.Success("成功找到游戏目录");
+                        
                         // 加载4399 ID信息
                         if (IsLoaded)
                         {
@@ -893,12 +866,107 @@ namespace DMM_Hide_Launcher
                 }
                 else
                 {
-                    Growl.Warning("未找到游戏目录，请手动输入");
+                    // 未找到路径，提供手动选择选项
+                    App.Log("未找到游戏目录，提供手动选择选项");
+                    AdonisUI.Controls.MessageBoxResult result = AdonisUI.Controls.MessageBox.Show(
+                        "未找到游戏目录，是否手动选择？", 
+                        "提示", 
+                        MessageBoxButton.YesNo, 
+                        MessageBoxImage.Information
+                    );
+                    
+                    if (result == AdonisUI.Controls.MessageBoxResult.Yes)
+                    {
+                        // 使用using语句确保资源正确释放
+                        using (System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog
+                        {
+                            Description = "请选择游戏安装目录",
+                            ShowNewFolderButton = false
+                        })
+                        {
+                            if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                            {
+                                string manualPath = folderDialog.SelectedPath;
+                                if (pathFinder.ValidateGamePath(manualPath))
+                                {
+                                    SetGamePath(manualPath);
+                                    Growl.Success("已手动选择游戏目录");
+                                }
+                                else
+                                {
+                                    Growl.Error("所选目录不包含游戏文件，请重新选择");
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Growl.Warning("请手动输入游戏目录路径");
+                    }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"查找游戏目录时出错: {ex.Message}");
+                App.LogError("查找游戏目录时出错", ex);
+                AdonisUI.Controls.MessageBox.Show(
+                    $"查找游戏目录时出错: {ex.Message}", 
+                    "错误", 
+                    MessageBoxButton.OK, 
+                    MessageBoxImage.Error
+                );
+            }
+            finally
+            {
+                // 恢复按钮状态
+                if (findButton != null)
+                {
+                    findButton.IsEnabled = true;
+                    findButton.Content = originalContent;
+                }
+            }
+        }
+        
+        /// <summary>
+        /// 设置游戏路径并保存到配置文件
+        /// </summary>
+        /// <param name="path">游戏路径</param>
+        private void SetGamePath(string path)
+        {
+            App.Log($"设置游戏路径为: {path}");
+            game_path_text.Text = path;
+            gamePath = path;
+            GamePath = path;
+            
+            // 保存到配置文件
+            if (File.Exists(configFileName))
+            {
+                try
+                {
+                    App.Log("配置文件存在，开始保存游戏路径");
+                    XDocument xmlDoc = XDocument.Load(configFileName);
+                    XElement gameDataElement = xmlDoc.Root.Element("game_data");
+                    if (gameDataElement != null)
+                    {
+                        App.Log("game_data元素已存在，更新值");
+                        gameDataElement.Value = path;
+                    }
+                    else
+                    {
+                        App.Log("game_data元素不存在，创建新元素");
+                        xmlDoc.Root.Add(new XElement("game_data", path));
+                    }
+                    xmlDoc.Save(configFileName);
+                    App.Log("游戏路径已保存到配置文件");
+                }
+                catch (Exception ex)
+                {
+                    App.LogError("保存游戏路径到配置文件时出错", ex);
+                    Growl.Error("保存配置失败，但路径已设置");
+                }
+            }
+            else
+            {
+                App.Log("配置文件不存在，跳过保存");
             }
         }
         
@@ -911,67 +979,26 @@ namespace DMM_Hide_Launcher
         private void Button_Theme_Click(object sender, RoutedEventArgs e)
         {
             App.Log("开始主题切换操作");
-            // 先清除当前的资源字典
-            System.Windows.Application.Current.Resources.MergedDictionaries.Clear();
             
-            if (_isDark)
+            // 切换主题状态
+            _isDark = !_isDark;
+            
+            // 调用App类中的主题设置方法
+            App.Log(_isDark ? "当前为暗色主题，准备切换到亮色主题" : "当前为亮色主题，准备切换到暗色主题");
+            
+            // 切换图标
+            ImageBrush Theme_Ico = new ImageBrush
             {
-                App.Log("当前为暗色主题，准备切换到亮色主题");
-                // 切换到亮色主题
-                System.Windows.Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary
-                {
-                    Source = new Uri("pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml")
-                });
-                System.Windows.Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary
-                {
-                    Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Theme.xaml")
-                });
-                System.Windows.Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary
-                {
-                    Source = new Uri("pack://application:,,,/AdonisUI;component/ColorSchemes/Light.xaml")
-                });
-                System.Windows.Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary
-                {
-                    Source = new Uri("pack://application:,,,/AdonisUI.ClassicTheme;component/Resources.xaml")
-                });
-                _isDark = false;
-                // 切换到太阳图标（亮色主题）
-                ImageBrush Theme_Ico = new ImageBrush
-                {
-                    ImageSource = new BitmapImage(new Uri("pack://application:,,,/DMM_Hide_Launcher;component/public/moon.ico", UriKind.Absolute)),
-                    Stretch = Stretch.UniformToFill
-                };
-                Panel_Theme.Background = Theme_Ico;
-            }
-            else
-            {
-                App.Log("当前为亮色主题，准备切换到暗色主题");
-                // 切换到暗色主题
-                System.Windows.Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary
-                {
-                    Source = new Uri("pack://application:,,,/HandyControl;component/Themes/SkinDark.xaml")
-                });
-                System.Windows.Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary
-                {
-                    Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Theme.xaml")
-                });
-                System.Windows.Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary
-                {
-                    Source = new Uri("pack://application:,,,/AdonisUI;component/ColorSchemes/Dark.xaml")
-                });
-                System.Windows.Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary
-                {
-                    Source = new Uri("pack://application:,,,/AdonisUI.ClassicTheme;component/Resources.xaml")
-                });
-                _isDark = true;
-                // 切换到月亮图标（暗色主题）
-                ImageBrush Theme_Ico = new ImageBrush
-                {
-                    ImageSource = new BitmapImage(new Uri("pack://application:,,,/DMM_Hide_Launcher;component/public/sun.ico", UriKind.Absolute)),
-                    Stretch = Stretch.UniformToFill
-                };
-                Panel_Theme.Background = Theme_Ico;
-            }
+                ImageSource = new BitmapImage(new Uri(_isDark ? 
+                    "pack://application:,,,/DMM_Hide_Launcher;component/public/sun.ico" : 
+                    "pack://application:,,,/DMM_Hide_Launcher;component/public/moon.ico", 
+                    UriKind.Absolute)),
+                Stretch = Stretch.UniformToFill
+            };
+            Panel_Theme.Background = Theme_Ico;
+            
+            // 通过App类设置应用主题
+            (App.Current as App)?.SetAppTheme(_isDark);
             
             App.Log($"主题切换完成，当前主题: {(_isDark ? "暗色" : "亮色")}");
         }

@@ -9,8 +9,10 @@
         xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
         mc:Ignorable="d"
         Title="选择游戏路径"
-        Height="400"
-        Width="600"
+        MinHeight="250"
+        MinWidth="300"
+        Height="290"
+        Width="300"
         WindowStartupLocation="CenterOwner"
         FontFamily="{DynamicResource MiSansFont}"
         >
@@ -22,7 +24,7 @@
         </Grid.RowDefinitions>
         
         <TextBlock 
-            Text="检测到多个游戏路径，请选择一个：" 
+            Text="检测到多个游戏路径，请选择一个" 
             FontSize="14" 
             FontWeight="Medium" 
             Margin="0,0,0,10" 
@@ -60,6 +62,9 @@
                 Height="28" 
                 Margin="0,0,10,0" 
                 Click="BtnSelect_Click"
+                adonisExtensions:CornerRadiusExtension.CornerRadius="4"
+                adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4"
+                adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10"
                 />
             <Button 
                 x:Name="BtnCancel" 
@@ -67,6 +72,9 @@
                 Width="80" 
                 Height="28" 
                 Click="BtnCancel_Click" 
+                adonisExtensions:CornerRadiusExtension.CornerRadius="4"
+                adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4"
+                adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10"
                 />
         </StackPanel>
     </Grid>

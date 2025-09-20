@@ -69,7 +69,7 @@
         <Button x:Name="btnExport" Content="导出" Width="41" Click="BtnExport_Click" VerticalAlignment="Bottom" HorizontalAlignment="Left" Height="25" Grid.Row="2" adonisExtensions:CornerRadiusExtension.CornerRadius="4" adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4" adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10"/>
         <Button x:Name="btnImport" Content="导入" Width="41" Click="BtnImport_Click" VerticalAlignment="Bottom" Margin="47,0,0,0" HorizontalAlignment="Left" Height="25" Grid.Row="2" adonisExtensions:CornerRadiusExtension.CornerRadius="4" adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4" adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10"/>
         <!-- 信息通知容器 -->
-        <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Right" Grid.RowSpan="3">
+        <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Right" Grid.RowSpan="3" VerticalAlignment="Top" HorizontalContentAlignment="Right">
             <StackPanel x:Name="GrowlPanel_User_Edit" VerticalAlignment="Top" Margin="0,-10,0,0"/>
         </ScrollViewer>
     </Grid>

@@ -12,6 +12,9 @@
     <AssemblyName>DMM_Hide_Launcher</AssemblyName>
     <ApplicationIcon>public\APP.ico</ApplicationIcon>
     <RootNamespace>DMM_Hide_Launcher</RootNamespace>
+    <!-- 全局忽略Windows平台兼容性警告，因为这是Windows专用应用 -->
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+    <NoWarn>$(NoWarn);CA8600</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

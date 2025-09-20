@@ -6,6 +6,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
+using System.Windows.Interop;
+using Microsoft.Win32;
 
 namespace DMM_Hide_Launcher
 {
@@ -15,49 +17,83 @@ namespace DMM_Hide_Launcher
     public partial class App : System.Windows.Application
     {
         /// <summary>
-        /// 导入Windows API函数，用于附加控制台
-        /// </summary>
-        [DllImport("kernel32.dll")]
-        private static extern bool AllocConsole();
+    /// 导入Windows API函数，用于附加控制台
+    /// </summary>
+    [DllImport("kernel32.dll")]
+    private static extern bool AllocConsole();
 
-        /// <summary>
-        /// 导入Windows API函数，用于释放控制台
-        /// </summary>
-        [DllImport("kernel32.dll")]
-        private static extern bool FreeConsole();
+    /// <summary>
+    /// 导入Windows API函数，用于释放控制台
+    /// </summary>
+    [DllImport("kernel32.dll")]
+    private static extern bool FreeConsole();
 
-        /// <summary>
-        /// 导入Windows API函数，用于获取控制台窗口句柄
-        /// </summary>
-        [DllImport("kernel32.dll")]
-        private static extern IntPtr GetConsoleWindow();
-        
-        /// <summary>
-        /// 导入Windows API函数，用于设置控制台输出代码页
-        /// </summary>
-        [DllImport("kernel32.dll")]
-        private static extern bool SetConsoleOutputCP(uint wCodePageID);
-        
-        /// <summary>
-        /// 导入Windows API函数，用于设置控制台输入代码页
-        /// </summary>
-        [DllImport("kernel32.dll")]
-        private static extern bool SetConsoleCP(uint wCodePageID);
+    /// <summary>
+    /// 导入Windows API函数，用于获取控制台窗口句柄
+    /// </summary>
+    [DllImport("kernel32.dll")]
+    private static extern IntPtr GetConsoleWindow();
+    
+    /// <summary>
+    /// 导入Windows API函数，用于设置控制台输出代码页
+    /// </summary>
+    [DllImport("kernel32.dll")]
+    private static extern bool SetConsoleOutputCP(uint wCodePageID);
+    
+    /// <summary>
+    /// 导入Windows API函数，用于设置控制台输入代码页
+    /// </summary>
+    [DllImport("kernel32.dll")]
+    private static extern bool SetConsoleCP(uint wCodePageID);
+    
+    /// <summary>
+    /// 导入Windows API函数，用于获取系统参数
+    /// </summary>
+    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    private static extern bool SystemParametersInfo(uint uiAction, uint uiParam, ref bool pvParam, uint fWinIni);
+    
+    /// <summary>
+    /// 导入Windows API函数，用于获取窗口属性
+    /// </summary>
+    [DllImport("dwmapi.dll", PreserveSig = true)]
+    private static extern int DwmGetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE dwAttribute, out int pvAttribute, int cbAttribute);
+    
+    /// <summary>
+    /// DWM窗口属性枚举
+    /// </summary>
+    private enum DWMWINDOWATTRIBUTE : uint
+    {
+        DWMWA_USE_IMMERSIVE_DARK_MODE = 20
+    }
+    
+    /// <summary>
+    /// 系统参数信息常量
+    /// </summary>
+    private const uint SPI_GETUSEDRAGIMAGE = 0x0037;
+    private const uint SPI_GETDROPSHADOW = 0x009E;
+    private const uint SPI_GETDESKTOPWALLPAPER = 0x0073;
+    private const uint SPI_GETICONTITLELOGFONT = 0x001D;
+    private const uint SPI_GETNONCLIENTMETRICS = 0x0029;
 
-        /// <summary>
-        /// 调试模式标志
-        /// </summary>
-        public static bool IsDebugMode { get; private set; } = false;
-        
-        /// <summary>
-        /// 日志启用标志
-        /// </summary>
-        public static bool IsLogEnabled { get; private set; } = false;
-        
-        /// <summary>
-        /// 日志文件路径
-        /// </summary>
-        private static string LogFilePath { get; set; }
+    /// <summary>
+    /// 调试模式标志
+    /// </summary>
+    public static bool IsDebugMode { get; private set; } = false;
+    
+    /// <summary>
+    /// 日志启用标志
+    /// </summary>
+    public static bool IsLogEnabled { get; private set; } = false;
+    
+    /// <summary>
+    /// 日志文件路径
+    /// </summary>
+    private static string LogFilePath { get; set; }
+    
+    /// <summary>
+    /// 用于日志写入的锁对象，确保多线程环境下的文件访问安全
+    /// </summary>
+    private static readonly object logLock = new object();
 
         /// <summary>
         /// 应用程序启动事件处理程序
@@ -66,6 +102,12 @@ namespace DMM_Hide_Launcher
         /// <param name="e">启动事件参数</param>
         protected override void OnStartup(StartupEventArgs e)
         {
+            // 初始化系统主题
+            InitializeSystemTheme();
+            
+            // 注册系统主题变化事件监听
+            SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
+            
             // 添加直接的控制台调试输出，不依赖任何标志
             Console.WriteLine("[DEBUG] 应用程序启动，正在初始化日志系统...");
             
@@ -104,6 +146,149 @@ namespace DMM_Hide_Launcher
             
             App.Log("应用程序启动完成");
             base.OnStartup(e);
+        }
+        
+        /// <summary>
+        /// 初始化系统主题
+        /// 根据当前系统主题设置应用程序主题
+        /// </summary>
+        private void InitializeSystemTheme()
+        {
+            try
+            {
+                bool isDarkMode = IsSystemDarkMode();
+                App.Log($"检测到系统主题: {(isDarkMode ? "暗色" : "亮色")}");
+                SetAppTheme(isDarkMode);
+            }
+            catch (Exception ex)
+            {
+                App.LogError("初始化系统主题时出错", ex);
+                // 默认使用亮色主题
+                SetAppTheme(false);
+            }
+        }
+        
+        /// <summary>
+        /// 检测系统是否处于暗色模式
+        /// </summary>
+        /// <returns>如果系统是暗色模式则返回true，否则返回false</returns>
+        public bool IsSystemDarkMode()
+        {
+            try
+            {
+                // 尝试通过DWM API检测Windows 10/11的暗色模式
+                IntPtr hwnd = Process.GetCurrentProcess().MainWindowHandle;
+                if (hwnd != IntPtr.Zero)
+                {
+                    int useImmersiveDarkMode = 0;
+                    int result = DwmGetWindowAttribute(hwnd, DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE, out useImmersiveDarkMode, sizeof(int));
+                    if (result == 0 && useImmersiveDarkMode == 1)
+                    {
+                        return true;
+                    }
+                }
+                
+                // 尝试通过注册表检测暗色模式
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"))
+                {
+                    if (key != null)
+                    {
+                        object value = key.GetValue("AppsUseLightTheme");
+                        if (value is int intValue)
+                        {
+                            return intValue == 0; // 0表示暗色模式，1表示亮色模式
+                        }
+                    }
+                }
+                
+                // 默认返回亮色模式
+                return false;
+            }
+            catch (Exception ex)
+            {
+                App.LogError("检测系统主题时出错", ex);
+                return false;
+            }
+        }
+        
+        /// <summary>
+        /// 设置应用程序主题
+        /// </summary>
+        /// <param name="useDarkTheme">是否使用暗色主题</param>
+        public void SetAppTheme(bool useDarkTheme)
+        {
+            try
+            {
+                App.Log(useDarkTheme ? "准备切换到暗色主题" : "准备切换到亮色主题");
+                
+                // 清除当前的资源字典
+                System.Windows.Application.Current.Resources.MergedDictionaries.Clear();
+                
+                if (useDarkTheme)
+                {
+                    // 添加暗色主题资源
+                    System.Windows.Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary
+                    {
+                        Source = new Uri("pack://application:,,,/HandyControl;component/Themes/SkinDark.xaml")
+                    });
+                    System.Windows.Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary
+                    {
+                        Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Theme.xaml")
+                    });
+                    System.Windows.Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary
+                    {
+                        Source = new Uri("pack://application:,,,/AdonisUI;component/ColorSchemes/Dark.xaml")
+                    });
+                }
+                else
+                {
+                    // 添加亮色主题资源
+                    System.Windows.Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary
+                    {
+                        Source = new Uri("pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml")
+                    });
+                    System.Windows.Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary
+                    {
+                        Source = new Uri("pack://application:,,,/HandyControl;component/Themes/Theme.xaml")
+                    });
+                    System.Windows.Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary
+                    {
+                        Source = new Uri("pack://application:,,,/AdonisUI;component/ColorSchemes/Light.xaml")
+                    });
+                }
+                
+                // 添加通用的ClassicTheme资源
+                System.Windows.Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary
+                {
+                    Source = new Uri("pack://application:,,,/AdonisUI.ClassicTheme;component/Resources.xaml")
+                });
+                
+                // 添加全局字体设置
+                System.Windows.Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary
+                {
+                    { "MiSansFont", new FontFamily("pack://application:,,,/DMM_Hide_Launcher;component/public/Fonts/MiSans-Medium.ttf#MiSans") }
+                });
+                
+                App.Log("主题更新完成");
+            }
+            catch (Exception ex)
+            {
+                App.LogError("更新主题时出错", ex);
+            }
+        }
+        
+        /// <summary>
+        /// 系统主题变化事件处理程序
+        /// </summary>
+        private void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+        {
+            if (e.Category == UserPreferenceCategory.General || e.Category == UserPreferenceCategory.VisualStyle)
+            {
+                // 当系统主题发生变化时，更新应用程序主题
+                bool isDarkMode = IsSystemDarkMode();
+                App.Log($"检测到系统主题变化，当前主题: {(isDarkMode ? "暗色" : "亮色")}");
+                SetAppTheme(isDarkMode);
+            }
         }
         
         /// <summary>
@@ -300,39 +485,53 @@ namespace DMM_Hide_Launcher
         {
             try
             {
-                // 获取调用方信息
-                string callerInfo = "Unknown Caller";
-                System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(1, false);
-                if (stackTrace.FrameCount > 0)
+                // 非日志模式下直接返回，避免不必要的处理
+                if (!IsLogEnabled && !IsDebugMode)
+                    return;
+
+                // 仅在调试模式下获取调用方信息（性能开销较大）
+                string callerInfo = IsDebugMode ? "Unknown Caller" : "App";
+                if (IsDebugMode)
                 {
-                    System.Diagnostics.StackFrame frame = stackTrace.GetFrame(0);
-                    System.Reflection.MethodBase method = frame.GetMethod();
-                    callerInfo = $"{method.DeclaringType?.FullName}.{method.Name}";
+                    System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(1, false);
+                    if (stackTrace.FrameCount > 0)
+                    {
+                        System.Diagnostics.StackFrame frame = stackTrace.GetFrame(0);
+                        System.Reflection.MethodBase method = frame.GetMethod();
+                        callerInfo = $"{method.DeclaringType?.FullName}.{method.Name}";
+                    }
                 }
 
                 string logEntry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] INFO [进程ID: {System.Diagnostics.Process.GetCurrentProcess().Id}] [线程ID: {System.Threading.Thread.CurrentThread.ManagedThreadId}] [{callerInfo}]: {message}\n";
                 
-                // 始终输出到控制台，无论是否启用日志模式
-                try
+                // 仅在日志模式或调试模式下输出到控制台
+                if (IsLogEnabled || IsDebugMode)
                 {
-                    Console.WriteLine(logEntry.TrimEnd());
-                }
-                catch (Exception consoleEx)
-                {
-                    // 如果控制台输出失败，记录到内部变量但不影响程序运行
-                    string errorMsg = "控制台输出失败: " + consoleEx.Message;
+                    try
+                    {
+                        Console.WriteLine(logEntry.TrimEnd());
+                    }
+                    catch (Exception consoleEx)
+                    {
+                        // 如果控制台输出失败，记录到内部变量但不影响程序运行
+                        string errorMsg = "控制台输出失败: " + consoleEx.Message;
+                    }
                 }
                 
                 if (IsLogEnabled)
                 {
-                    // 确保日志目录存在
-                    string logDirectory = Path.GetDirectoryName(LogFilePath);
-                    if (!Directory.Exists(logDirectory))
+                    // 使用锁确保多线程环境下的文件访问安全
+                    lock (logLock)
                     {
-                        Directory.CreateDirectory(logDirectory);
+                        // 确保日志目录存在
+                        string logDirectory = Path.GetDirectoryName(LogFilePath);
+                        if (!Directory.Exists(logDirectory))
+                        {
+                            Directory.CreateDirectory(logDirectory);
+                        }
+                        
+                        File.AppendAllText(LogFilePath, logEntry, Encoding.UTF8);
                     }
-                    
-                    File.AppendAllText(LogFilePath, logEntry, Encoding.UTF8);
                 }
             }
             catch (Exception ex)
@@ -347,28 +546,24 @@ namespace DMM_Hide_Launcher
         /// </summary>
         public static void LogError(string message, Exception exception = null)
         {
-            if (!IsLogEnabled)
+            if (!IsLogEnabled && !IsDebugMode)
                 return;
 
             try
             {
-                // 获取调用方信息
-                string callerInfo = "Unknown Caller";
-                System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(1, false);
-                if (stackTrace.FrameCount > 0)
+                // 仅在调试模式下获取调用方信息（性能开销较大）
+                string callerInfo = IsDebugMode ? "Unknown Caller" : "App";
+                if (IsDebugMode)
                 {
-                    System.Diagnostics.StackFrame frame = stackTrace.GetFrame(0);
-                    System.Reflection.MethodBase method = frame.GetMethod();
-                    callerInfo = $"{method.DeclaringType?.FullName}.{method.Name}";
+                    System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(1, false);
+                    if (stackTrace.FrameCount > 0)
+                    {
+                        System.Diagnostics.StackFrame frame = stackTrace.GetFrame(0);
+                        System.Reflection.MethodBase method = frame.GetMethod();
+                        callerInfo = $"{method.DeclaringType?.FullName}.{method.Name}";
+                    }
                 }
 
-                // 确保日志目录存在
-                string logDirectory = Path.GetDirectoryName(LogFilePath);
-                if (!Directory.Exists(logDirectory))
-                {
-                    Directory.CreateDirectory(logDirectory);
-                }
-                
                 StringBuilder logEntry = new StringBuilder();
                 logEntry.AppendLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] ERROR [进程ID: {System.Diagnostics.Process.GetCurrentProcess().Id}] [线程ID: {System.Threading.Thread.CurrentThread.ManagedThreadId}] [{callerInfo}]: {message}");
 
@@ -385,12 +580,34 @@ namespace DMM_Hide_Launcher
                     }
                 }
 
-                File.AppendAllText(LogFilePath, logEntry.ToString(), Encoding.UTF8);
+                // 仅在日志模式或调试模式下输出到控制台
+                if (IsLogEnabled || IsDebugMode)
+                {
+                    try
+                    {
+                        Console.WriteLine(logEntry.ToString().TrimEnd());
+                    }
+                    catch (Exception consoleEx)
+                    {
+                        // 如果控制台输出失败，记录到内部变量但不影响程序运行
+                        string errorMsg = "控制台输出失败: " + consoleEx.Message;
+                    }
+                }
 
-                // 在日志模式或调试模式下输出到控制台
                 if (IsLogEnabled)
                 {
-                    Console.WriteLine(logEntry.ToString().TrimEnd());
+                    // 使用锁确保多线程环境下的文件访问安全
+                    lock (logLock)
+                    {
+                        // 确保日志目录存在
+                        string logDirectory = Path.GetDirectoryName(LogFilePath);
+                        if (!Directory.Exists(logDirectory))
+                        {
+                            Directory.CreateDirectory(logDirectory);
+                        }
+                        
+                        File.AppendAllText(LogFilePath, logEntry.ToString(), Encoding.UTF8);
+                    }
                 }
             }
             catch (Exception ex)
@@ -400,9 +617,79 @@ namespace DMM_Hide_Launcher
             }
         }
 
-        internal static void LogWarning(string v)
+        /// <summary>
+        /// 记录警告日志
+        /// </summary>
+        public static void LogWarning(string message)
         {
-            throw new NotImplementedException();
+            if (!IsLogEnabled && !IsDebugMode)
+                return;
+
+            try
+            {
+                // 仅在调试模式下获取调用方信息（性能开销较大）
+                string callerInfo = IsDebugMode ? "Unknown Caller" : "App";
+                if (IsDebugMode)
+                {
+                    System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(1, false);
+                    if (stackTrace.FrameCount > 0)
+                    {
+                        System.Diagnostics.StackFrame frame = stackTrace.GetFrame(0);
+                        System.Reflection.MethodBase method = frame.GetMethod();
+                        callerInfo = $"{method.DeclaringType?.FullName}.{method.Name}";
+                    }
+                }
+
+                string logEntry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] WARNING [进程ID: {System.Diagnostics.Process.GetCurrentProcess().Id}] [线程ID: {System.Threading.Thread.CurrentThread.ManagedThreadId}] [{callerInfo}]: {message}\n";
+                
+                // 仅在日志模式或调试模式下输出到控制台
+                if (IsLogEnabled || IsDebugMode)
+                {
+                    try
+                    {
+                        Console.WriteLine(logEntry.TrimEnd());
+                    }
+                    catch (Exception consoleEx)
+                    {
+                        // 如果控制台输出失败，记录到内部变量但不影响程序运行
+                        string errorMsg = "控制台输出失败: " + consoleEx.Message;
+                    }
+                }
+                
+                if (IsLogEnabled)
+                {
+                    // 使用锁确保多线程环境下的文件访问安全
+                    lock (logLock)
+                    {
+                        // 确保日志目录存在
+                        string logDirectory = Path.GetDirectoryName(LogFilePath);
+                        if (!Directory.Exists(logDirectory))
+                        {
+                            Directory.CreateDirectory(logDirectory);
+                        }
+                        
+                        File.AppendAllText(LogFilePath, logEntry, Encoding.UTF8);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // 如果写入日志失败，至少尝试输出到控制台
+                Console.WriteLine("写入警告日志失败: " + ex.Message);
+            }
+        }
+        
+        /// <summary>
+        /// 应用程序退出事件处理程序
+        /// 清理资源和事件监听
+        /// </summary>
+        /// <param name="e">退出事件参数</param>
+        protected override void OnExit(ExitEventArgs e)
+        {
+            // 取消注册系统主题变化事件
+            SystemEvents.UserPreferenceChanged -= SystemEvents_UserPreferenceChanged;
+            
+            base.OnExit(e);
         }
     }
 }
