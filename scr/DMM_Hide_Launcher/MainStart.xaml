@@ -74,9 +74,9 @@
                             <Button x:Name="Button_of_7K7K_Game_Start" Content="7K7K" VerticalAlignment="Top" Click="Start_Game_7k7k_Click" Margin="44,117,44,0" HorizontalAlignment="Stretch" Height="28" adonisExtensions:CornerRadiusExtension.CornerRadius="4" adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4" adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10" />
                         </controls:SimplePanel>
                     </Grid>
-                </controls:TabItem>
-                <!-- 账户切换 -->
+                </controls:TabItem>           
             </controls:TabControl>
+            <!-- 右半部分 -->
             <TabControl Grid.Column="1" Margin="20,40,10,70" SelectedIndex="0">
                 <TabItem Header="XML">
                     <!-- Visibility="Collapsed"-->
@@ -124,6 +124,9 @@
                             </ItemsControl>
                         </controls:ScrollViewer>
                     </Grid>
+                </TabItem>
+                <TabItem Header="Tools">
+
                 </TabItem>
             </TabControl>
         </Grid>

@@ -1,0 +1,30 @@
+# 第三方库声明
+
+本项目使用了以下第三方库，在此对各库的开发者表示感谢。请确保在使用本项目时遵守各库的许可证要求。
+
+| 库名称 | 版本 | 用途 | 许可证 | 
+|-------|------|------|-------|
+| [AdonisUI](https://github.com/benruehl/adonis-ui) | 1.17.1 | 提供现代化UI样式 | [MIT License](MIT_LICENSE) |
+| [AdonisUI.ClassicTheme](https://github.com/benruehl/adonis-ui) | 1.17.1 | AdonisUI的经典主题扩展 | [MIT License](MIT_LICENSE) |
+| [Costura.Fody](https://github.com/Fody/Costura) | 6.0.0 | 嵌入依赖项到输出程序集中，使应用程序成为单一可执行文件 | [MIT License](MIT_LICENSE) |
+| [Fody](https://github.com/Fody/Fody) | 6.8.2 | 编织工具，用于在编译时修改程序集 | [MIT License](MIT_LICENSE) |
+| [HandyControl](https://github.com/HandyOrg/HandyControl) | 3.5.1 | 提供丰富的UI组件 | [MIT License](MIT_LICENSE) |
+| [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) | 13.0.3 | JSON序列化和反序列化库 | [MIT License](MIT_LICENSE) |
+| [System.Drawing.Common](https://github.com/dotnet/winforms) | 9.0.5 | 提供GDI+图形功能的跨平台实现 | [MIT License](MIT_LICENSE) |
+| [System.Management](https://github.com/dotnet/runtime) | 9.0.9 | 提供对系统管理信息和事件的访问 | [MIT License](MIT_LICENSE) |
+
+## 关于许可证
+
+上述所有库的许可证信息可在其各自的NuGet包或官方网站上找到。本项目本身基于AGPL-3.0许可证发布，但各第三方库的许可证可能有所不同。请确保在使用本项目时同时遵守所有相关许可证的要求。
+
+## 开源合规声明
+**重要提示：本项目基于GNU Affero General Public License v3.0 (AGPL-3.0)发布，并添加了禁止商业收费的附加条款。**
+为了遵守开源规则，使用本项目时请注意：
+1. 保留所有第三方库的版权和许可证声明
+2. 本项目的源代码在发布时需包含此声明文件
+3. 若对项目进行修改并分发，需提供修改说明和完整源代码
+4. 确保您的使用方式符合AGPL-3.0及各第三方库许可证的条款
+
+## 许可证目录
+
+本项目在Licenses目录下提供了各第三方库许可证的标准文本，供查阅。当您发布或分发本项目时，请确保包含此目录下的所有文件。

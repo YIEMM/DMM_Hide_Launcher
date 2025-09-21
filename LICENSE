@@ -1,4 +1,4 @@
-                    GNU AFFERO GENERAL PUBLIC LICENSE
+GNU AFFERO GENERAL PUBLIC LICENSE
                        Version 3, 19 November 2007
 
  Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
@@ -659,3 +659,6 @@ specific requirements.
 if any, to sign a "copyright disclaimer" for the program, if necessary.
 For more information on this, and how to apply and follow the GNU AGPL, see
 <https://www.gnu.org/licenses/>.
+
+
+附加条款：根据本许可证发布的软件可以用于商业目的，但禁止任何形式的商业收费，包括但不限于销售软件副本、提供基于该软件的付费服务等。任何违反此附加条款的行为将导致自动丧失本许可证授予的所有权利。
