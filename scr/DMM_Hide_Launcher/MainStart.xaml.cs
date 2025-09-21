@@ -6,9 +6,11 @@ using DMM_Hide_Launcher.Others;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Media;
 using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -17,6 +19,8 @@ using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxButton = AdonisUI.Controls.MessageBoxButton;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
 using System.Windows.Media;
+using System.Collections.Generic;
+using System.Text;
 
 // 忽略Windows特定API的平台兼容性警告
 #pragma warning disable CA1416
@@ -86,6 +90,10 @@ namespace DMM_Hide_Launcher
         private bool _isDark;
 
         /// <summary>
+        /// 窗口检测器实例，用于持续监测游戏窗口状态
+        /// </summary>
+        private CheckGameWindow_Others _windowDetector;
+
         /// <summary>
         /// 窗口激活时调用
         /// 设置当前窗口为Growl通知的父容器，实现只在激活窗口显示通知的功能
@@ -162,7 +170,7 @@ namespace DMM_Hide_Launcher
                 App.Log("主窗口初始化完成");
             }
         }
-
+        
         /// <summary>
         /// 账号类
         /// 用于存储用户名和密码信息
@@ -557,7 +565,8 @@ namespace DMM_Hide_Launcher
                                     App.Log($"找到游戏可执行文件: {files[0]}");
                                     App.Log("启动游戏，参数: ID=4399OpenID,Key=4399OpenKey,PID=4399_0,PROCPARA=66666,Channel=PC4400");
                                     Process.Start(files[0], "ID=4399OpenID,Key=4399OpenKey,PID=4399_0,PROCPARA=66666,Channel=PC4400");
-                                    App.Log("4399游戏启动成功");
+                                    App.Log("4399启动，等待窗口");
+                                    CheckGameWindow();
                                 }
                                 else
                                 {
@@ -669,14 +678,49 @@ namespace DMM_Hide_Launcher
                                     try
                                     {
                                         GamePath = gameDataElement.Value;
-                                        App.Log("开始执行HTTP请求启动游戏");
+                                        App.Log("开始执行HTTP请求获取游戏启动参数");
                                         string result = await HttpRequester.ExecuteRequests(ID_7K, Key_7K, GamePath);
-                                        App.Log("游戏启动请求已发送");
+                                        
+                                        // 处理返回结果
+                                        if (result.StartsWith("ERROR:"))
+                                        {
+                                            string errorCode = result.Substring(6); // 去掉"ERROR:"前缀
+                                            App.LogError("获取游戏启动参数失败", new Exception(errorCode));
+                                            
+                                            // 根据错误代码显示对应的错误信息
+                                            if (errorCode == "INVALID_CREDENTIALS")
+                                            {
+                                                Growl.Warning("错误的账户/密码");
+                                            }
+                                            else if (errorCode == "GAME_NOT_FOUND")
+                                            {
+                                                Growl.Warning("未找到游戏");
+                                            }
+                                            else
+                                            {
+                                                Growl.Warning($"获取游戏启动参数失败: {errorCode}");
+                                            }
+                                        }
+                                        else if (result.Contains("|"))
+                                        {
+                                            // 解析游戏路径和启动参数
+                                            string[] parts = result.Split('|');
+                                            if (parts.Length == 2)
+                                            {
+                                                string gameExePath = parts[0];
+                                                string startParams = parts[1];
+                                                
+                                                App.Log($"成功获取游戏启动参数，开始启动游戏: {gameExePath} 启动参数: {startParams}");
+                                                Process.Start(gameExePath, startParams);
+                                                App.Log("7K7K启动，等待窗口");
+                                                CheckGameWindow();
+                                            }
+                                        }
                                     }
                                     catch (Exception ex)
                                     {
                                         App.LogError("游戏启动过程出错", ex);
-                                        MessageBox.Show($"发生错误: {ex.Message}");
+                                        Growl.Error($"发生错误: {ex.Message}");
                                     }
                                 }
                             }
@@ -1002,6 +1046,278 @@ namespace DMM_Hide_Launcher
             
             App.Log($"主题切换完成，当前主题: {(_isDark ? "暗色" : "亮色")}");
         }
+        
+        /// <summary>
+        /// 检测游戏窗口是否运行
+        /// 简化版：使用单一线程处理窗口检测，避免过多嵌套的任务
+        /// </summary>
+        private void CheckGameWindow()
+        {
+            App.Log("开始检测游戏窗口");
+            
+            // 在后台线程执行，不阻塞UI
+            Task.Run(async () =>
+            {
+                try
+                {
+                    // 创建窗口检测器
+                    CheckGameWindow_Others detector = new CheckGameWindow_Others();
+                    bool isRunning = detector.IsTargetWindowRunning();
+                    
+                    if (isRunning)
+                    {
+                        // 获取运行中的窗口列表
+                        List<string> runningWindows = detector.GetRunningTargetWindows();
+                        
+                        // 在UI线程上显示结果
+                        await this.Dispatcher.InvokeAsync(() =>
+                        {
+                            App.Log($"检测到游戏窗口正在运行，共找到{runningWindows.Count}个窗口");
+                            
+                            // 显示找到的窗口信息
+                            StringBuilder messageBuilder = new StringBuilder();
+                            messageBuilder.AppendLine("游戏成功启动！");
+                            runningWindows.ForEach(title => messageBuilder.AppendLine($"- {title}"));
+                            
+                            Growl.Success(messageBuilder.ToString());
+                        }).Task;
+                    }
+                    else
+                    {
+                        // 在UI线程上显示结果并启动持续监测
+                        await this.Dispatcher.InvokeAsync(() =>
+                        {
+                            App.Log("未检测到游戏窗口运行，开始持续监测");
+                            Growl.Info("正在检测游戏是否正常启动...");
+                            InitializeWindowMonitoring();
+                        }).Task;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    App.LogError("检测游戏窗口时出错", ex);
+                    
+                    // 在UI线程上显示错误信息
+                    await this.Dispatcher.InvokeAsync(() =>
+                    {
+                        Growl.Error("检测游戏窗口时发生错误，请查看日志了解详情");
+                    }).Task;
+                }
+            });
+        }
+        
+        /// <summary>
+        /// 初始化窗口监测功能
+        /// 创建WindowDetector实例并开始持续监测
+        /// <summary>
+        /// 初始化窗口监测功能
+        /// 简化版：在单任务中完成初始化和事件绑定
+        /// </summary>
+        private void InitializeWindowMonitoring()
+        {
+            // 在后台线程执行初始化，避免阻塞UI
+            Task.Run(async () =>
+            {
+                try
+                {
+                    // 创建CheckGameWindow_Others实例
+                    _windowDetector = new CheckGameWindow_Others();
+                    _windowDetector.MonitoringInterval = 200; // 200毫秒，提高检测速度
+                    
+                    // 注册窗口状态变化事件处理程序
+                    _windowDetector.WindowStateChanged += OnGameWindowStateChanged;
+                    
+                    // 开始持续监测
+                    _windowDetector.StartMonitoring();
+                    
+                    // 在UI线程上记录日志
+                    await this.Dispatcher.InvokeAsync(() =>
+                    {
+                        App.Log("窗口监测功能已初始化并启动");
+                    }).Task;
+                }
+                catch (Exception ex)
+                {
+                    // 在UI线程上记录错误
+                    await this.Dispatcher.InvokeAsync(() =>
+                    {
+                        App.LogError("初始化窗口监测功能时出错", ex);
+                        Growl.Error("初始化窗口监测功能时发生错误");
+                    }).Task;
+                }
+            });
+        }
+        
+        /// <summary>
+        /// 窗口状态变化事件处理程序
+        /// </summary>
+        private void OnGameWindowStateChanged(object sender, WindowStateChangedEventArgs e)
+        {
+            try
+            {
+                // 只处理窗口启动事件
+                if (e.IsRunning)
+                {
+                    // 在UI线程上显示结果和播放提示音
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        // 播放提示音
+                        PlayNotificationSound();
+
+                        App.Log($"检测到游戏窗口启动，运行中的窗口: {string.Join(", ", e.RunningWindowTitles)}");
+                        
+                        // 显示找到的窗口信息
+                        StringBuilder messageBuilder = new StringBuilder();
+                        messageBuilder.AppendLine("游戏成功启动！");
+                        e.RunningWindowTitles.ForEach(title => messageBuilder.AppendLine($"- {title}"));
+                        
+                        Growl.Success(messageBuilder.ToString());
+                        
+                        
+                    }));
+                    
+                    // 停止监测
+                    StopGameWindowMonitoring();
+                }
+            }
+            catch (Exception ex)
+            {
+                App.LogError("处理窗口状态变化事件时出错", ex);
+            }
+        }
+        
+        /// <summary>
+        /// 播放通知提示音
+        /// 增强版：添加了更健壮的错误处理和文件格式检测
+        /// </summary>
+        private void PlayNotificationSound()
+        {
+            try
+            {
+                // 使用Application.GetResourceStream从内嵌资源中加载提示音
+                string soundUri = "pack://application:,,,/DMM_Hide_Launcher;component/public/Message.wav";
+                App.Log("尝试播放提示音(内嵌资源): " + soundUri);
+                
+                // 使用Application.GetResourceStream获取资源流
+                Uri uri = new Uri(soundUri, UriKind.RelativeOrAbsolute);
+                System.Windows.Resources.StreamResourceInfo resourceInfo = System.Windows.Application.GetResourceStream(uri);
+                
+                if (resourceInfo != null && resourceInfo.Stream != null)
+                {
+                    using (var stream = resourceInfo.Stream)
+                    {
+                        try
+                        {
+                            // 验证文件大小，避免过小的文件
+                            if (stream.Length < 44) // WAV文件至少需要44字节的头部
+                            {
+                                App.LogWarning("提示音文件过小，可能不是有效的WAV文件: " + stream.Length + " 字节");
+                                return;
+                            }
+                            
+                            // 检查WAV文件头标志
+                            byte[] header = new byte[4];
+                            stream.Read(header, 0, 4);
+                            string headerString = System.Text.Encoding.ASCII.GetString(header);
+                            stream.Seek(0, SeekOrigin.Begin); // 重置流位置
+                            
+                            if (headerString != "RIFF")
+                            {
+                                App.LogWarning("检测到无效的WAV文件头: " + headerString);
+                                return;
+                            }
+                            
+                            // 从资源流创建SoundPlayer
+                            using (System.Media.SoundPlayer player = new System.Media.SoundPlayer(stream))
+                            {
+                                // 先同步加载，确保文件格式正确
+                                player.Load(); // 同步加载，可以捕获格式错误
+                                player.Play(); // 异步播放，不会阻塞UI
+                                App.Log("提示音播放请求已发送");
+                            }
+                        }
+                        catch (InvalidOperationException ioEx)
+                        {
+                            // 特定处理WAV文件格式错误
+                            App.LogError("WAV文件格式错误: " + ioEx.Message, ioEx);
+                            // 尝试使用Windows内置提示音作为备选
+                            try
+                            {
+                                System.Media.SystemSounds.Asterisk.Play();
+                                App.Log("已使用系统默认提示音代替");
+                            }
+                            catch (Exception sysEx)
+                            {
+                                App.LogError("播放系统提示音时也出错", sysEx);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    App.LogWarning("无法获取内嵌提示音资源");
+                    // 尝试使用Windows内置提示音作为备选
+                    try
+                    {
+                        System.Media.SystemSounds.Asterisk.Play();
+                        App.Log("已使用系统默认提示音代替");
+                    }
+                    catch (Exception sysEx)
+                    {
+                        App.LogError("播放系统提示音时也出错", sysEx);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                App.LogError("播放提示音时出错", ex);
+            }
+        }
+        
+        /// <summary>
+        /// 停止游戏窗口监测
+        /// </summary>
+        private void StopGameWindowMonitoring()
+        {
+            try
+            {
+                if (_windowDetector != null && _windowDetector.IsMonitoring)
+                {
+                    _windowDetector.WindowStateChanged -= OnGameWindowStateChanged;
+                    _windowDetector.StopMonitoring();
+                    App.Log("窗口监测已停止（已检测到目标窗口）");
+                }
+            }
+            catch (Exception ex)
+            {
+                App.LogError("停止窗口监测时出错", ex);
+            }
+        }
+        
+        /// <summary>
+        /// 窗口关闭时调用
+        /// 停止窗口监测并释放资源
+        /// </summary>
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            
+            try
+            {
+                // 停止窗口监测
+                if (_windowDetector != null && _windowDetector.IsMonitoring)
+                {
+                    _windowDetector.WindowStateChanged -= OnGameWindowStateChanged;
+                    _windowDetector.StopMonitoring();
+                    App.Log("窗口监测已停止");
+                }
+            }
+            catch (Exception ex)
+            {
+                App.LogError("停止窗口监测时出错", ex);
+            }
+        }
+        
     }
 }
 

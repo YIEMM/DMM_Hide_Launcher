@@ -26,7 +26,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -35,6 +35,10 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
             },
             {
               "$type": "Document",
@@ -70,6 +74,10 @@
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2025-09-17T10:25:29.317Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
             }
           ]
         },
@@ -114,7 +122,7 @@
               "RelativeDocumentMoniker": "DMM_Hide_Launcher\\MainStart.xaml",
               "ToolTip": "F:\\out_git\\DMM_Hide_Launcher\\scr\\DMM_Hide_Launcher\\MainStart.xaml",
               "RelativeToolTip": "DMM_Hide_Launcher\\MainStart.xaml",
-              "ViewState": "AgIAAHoAAAAAAAAAAAAAAIEAAACiAAAAAAAAAA==",
+              "ViewState": "AgIAAHoAAAAAAAAAAAAAAIEAAAAaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2025-09-17T13:37:47.461Z",
               "EditorCaption": ""

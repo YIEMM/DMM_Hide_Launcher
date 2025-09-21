@@ -34,6 +34,7 @@
     <Resource Include="public\sun.ico" />
     <Resource Include="public\moon.ico" />
     <Resource Include="public\Fonts\MiSans-Medium.ttf" />
+    <Resource Include="public\Message.wav" />
   </ItemGroup>
 
   <ItemGroup>

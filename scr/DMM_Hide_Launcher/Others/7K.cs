@@ -156,35 +156,24 @@ namespace DMM_Hide_Launcher.Others
                         root.TryGetProperty("url", out JsonElement urlElement) &&
                         urlElement.GetString() == "/games/tpbsn/dlq")
                     {
-                        Growl.Warning("错误的账户/密码");
+                        return "ERROR:INVALID_CREDENTIALS";
                     }
                     else
                     {
                         string[] files = Directory.GetFiles(GamePath, "dmmdzz.exe", SearchOption.AllDirectories);
                         if (files.Length > 0)
                         {
-                            //MessageBox.Show(responseBody);
-                            {
-                                string json = responseBody;
-                                string pid = "7K7K_";
-                                string procpPara = "66666";
-                                string channel = "PC7K7K";
-                                string code7k7k = ConvertJsonToFormat(json, pid, procpPara, channel);
-                                Process.Start(files[0], code7k7k);
-                                //MessageBox.Show(code7k7k);
-                                //MessageBox.Show(code7k7k);
-                            }
-                            static string ConvertJsonToFormat(string json, string pid, string procpPara, string channel)
-                            {
-                                var query = System.Web.HttpUtility.ParseQueryString(new Uri(JObject.Parse(json)["url"].ToString()).Query);
-                                string id = query["userid"];
-                                string key = string.Join("&", query.AllKeys.Select(k => $"{k}-{query[k]}"));
-                                return $"ID={id},Key={key},PID={pid},PROCPARA={procpPara},Channel={channel}";
-                            }
+                            string json = responseBody;
+                            string pid = "7K7K_";
+                            string procpPara = "66666";
+                            string channel = "PC7K7K";
+                            string code7k7k = ConvertJsonToFormat(json, pid, procpPara, channel);
+                            // 返回游戏路径和启动参数，格式为：GAME_PATH|START_PARAMS
+                            return $"{files[0]}|{code7k7k}";
                         }
                         else
                         {
-                            Growl.Warning("未找到游戏");
+                            return "ERROR:GAME_NOT_FOUND";
                         }
                     }
                 }
@@ -192,9 +181,16 @@ namespace DMM_Hide_Launcher.Others
             catch (Exception ex)
             {
                 // 错误处理
-                return ex.Message;
+                return $"ERROR:{ex.Message}";
             }
-            return "";
+        }
+        
+        static string ConvertJsonToFormat(string json, string pid, string procpPara, string channel)
+        {
+            var query = System.Web.HttpUtility.ParseQueryString(new Uri(JObject.Parse(json)["url"].ToString()).Query);
+            string id = query["userid"];
+            string key = string.Join("&", query.AllKeys.Select(k => $"{k}-{query[k]}"));
+            return $"ID={id},Key={key},PID={pid},PROCPARA={procpPara},Channel={channel}";
         }
 
 

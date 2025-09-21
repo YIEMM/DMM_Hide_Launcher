@@ -47,6 +47,51 @@ namespace DMM_Hide_Launcher
     private static extern bool SetConsoleCP(uint wCodePageID);
     
     /// <summary>
+    /// 导入Windows API函数，用于设置控制台文本颜色
+    /// </summary>
+    [DllImport("kernel32.dll")]
+    private static extern bool SetConsoleTextAttribute(IntPtr hConsoleOutput, ushort wAttributes);
+    
+    /// <summary>
+    /// 导入Windows API函数，用于获取控制台文本颜色
+    /// </summary>
+    [DllImport("kernel32.dll")]
+    private static extern bool GetConsoleTextAttribute(IntPtr hConsoleOutput, out ushort wAttributes);
+    
+    /// <summary>
+    /// 导入Windows API函数，用于获取标准输出句柄
+    /// </summary>
+    [DllImport("kernel32.dll")]
+    private static extern IntPtr GetStdHandle(int nStdHandle);
+    
+    /// <summary>
+    /// 导入Windows API函数，用于设置控制台标题
+    /// </summary>
+    [DllImport("kernel32.dll")]
+    private static extern bool SetConsoleTitle(string lpConsoleTitle);
+    
+    // 控制台标准句柄常量
+    private const int STD_OUTPUT_HANDLE = -11;
+    
+    // 控制台颜色常量
+    private const ushort FOREGROUND_BLUE = 0x0001;
+    private const ushort FOREGROUND_GREEN = 0x0002;
+    private const ushort FOREGROUND_RED = 0x0004;
+    private const ushort FOREGROUND_INTENSITY = 0x0008;
+    private const ushort BACKGROUND_BLUE = 0x0010;
+    private const ushort BACKGROUND_GREEN = 0x0020;
+    private const ushort BACKGROUND_RED = 0x0040;
+    private const ushort BACKGROUND_INTENSITY = 0x0080;
+    
+    // 预设的控制台颜色方案
+    private const ushort COLOR_NORMAL = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+    private const ushort COLOR_INFO = FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+    private const ushort COLOR_WARNING = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+    private const ushort COLOR_ERROR = FOREGROUND_RED | FOREGROUND_INTENSITY;
+    private const ushort COLOR_DEBUG = FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+    private const ushort COLOR_SUCCESS = FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+    
+    /// <summary>
     /// 导入Windows API函数，用于获取系统参数
     /// </summary>
     [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
@@ -102,14 +147,20 @@ namespace DMM_Hide_Launcher
         /// <param name="e">启动事件参数</param>
         protected override void OnStartup(StartupEventArgs e)
         {
+            // 在应用程序启动的最早阶段尝试附加到父进程控制台，无论是否需要日志模式
+            // 这确保了所有的输出都能正确地显示在父进程控制台中
+            bool attachResult = AttachConsole(-1);
+            
             // 初始化系统主题
             InitializeSystemTheme();
             
             // 注册系统主题变化事件监听
             SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
             
-            // 添加直接的控制台调试输出，不依赖任何标志
-            Console.WriteLine("[DEBUG] 应用程序启动，正在初始化日志系统...");
+            // 先处理命令行参数，设置日志模式标志
+            Console.WriteLine("[DEBUG] 正在处理命令行参数...");
+            ParseCommandLineArgs(e.Args);
+            Console.WriteLine($"[DEBUG] 命令行参数处理完成 - 调试模式: {IsDebugMode}, 日志模式: {IsLogEnabled}");
             
             // 初始化日志文件路径
             string logDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
@@ -119,19 +170,17 @@ namespace DMM_Hide_Launcher
             LogFilePath = Path.Combine(logDirectory, $"DMM_Hide_Launcher_{timestamp}.log");
             Console.WriteLine($"[DEBUG] 日志文件路径: {LogFilePath}");
             
-            // 先处理命令行参数，设置日志模式标志
-            Console.WriteLine("[DEBUG] 正在处理命令行参数...");
-            ParseCommandLineArgs(e.Args);
-            Console.WriteLine($"[DEBUG] 命令行参数处理完成 - 调试模式: {IsDebugMode}, 日志模式: {IsLogEnabled}");
-            
-            // 根据日志模式决定是否附加控制台
-            if (IsLogEnabled)
+            // 根据日志模式和控制台附加状态决定是否创建新控制台
+            if (IsLogEnabled && GetConsoleWindow() == IntPtr.Zero)
             {
-                Console.WriteLine("[DEBUG] 日志模式已启用，准备附加控制台...");
+                Console.WriteLine("[DEBUG] 日志模式已启用，但未附加到控制台，准备创建新控制台...");
                 // 强制附加控制台以确保日志可见
                 ForceAttachConsole();
-                
-                // 输出启动信息到控制台
+            }
+            
+            // 输出启动信息到控制台
+            if (IsLogEnabled || IsDebugMode)
+            {
                 Console.WriteLine("DMM_Hide_Launcher 启动中...");
                 Console.WriteLine($"当前模式: {(IsDebugMode ? "调试模式" : "日志模式")}");
             }
@@ -292,6 +341,35 @@ namespace DMM_Hide_Launcher
         }
         
         /// <summary>
+        /// 设置控制台文本颜色
+        /// </summary>
+        /// <param name="colorCode">颜色代码</param>
+        private static void SetConsoleColor(ushort colorCode)
+        {
+            try
+            {
+                IntPtr consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+                if (consoleHandle != IntPtr.Zero && consoleHandle.ToInt32() != -1)
+                {
+                    SetConsoleTextAttribute(consoleHandle, colorCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                // 忽略颜色设置失败的异常，不影响主要功能
+                Console.WriteLine("设置控制台颜色失败: " + ex.Message);
+            }
+        }
+        
+        /// <summary>
+        /// 恢复控制台默认颜色
+        /// </summary>
+        private static void ResetConsoleColor()
+        {
+            SetConsoleColor(COLOR_NORMAL);
+        }
+        
+        /// <summary>
         /// 强制附加控制台
         /// </summary>
         private void ForceAttachConsole()
@@ -300,28 +378,34 @@ namespace DMM_Hide_Launcher
             {
                 App.Log("开始附加控制台");
                 
-                // 尝试获取标准输出流，检查是否已连接到控制台
-                var stdout = Console.Out;
-                bool isConsoleAttached = true;
-                
-                // 测试写入是否会引发异常
-                try
+                // 在OnStartup中已经尝试过AttachConsole(-1)，这里直接检查是否需要分配新控制台
+                if (GetConsoleWindow() == IntPtr.Zero)
                 {
-                    Console.WriteLine("[DEBUG] 测试控制台写入能力...");
-                }
-                catch
-                {
-                    isConsoleAttached = false;
-                }
-                
-                // 如果没有控制台或者测试失败，尝试分配一个新的控制台
-                if (!isConsoleAttached || GetConsoleWindow() == IntPtr.Zero)
-                {
-                    App.Log("当前无控制台或控制台不可用，尝试附加新控制台");
-                    Console.WriteLine("[DEBUG] 当前无控制台或控制台不可用，尝试附加新控制台...");
+                    App.Log("当前无控制台可用，尝试分配新控制台");
+                    Console.WriteLine("[DEBUG] 当前无控制台可用，尝试分配新控制台...");
+                    
                     bool allocResult = AllocConsole();
                     App.Log($"AllocConsole 结果: {allocResult}");
                     Console.WriteLine($"[DEBUG] AllocConsole 结果: {allocResult}");
+                    Console.Out.Flush();
+                }
+                
+                // 设置控制台标题
+                string consoleTitle = "DMM_Hide_Launcher - 控制台输出";
+                SetConsoleTitle(consoleTitle);
+                App.Log($"控制台标题已设置为: {consoleTitle}");
+                
+                // 尝试获取标准输出流，检查控制台连接状态
+                var stdout = Console.Out;
+                try
+                {
+                    Console.WriteLine("[DEBUG] 测试控制台写入能力...");
+                    Console.Out.Flush();
+                }
+                catch (Exception ex)
+                {
+                    App.Log("控制台写入测试失败: " + ex.Message);
+                    Console.WriteLine("[DEBUG] 控制台写入测试失败: " + ex.Message);
                 }
                 
                 // 设置控制台代码页为UTF-8以支持中文显示
@@ -339,13 +423,79 @@ namespace DMM_Hide_Launcher
                     Console.WriteLine($"[DEBUG] 设置控制台编码失败: {ex.Message}");
                 }
                 
+                // 根据系统主题设置控制台颜色
+                bool isDarkMode = IsSystemDarkMode();
+                try
+                {
+                    IntPtr consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+                    if (consoleHandle != IntPtr.Zero && consoleHandle.ToInt32() != -1)
+                    {
+                        if (isDarkMode)
+                        {
+                            // 暗色主题：深色背景，浅色文字
+                            ushort darkModeAttributes = (ushort)(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+                            SetConsoleTextAttribute(consoleHandle, darkModeAttributes);
+                            App.Log("控制台已设置为深色主题样式");
+                        }
+                        else
+                        {
+                            // 亮色主题：浅色背景，深色文字
+                            ushort lightModeAttributes = (ushort)(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+                            SetConsoleTextAttribute(consoleHandle, lightModeAttributes);
+                            App.Log("控制台已设置为亮色主题样式");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    App.Log($"设置控制台主题样式失败: {ex.Message}");
+                    Console.WriteLine($"[DEBUG] 设置控制台主题样式失败: {ex.Message}");
+                }
+                
                 // 确保标准输出流被重新初始化
                 try
                 {
                     // 尝试重新打开标准输出流，显式设置UTF8编码以支持中文
                     Console.SetOut(new StreamWriter(Console.OpenStandardOutput(), Encoding.UTF8) { AutoFlush = true });
-                    App.Log("已成功重新初始化标准输出流并设置UTF8编码");
-                    Console.WriteLine("[DEBUG] 已成功重新初始化标准输出流并设置UTF8编码");
+                    
+                    // 强制刷新以确保所有未写入的数据都被处理
+                    Console.Out.Flush();
+                    
+                    // 禁止用户向控制台输入
+                    Console.SetIn(TextReader.Null);
+                    
+                    // 验证控制台输入是否被成功禁止
+                    try
+                    {
+                        Console.WriteLine("[DEBUG] 尝试从控制台读取输入，验证是否被禁止...");
+                        Console.Out.Flush();
+                        
+                        // 尝试读取一行输入
+                        string input = Console.ReadLine();
+                        
+                        // 如果输入为null，说明输入被成功禁止
+                        if (input == null)
+                        {
+                            App.Log("控制台输入验证成功：无法读取到任何输入，输入已被成功禁止");
+                            Console.WriteLine("[DEBUG] 控制台输入验证成功：无法读取到任何输入，输入已被成功禁止");
+                        }
+                        else
+                        {
+                            App.Log("警告：控制台输入验证失败，成功读取到了输入内容");
+                            Console.WriteLine("[DEBUG] 警告：控制台输入验证失败，成功读取到了输入内容");
+                        }
+                        Console.Out.Flush();
+                    }
+                    catch (Exception readEx)
+                    {
+                        App.Log("控制台输入验证结果：尝试读取输入时发生异常（预期行为）：" + readEx.Message);
+                        Console.WriteLine("[DEBUG] 控制台输入验证结果：尝试读取输入时发生异常（预期行为）：" + readEx.Message);
+                        Console.Out.Flush();
+                    }
+                    
+                    App.Log("已成功重新初始化标准输出流并设置UTF8编码，同时禁止了控制台输入");
+                    Console.WriteLine("[DEBUG] 已成功重新初始化标准输出流并设置UTF8编码，同时禁止了控制台输入");
+                    Console.Out.Flush();
                 }
                 catch (Exception ex)
                 {
@@ -356,6 +506,7 @@ namespace DMM_Hide_Launcher
                 // 测试中文显示
                 string chineseTest = "中文测试显示 - Console.WriteLine";
                 Console.WriteLine(chineseTest);
+                Console.Out.Flush(); // 确保中文测试输出立即显示
                 App.Log("中文测试显示 - App.Log");
                 
                 // 在应用程序退出时释放控制台
@@ -370,6 +521,7 @@ namespace DMM_Hide_Launcher
                 
                 App.Log("控制台附加完成");
                 Console.WriteLine("[DEBUG] 控制台附加完成");
+                Console.Out.Flush(); // 最后一次强制刷新确保所有输出都被处理
             }
             catch (Exception ex)
             {
@@ -377,6 +529,12 @@ namespace DMM_Hide_Launcher
                 Console.WriteLine($"[DEBUG] 控制台附加过程中出现异常: {ex.Message}");
             }
         }
+        
+        /// <summary>
+        /// 导入Windows API函数，用于附加到父进程控制台
+        /// </summary>
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool AttachConsole(int dwProcessId);
         
         /// <summary>
         /// 解析命令行参数，只设置标志，不记录日志
@@ -509,7 +667,11 @@ namespace DMM_Hide_Launcher
                 {
                     try
                     {
+                        // 设置信息日志颜色
+                        SetConsoleColor(COLOR_INFO);
                         Console.WriteLine(logEntry.TrimEnd());
+                        // 恢复默认颜色
+                        ResetConsoleColor();
                     }
                     catch (Exception consoleEx)
                     {
@@ -537,7 +699,13 @@ namespace DMM_Hide_Launcher
             catch (Exception ex)
             {
                 // 如果写入日志失败，至少尝试输出到控制台
-                Console.WriteLine("写入日志失败: " + ex.Message);
+                try
+                {
+                    SetConsoleColor(COLOR_ERROR);
+                    Console.WriteLine("写入日志失败: " + ex.Message);
+                    ResetConsoleColor();
+                }
+                catch { }
             }
         }
 
@@ -585,7 +753,11 @@ namespace DMM_Hide_Launcher
                 {
                     try
                     {
+                        // 设置错误日志颜色
+                        SetConsoleColor(COLOR_ERROR);
                         Console.WriteLine(logEntry.ToString().TrimEnd());
+                        // 恢复默认颜色
+                        ResetConsoleColor();
                     }
                     catch (Exception consoleEx)
                     {
@@ -613,7 +785,13 @@ namespace DMM_Hide_Launcher
             catch (Exception ex)
             {
                 // 如果写入错误日志失败，至少尝试输出到控制台
-                Console.WriteLine("写入错误日志失败: " + ex.Message);
+                try
+                {
+                    SetConsoleColor(COLOR_ERROR);
+                    Console.WriteLine("写入错误日志失败: " + ex.Message);
+                    ResetConsoleColor();
+                }
+                catch { }
             }
         }
 
@@ -647,7 +825,11 @@ namespace DMM_Hide_Launcher
                 {
                     try
                     {
+                        // 设置警告日志颜色
+                        SetConsoleColor(COLOR_WARNING);
                         Console.WriteLine(logEntry.TrimEnd());
+                        // 恢复默认颜色
+                        ResetConsoleColor();
                     }
                     catch (Exception consoleEx)
                     {
@@ -675,7 +857,13 @@ namespace DMM_Hide_Launcher
             catch (Exception ex)
             {
                 // 如果写入日志失败，至少尝试输出到控制台
-                Console.WriteLine("写入警告日志失败: " + ex.Message);
+                try
+                {
+                    SetConsoleColor(COLOR_ERROR);
+                    Console.WriteLine("写入警告日志失败: " + ex.Message);
+                    ResetConsoleColor();
+                }
+                catch { }
             }
         }
         
