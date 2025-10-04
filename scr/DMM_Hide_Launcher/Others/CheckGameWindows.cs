@@ -393,7 +393,7 @@ namespace DMM_Hide_Launcher.Others
             {
                 // 任务取消是正常流程，不记录日志
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // 实际应用中应该有适当的日志记录机制
                 // 这里简化处理

@@ -55,32 +55,18 @@ namespace DMM_Hide_Launcher.Others
             @"dmmdzz_7k7k\DmmdzzLoader.exe"
         };
         
-        // 控制日志详细程度的标志
-        private const bool IsDetailedLogging = false;
-        
-        // 日志记录辅助方法，减少不必要的字符串构建
-        private void LogDebug(string message)
-        {
-            if (IsDetailedLogging)
-                App.Log(message);
-        }
-        
-        private void LogWarningDebug(string message)
-        {
-            if (IsDetailedLogging)
-                App.LogWarning(message);
-        }
+
 
         public List<string> FindGamePaths()
         {
-            LogDebug("开始执行游戏路径查找操作");
+            App.Log("开始执行游戏路径查找操作");
             
             // 使用HashSet提高去重效率
             ConcurrentBag<string> allResults = new ConcurrentBag<string>();
 
             try
             {
-                LogDebug("初始化搜索任务列表");
+                App.Log("初始化搜索任务列表");
                 
                 // 创建任务列表并行搜索
                 List<Task> searchTasks = new List<Task>
@@ -90,7 +76,7 @@ namespace DMM_Hide_Launcher.Others
                     Task.Run(() => AddResultsToBag(SearchRunningProcesses(), allResults))
                 };
 
-                LogDebug("等待所有搜索任务完成");
+                App.Log("等待所有搜索任务完成");
                 // 等待所有搜索任务完成
                 Task.WaitAll(searchTasks.ToArray());
 
@@ -120,7 +106,7 @@ namespace DMM_Hide_Launcher.Others
                     }
                 }).ToList();
 
-                LogDebug($"路径查找完成，共找到{finalResults.Count}个有效游戏路径");
+                App.Log($"路径查找完成，共找到{finalResults.Count}个有效游戏路径");
                 return finalResults;
             }
             catch (Exception ex)
@@ -145,7 +131,7 @@ namespace DMM_Hide_Launcher.Others
         // 从注册表搜索游戏路径
         private List<string> SearchRegistry()
         {
-            LogDebug("开始从注册表搜索游戏路径");
+            App.Log("开始从注册表搜索游戏路径");
             
             // 使用HashSet提高去重效率
             HashSet<string> results = new HashSet<string>();
@@ -154,13 +140,13 @@ namespace DMM_Hide_Launcher.Others
             {
                 foreach (string registryPath in _registryPaths)
                 {
-                    LogDebug($"搜索注册表路径: {registryPath}");
+                    App.Log($"搜索注册表路径: {registryPath}");
                     
                     using (RegistryKey key = Registry.CurrentUser.OpenSubKey(registryPath))
                     {
                         if (key == null)
                         {
-                            LogDebug($"注册表键不存在: {registryPath}");
+                            App.Log($"注册表键不存在: {registryPath}");
                             continue;
                         }
 
@@ -168,7 +154,7 @@ namespace DMM_Hide_Launcher.Others
                         if (registryPath.Contains("AppCompatFlags"))
                         {
                             string[] valueNames = key.GetValueNames();
-                            LogDebug($"在{registryPath}下找到{valueNames.Length}个值");
+                            App.Log($"在{registryPath}下找到{valueNames.Length}个值");
                             
                             foreach (string name in valueNames)
                             {
@@ -182,7 +168,7 @@ namespace DMM_Hide_Launcher.Others
                                             string resultPath = name.Substring(0, index);
                                             if (results.Add(resultPath))
                                             {
-                                                LogDebug($"从注册表找到游戏路径: {resultPath}");
+                                                App.Log($"从注册表找到游戏路径: {resultPath}");
                                             }
                                         }
                                         break;
@@ -193,10 +179,10 @@ namespace DMM_Hide_Launcher.Others
                         else
                         {
                             // 处理卸载注册表项
-                            LogDebug("处理卸载注册表项");
+                            App.Log("处理卸载注册表项");
                             
                             string[] subKeyNames = key.GetSubKeyNames();
-                            LogDebug($"在{registryPath}下找到{subKeyNames.Length}个子键");
+                            App.Log($"在{registryPath}下找到{subKeyNames.Length}个子键");
                             
                             // 预先调整HashSet容量以减少重新哈希开销
                             results.EnsureCapacity(results.Count + subKeyNames.Length);
@@ -220,7 +206,7 @@ namespace DMM_Hide_Launcher.Others
                                             {
                                                 if (results.Add(installLocation))
                                                 {
-                                                    LogDebug($"从卸载注册表找到游戏路径: {installLocation}");
+                                                    App.Log($"从卸载注册表找到游戏路径: {installLocation}");
                                                 }
                                             }
                                         }
@@ -228,8 +214,8 @@ namespace DMM_Hide_Launcher.Others
                                 }
                                 catch (Exception ex)
                                 {
-                                    // 减少警告日志，只在详细模式下记录
-                                    LogWarningDebug($"访问注册表项{registryPath}\\{subKeyName}时出错: {ex.Message}");
+                                    // 记录警告日志
+                                    App.LogWarning($"访问注册表项{registryPath}\\{subKeyName}时出错: {ex.Message}");
                                 }
                             }
                         }
@@ -241,14 +227,14 @@ namespace DMM_Hide_Launcher.Others
                 App.LogError("注册表搜索错误", ex);
             }
 
-            LogDebug($"注册表搜索完成，找到{results.Count}个游戏路径");
+            App.Log($"注册表搜索完成，找到{results.Count}个游戏路径");
             return results.ToList();
         }
 
         // 搜索常见安装路径
         private List<string> SearchCommonPaths()
         {
-            LogDebug("开始搜索常见安装路径");
+            App.Log("开始搜索常见安装路径");
             
             // 使用HashSet提高去重效率
             HashSet<string> results = new HashSet<string>();
@@ -258,41 +244,34 @@ namespace DMM_Hide_Launcher.Others
             try
             {
                 // 检查常见安装路径
-                LogDebug("检查预定义的常见安装路径");
+                App.Log("检查预定义的常见安装路径");
                 foreach (string path in _commonInstallPaths)
                 {
-                    LogDebug($"检查路径: {path}");
+                    App.Log($"检查路径: {path}");
                     if (Directory.Exists(path))
                     {
                         if (results.Add(path))
                         {
-                            LogDebug($"找到有效的游戏路径: {path}");
+                            App.Log($"找到有效的游戏路径: {path}");
                         }
-                        else if (IsDetailedLogging)
-                        {
-                            LogDebug($"路径已存在于结果列表中: {path}");
-                        }
+
                     }
-                    else if (IsDetailedLogging)
-                    {
-                        LogDebug($"路径不存在: {path}");
-                    }
+
                 }
 
                 // 搜索所有本地驱动器的Program Files目录
-                LogDebug("开始搜索所有本地驱动器的Program Files目录");
+                App.Log("开始搜索所有本地驱动器的Program Files目录");
                 DriveInfo[] drives = DriveInfo.GetDrives();
                 // 预过滤以避免多次重复计算
                 var fixedReadyDrives = drives.Where(d => d.IsReady && d.DriveType == DriveType.Fixed).ToList();
                 int readyDrivesCount = fixedReadyDrives.Count;
-                LogDebug($"找到{readyDrivesCount}个可用的固定驱动器");
-                
+                App.Log($"找到{readyDrivesCount}个可用的固定驱动器");
                 // 优化：只在有有效驱动器时执行后续操作
                 if (readyDrivesCount > 0)
                 {
                     foreach (DriveInfo drive in fixedReadyDrives)
                     {
-                        LogDebug($"检查驱动器: {drive.RootDirectory.FullName}");
+                        App.Log($"检查驱动器: {drive.RootDirectory.FullName}");
                         string driveRoot = drive.RootDirectory.FullName;
                         
                         // 避免对光盘驱动器进行长时间搜索
@@ -312,31 +291,25 @@ namespace DMM_Hide_Launcher.Others
                 App.LogError("常见路径搜索错误", ex);
             }
 
-            LogDebug($"常见路径搜索完成，找到{results.Count}个游戏路径");
+            App.Log($"常见路径搜索完成，找到{results.Count}个游戏路径");
             return results.ToList();
         }
 
         // 检查路径是否存在并添加到结果集合
         private void CheckAndAddPath(string path, HashSet<string> results)
         {
-            LogDebug($"检查并添加路径: {path}");
+            App.Log($"检查并添加路径: {path}");
             try
             {
                 if (Directory.Exists(path))
                 {
                     if (results.Add(path))
                     {
-                        LogDebug($"添加有效的游戏路径: {path}");
+                        App.Log($"添加有效的游戏路径: {path}");
                     }
-                    else if (IsDetailedLogging)
-                    {
-                        LogDebug($"路径已存在于结果集合中: {path}");
-                    }
+
                 }
-                else if (IsDetailedLogging)
-                {
-                    LogDebug($"路径不存在: {path}");
-                }
+
             }
             catch (Exception ex)
             {
@@ -348,26 +321,26 @@ namespace DMM_Hide_Launcher.Others
         // 验证路径是否包含游戏可执行文件
         public bool ValidateGamePath(string path)
         {
-            LogDebug($"开始验证游戏路径: {path}");
+            App.Log($"开始验证游戏路径: {path}");
             
             // 参数验证
             if (string.IsNullOrEmpty(path))
             {
-                LogDebug("路径为空");
-                return false;
-            }
+                    App.Log("路径为空");
+                    return false;
+                }
             
             try
             {
                 if (!Directory.Exists(path))
                 {
-                    LogDebug($"路径不存在，验证失败: {path}");
+                    App.Log($"路径不存在，验证失败: {path}");
                     return false;
                 }
 
-                LogDebug($"路径存在，检查是否包含游戏可执行文件");
+                App.Log($"路径存在，检查是否包含游戏可执行文件");
                 // 检查是否包含游戏可执行文件
-                LogDebug($"检查可执行文件: {string.Join(", ", _gameExecutables)}");
+                App.Log($"检查可执行文件: {string.Join(", ", _gameExecutables)}");
                 
                 // 优化：先检查主目录
                 foreach (string exeName in _gameExecutables)
@@ -375,19 +348,19 @@ namespace DMM_Hide_Launcher.Others
                     string exePath = Path.Combine(path, exeName);
                     if (File.Exists(exePath))
                     {
-                        LogDebug($"找到游戏可执行文件: {exePath}，验证通过");
+                        App.Log($"找到游戏可执行文件: {exePath}，验证通过");
                         return true;
                     }
                 }
 
-                LogDebug($"直接目录中未找到可执行文件，检查子目录");
+                App.Log($"直接目录中未找到可执行文件，检查子目录");
                 // 检查子目录
                 string[] subDirectories = Directory.GetDirectories(path);
                 
                 // 优化：提前返回条件判断，减少不必要的循环
                 if (subDirectories.Length > 0)
                 {
-                    LogDebug($"找到{subDirectories.Length}个子目录");
+                    App.Log($"找到{subDirectories.Length}个子目录");
                     // 优化：使用并行检查来加速验证过程
                     bool found = false;
                     
@@ -400,7 +373,7 @@ namespace DMM_Hide_Launcher.Others
                             {
                                 if (File.Exists(Path.Combine(dir, exeName)))
                                 {
-                                    LogDebug($"在子目录{dir}中找到游戏可执行文件{exeName}，验证通过");
+                                    App.Log($"在子目录{dir}中找到游戏可执行文件{exeName}，验证通过");
                                     return true;
                                 }
                             }
@@ -426,7 +399,7 @@ namespace DMM_Hide_Launcher.Others
                     }
                 }
 
-                LogDebug($"在路径及子目录中未找到游戏可执行文件，验证失败: {path}");
+                App.Log($"在路径及子目录中未找到游戏可执行文件，验证失败: {path}");
                 return false;
             }
             catch (Exception ex)
@@ -446,7 +419,7 @@ namespace DMM_Hide_Launcher.Others
         /// <returns>找到的游戏安装路径列表</returns>
         private List<string> SearchRunningProcesses()
         {
-            LogDebug("开始搜索正在运行的游戏进程");
+            App.Log("开始搜索正在运行的游戏进程");
             
             // 使用HashSet提高去重效率
             HashSet<string> results = new HashSet<string>();
@@ -457,14 +430,14 @@ namespace DMM_Hide_Launcher.Others
             {
                 foreach (string exeName in _gameExecutables)
                 {
-                    LogDebug($"搜索进程: {exeName}");
+                    App.Log($"搜索进程: {exeName}");
                     string exeNameWithoutExtension = Path.GetFileNameWithoutExtension(exeName);
                     
                     // 优化：使用GetProcessesByName直接获取指定名称的进程，避免遍历所有进程
                     try
                     {
                         Process[] gameProcesses = Process.GetProcessesByName(exeNameWithoutExtension);
-                        LogDebug($"找到{gameProcesses.Length}个名称为{exeNameWithoutExtension}的进程");
+                        App.Log($"找到{gameProcesses.Length}个名称为{exeNameWithoutExtension}的进程");
 
                         foreach (Process process in gameProcesses)
                         {
@@ -485,12 +458,12 @@ namespace DMM_Hide_Launcher.Others
                                     if (ex.Message.Contains("拒绝访问") && !showMessageBox)
                                     {
                                         accessDeniedCount++;
-                                        LogWarningDebug($"访问进程{process.ProcessName}(ID: {process.Id})信息时出错: {ex.Message}。这可能是因为进程以管理员权限运行，而当前程序没有足够权限访问。");
+                                        App.LogWarning($"访问进程{process.ProcessName}(ID: {process.Id})信息时出错: {ex.Message}。这可能是因为进程以管理员权限运行，而当前程序没有足够权限访问。");
                                         showMessageBox = true;
                                     }
                                     else
                                     {
-                                        LogWarningDebug($"访问进程{process.ProcessName}(ID: {process.Id})信息时出错: {ex.Message}");
+                                        App.LogWarning($"访问进程{process.ProcessName}(ID: {process.Id})信息时出错: {ex.Message}");
                                     }
                                     continue;
                                 }
@@ -510,7 +483,7 @@ namespace DMM_Hide_Launcher.Others
                                             {
                                                 // 只使用dmmdzz_4399目录（保留原始大小写，移除尾部反斜杠）
                                                 gamePath = gamePath.Substring(0, index4399 + dmmdzz4399Length);
-                                                LogDebug($"对dmmdzz.exe进程应用特殊路径处理，修改为: {gamePath}");
+                                                App.Log($"对dmmdzz.exe进程应用特殊路径处理，修改为: {gamePath}");
                                             }
                                             // 检查路径是否包含dmmdzz_7k7k\game*模式
                                             else
@@ -520,7 +493,7 @@ namespace DMM_Hide_Launcher.Others
                                                 {
                                                     // 只使用dmmdzz_7k7k目录（保留原始大小写，移除尾部反斜杠）
                                                     gamePath = gamePath.Substring(0, index7k7k + dmmdzz7k7kLength);
-                                                    LogDebug($"对dmmdzz.exe进程应用特殊路径处理，修改为: {gamePath}");
+                                                    App.Log($"对dmmdzz.exe进程应用特殊路径处理，修改为: {gamePath}");
                                                 }
                                             }
                                         }
@@ -528,7 +501,7 @@ namespace DMM_Hide_Launcher.Others
                                         // 使用HashSet的Add方法自动去重
                                         if (results.Add(gamePath))
                                         {
-                                            LogDebug($"从运行进程找到游戏路径: {gamePath}");
+                                            App.Log($"从运行进程找到游戏路径: {gamePath}");
                                         }
                                     }
                                 }
@@ -536,13 +509,13 @@ namespace DMM_Hide_Launcher.Others
                             catch (Exception ex)
                             {
                                 // 防止在处理一个进程时影响整个搜索过程
-                                LogWarningDebug($"处理进程{process?.ProcessName}时发生错误: {ex.Message}");
+                                App.LogWarning($"处理进程{process?.ProcessName}时发生错误: {ex.Message}");
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        LogWarningDebug($"获取进程{exeNameWithoutExtension}时发生错误: {ex.Message}");
+                        App.LogWarning($"获取进程{exeNameWithoutExtension}时发生错误: {ex.Message}");
                     }
                 }
             }
@@ -565,13 +538,9 @@ namespace DMM_Hide_Launcher.Others
                 });
             }
 
-            // 如果有进程因为权限问题无法访问，提供优化建议
-            if (accessDeniedCount > 0 && IsDetailedLogging)
-            {
-                LogWarningDebug($"有{accessDeniedCount}个进程由于权限限制无法访问详细信息。为了提高游戏路径检测的准确性，建议以管理员权限运行本程序，或者确保游戏进程以普通用户权限运行。");
-            }
+
               
-            LogDebug($"进程搜索完成，找到{results.Count}个游戏路径");
+            App.Log($"进程搜索完成，找到{results.Count}个游戏路径");
             return results.ToList();
         }
     }

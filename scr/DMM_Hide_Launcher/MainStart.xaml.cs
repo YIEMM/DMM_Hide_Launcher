@@ -59,12 +59,7 @@ namespace DMM_Hide_Launcher
         /// 游戏路径（大写变量名版本）
         /// </summary>
         private string GamePath;
-        
-        /// <summary>
-        /// 配置文件名
-        /// </summary>
-        private readonly string configFileName = "config.xml";
-        
+
         /// <summary>
         /// HTTP客户端实例，用于发送网络请求
         /// </summary>
@@ -138,7 +133,6 @@ namespace DMM_Hide_Launcher
             
             // 记录程序启动信息
             App.Log("程序启动，主窗口初始化开始");
-            
             try
             {
                 LoadConfig();
@@ -350,48 +344,34 @@ namespace DMM_Hide_Launcher
 
         private async void LoadConfig()
         {
-            App.Log("开始加载配置文件: " + configFileName);
+            App.Log("开始加载配置文件");
             
-            if (File.Exists(configFileName))
+            try
             {
-                App.Log("配置文件存在，开始解析");
-                try
+                var config = ConfigManager.LoadConfig();
+                
+                // 设置游戏路径和账号信息
+                gamePath = config.GamePath;
+                GamePath = config.GamePath;
+                
+                App.Log("配置文件加载成功，游戏路径: " + (GamePath ?? "未设置"));
+                App.Log("配置文件加载成功，7K账号: " + (config.ID7K ?? "未设置"));
+                
+                User_Text.Text = config.ID7K;
+                game_path_text.Text = GamePath;
+                Load = false;
+                await Task.Delay(100);
+                if (IsLoaded)
                 {
-                    XDocument xmlDoc = XDocument.Load(configFileName);
-                    XElement gameDataElement = xmlDoc.Root.Element("game_data");
-                    XElement ID_7KElement = xmlDoc.Root.Element("ID_7K");
-                    XElement Key_7KElement = xmlDoc.Root.Element("Key_7K");
-                    string Key7K = (string)Key_7KElement;
-                    string ID7K = (string)ID_7KElement;
-                    gamePath = (string)gameDataElement;
-                    GamePath = (string)gameDataElement;
-                    
-                    App.Log("配置文件解析成功，游戏路径: " + (GamePath ?? "未设置"));
-                    App.Log("配置文件解析成功，7K账号: " + (ID7K ?? "未设置"));
-                    
-                    User_Text.Text = ID7K;
-                    game_path_text.Text = GamePath;
-                    Load = false;
-                    await Task.Delay(100);
-                    if (IsLoaded)
-                    {
-                        App.Log("窗口已加载，准备加载49ID和账号信息");
-                        Load49ID();
-                        LoadAccounts();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    App.LogError("读取配置文件时出错", ex);
-                    MessageBox.Show($"读取配置文件时出错: {ex.Message}");
+                    App.Log("窗口已加载，准备加载49ID和账号信息");
+                    Load49ID();
+                    LoadAccounts();
                 }
             }
-            else
+            catch (Exception ex)
             {
-                App.Log("配置文件不存在，创建默认配置文件");
-                CreateDefaultConfigFile();
-                await Task.Delay(1000);
-                LoadConfig();
+                App.LogError("读取配置文件时出错", ex);
+                MessageBox.Show($"读取配置文件时出错: {ex.Message}");
             }
         }
 
@@ -400,23 +380,7 @@ namespace DMM_Hide_Launcher
             try
             {
                 App.Log("开始创建默认配置文件");
-                XDocument xmlDoc;
-                if (File.Exists(configFileName))
-                {
-                    App.Log("配置文件已存在，加载现有配置文件");
-                    xmlDoc = XDocument.Load(configFileName);
-                }
-                else
-                {
-                    App.Log("配置文件不存在，创建新的默认配置文件");
-                    xmlDoc = new XDocument(
-                        new XElement("config",
-                            new XElement("game_data", ""),
-                            new XElement("ID_7K", "")
-                        )
-                    );
-                }
-                xmlDoc.Save(configFileName);
+                ConfigManager.CreateDefaultConfig();
                 App.Log("默认配置文件创建/保存成功");
             }
             catch (Exception ex)
@@ -430,44 +394,27 @@ namespace DMM_Hide_Launcher
         {
             if (Load == false)
             {
-                if (File.Exists(configFileName))
+                try
                 {
-                    try
+                    var config = ConfigManager.LoadConfig();
+                    
+                    // 根据元素名称设置不同的配置项
+                    if (elementName == "game_data")
                     {
-                        XDocument xmlDoc = XDocument.Load(configFileName);
-                        XElement element = xmlDoc.Root.Element(elementName);
-                        if (element != null)
-                        {
-                            element.Value = value;
-                        }
-                        else
-                        {
-                            xmlDoc.Root.Add(new XElement(elementName, value));
-                        }
-                        xmlDoc.Save(configFileName);
+                        config.GamePath = value;
                     }
-                    catch (Exception ex)
+                    else if (elementName == "ID_7K")
                     {
-                        MessageBox.Show($"保存配置文件时出错: {ex.Message}");
+                        config.ID7K = value;
                     }
+                    // Key_7K不再保存到配置文件，仅作为程序内部变量使用
+                    
+                    ConfigManager.SaveConfig(config);
                 }
-                else if (Load == false)
+                catch (Exception ex)
                 {
-                    try
-                    {
-                        XDocument xmlDoc = new XDocument(
-                            new XElement("config",
-                                new XElement("game_data", ""),
-                                new XElement("ID_7K", "")
-                            )
-                        );
-                        xmlDoc.Root.Add(new XElement(elementName, value));
-                        xmlDoc.Save(configFileName);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"创建配置文件时出错: {ex.Message}");
-                    }
+                    App.LogError("保存配置文件时出错", ex);
+                    MessageBox.Show($"保存配置文件时出错: {ex.Message}");
                 }
             }
         }
@@ -512,230 +459,200 @@ namespace DMM_Hide_Launcher
         private void Start_Game_4399_Click(object sender, RoutedEventArgs e)
         {
             App.Log("开始启动4399游戏");
-            if (File.Exists(configFileName))
+            try
             {
-                try
+                // 使用ConfigManager获取配置
+                var config = ConfigManager.LoadConfig();
+                
+                // 获取游戏路径
+                string gamePath = config.GamePath;
+                App.Log($"从配置文件读取游戏路径: {gamePath}");
+                
+                // 验证游戏路径
+                if (string.IsNullOrEmpty(gamePath))
                 {
-                    XDocument xmlDoc = XDocument.Load(configFileName);
-                    XElement gameDataElement = xmlDoc.Root.Element("game_data");
-                    if (gameDataElement != null)
+                    App.Log("游戏路径为空");
+                    Growl.Warning("找不到游戏位置，请选择在设置中输入游戏目录");
+                }
+                else if (!Directory.Exists(gamePath))
+                {
+                    App.Log("游戏目录不存在");
+                    Growl.Warning("游戏目录不存在，请检查路径");
+                }
+                else
+                {
+                    App.Log("游戏目录存在，开始检查游戏进程");
+                    bool isRunning = IsProcessRunning("dmmdzz");
+                    if (isRunning)
                     {
-                        GamePath = gameDataElement.Value;
-                        App.Log($"从配置文件读取游戏路径: {GamePath}");
-                        if (string.IsNullOrEmpty(GamePath))
-                        {
-                            App.Log("游戏路径为空");
-                            Growl.Warning("找不到游戏位置，请选择在xml中输入游戏目录");
-                        }
-                        else if (!Directory.Exists(GamePath))
-                        {
-                            App.Log("游戏目录不存在");
-                            Growl.Warning("游戏目录不存在，请检查路径");
-                        }
-                        else
-                        {
-                            App.Log("游戏目录存在，开始检查游戏进程");
-                            bool isRunning = IsProcessRunning("dmmdzz");
-                            if (isRunning)
-                            {
-                                App.Log("检测到游戏正在运行");
+                        App.Log("检测到游戏正在运行");
 #pragma warning disable CA1416 // 验证平台兼容性
-                                Growl.Ask("检测到游戏正在运行，是否强制关闭游戏？", isConfirmed =>
-                                {
-                                    if (isConfirmed)
-                                    {
-                                        App.Log("用户确认强制关闭游戏");
-                                        Process[] processes = Process.GetProcessesByName("dmmdzz");
-                                        foreach (Process process in processes)
-                                        {
-                                            process.Kill();
-                                        }
-                                        App.Log("已强制关闭游戏进程");
-                                        Growl.Success("已强制关闭游戏");
-                                    }
-                                    return true;
-                                });
-#pragma warning restore CA1416 // 验证平台兼容性
-                            }
-                            else
+                        Growl.Ask("检测到游戏正在运行，是否强制关闭游戏？", isConfirmed =>
+                        {
+                            if (isConfirmed)
                             {
-                                App.Log("游戏未在运行，开始查找游戏可执行文件");
-                                string[] files = Directory.GetFiles(GamePath, "dmmdzz.exe", SearchOption.AllDirectories);
-                                if (files.Length > 0)
+                                App.Log("用户确认强制关闭游戏");
+                                Process[] processes = Process.GetProcessesByName("dmmdzz");
+                                foreach (Process process in processes)
                                 {
-                                    App.Log($"找到游戏可执行文件: {files[0]}");
-                                    App.Log("启动游戏，参数: ID=4399OpenID,Key=4399OpenKey,PID=4399_0,PROCPARA=66666,Channel=PC4400");
-                                    Process.Start(files[0], "ID=4399OpenID,Key=4399OpenKey,PID=4399_0,PROCPARA=66666,Channel=PC4400");
-                                    App.Log("4399启动，等待窗口");
-                                    CheckGameWindow();
+                                    process.Kill();
                                 }
-                                else
-                                {
-                                    App.Log("未找到游戏可执行文件");
-                                    Growl.Warning("未找到游戏");
-                                }
+                                App.Log("已强制关闭游戏进程");
+                                Growl.Success("已强制关闭游戏");
                             }
-                        }
+                            return true;
+                        });
+#pragma warning restore CA1416 // 验证平台兼容性
                     }
                     else
                     {
-                        App.Log("配置文件中game_data项不存在");
-                        Growl.Warning("game_data 项不存在");
+                        App.Log("游戏未在运行，开始查找游戏可执行文件");
+                        string[] files = Directory.GetFiles(gamePath, "dmmdzz.exe", SearchOption.AllDirectories);
+                        if (files.Length > 0)
+                        {
+                            App.Log($"找到游戏可执行文件: {files[0]}");
+                            App.Log("启动游戏，参数: ID=4399OpenID,Key=4399OpenKey,PID=4399_0,PROCPARA=66666,Channel=PC4400");
+                            Process.Start(files[0], "ID=4399OpenID,Key=4399OpenKey,PID=4399_0,PROCPARA=66666,Channel=PC4400");
+                            App.Log("4399启动，等待窗口");
+                            CheckGameWindow();
+                        }
+                        else
+                        {
+                            App.Log("未找到游戏可执行文件");
+                            Growl.Warning("未找到游戏");
+                        }
                     }
                 }
-                catch (Exception ex)
-                {
-                    App.LogError("启动游戏时出错", ex);
-                    Growl.Warning($"启动游戏时出错: {ex.Message}");
-                }
             }
-            else if (Load == false)
+            catch (Exception ex)
             {
-                App.Log("配置文件不存在，创建默认配置文件");
-                CreateDefaultConfigFile();
-                MessageBox.Show("已创建新的配置文件，请重新配置游戏路径和账号信息");
+                App.LogError("启动游戏时出错", ex);
+                Growl.Warning($"启动游戏时出错: {ex.Message}");
             }
         }
         private async void Start_Game_7k7k_Click(object sender, RoutedEventArgs e)
         {
             App.Log("开始启动7k7k游戏");
-            if (File.Exists(configFileName))
+            try
             {
-                try
+                string ID_7K = User_Text.Text;
+                string Key_7K = Password.Password;
+                App.Log($"用户账号: {ID_7K}");
+                
+                // 使用ConfigManager获取配置
+                var config = ConfigManager.LoadConfig();
+                
+                // 获取游戏路径
+                string gamePath = config.GamePath;
+                App.Log($"从配置文件读取游戏路径: {gamePath}");
+                
+                // 验证游戏路径
+                if (string.IsNullOrEmpty(gamePath))
                 {
-                    string ID_7K = User_Text.Text;
-                    string Key_7K = Password.Password;
-                    App.Log($"用户账号: {ID_7K}");
-                    XDocument xmlDoc = XDocument.Load(configFileName);
-                    XElement gameDataElement = xmlDoc.Root.Element("game_data");
-                    if (gameDataElement != null)
+                    App.Log("游戏路径为空");
+                    Growl.Warning("找不到游戏位置，请选择在设置中输入游戏目录");
+                }
+                else if (!Directory.Exists(gamePath))
+                {
+                    App.Log("游戏目录不存在");
+                    Growl.Warning("游戏目录不存在，请检查路径");
+                }
+                else
+                {
+                    App.Log("游戏目录存在，开始处理账号信息");
+                    
+                    // 检查是否为空白字符
+                    if (string.IsNullOrWhiteSpace(ID_7K) || string.IsNullOrWhiteSpace(Key_7K))
                     {
-                        string GamePath = gameDataElement.Value;
-                        App.Log($"从配置文件读取游戏路径: {GamePath}");
-                        if (string.IsNullOrEmpty(GamePath))
-                        {
-                            App.Log("游戏路径为空");
-                            Growl.Warning("找不到游戏位置，请选择在xml中输入游戏目录");
-                        }
-                        else if (!Directory.Exists(GamePath))
-                        {
-                            App.Log("游戏目录不存在");
-                            Growl.Warning("游戏目录不存在，请检查路径");
-                        }
-                        else
-                        {
-                            App.Log("游戏目录存在，开始处理账号信息");
-                            XElement ID_7KElement = xmlDoc.Root.Element("ID_7K");
-                            XElement KEY_7KElement = xmlDoc.Root.Element("Key_7K");
-
-                            // 如果 ID_7K 或 KEY_7K 元素不存在，则创建它们
-                            if (ID_7KElement == null)
-                            {
-                                ID_7KElement = new XElement("ID_7K", "");
-                                xmlDoc.Root.Add(ID_7KElement);
-                            }
-                            if (KEY_7KElement == null)
-                            {
-                                KEY_7KElement = new XElement("Key_7K", "");
-                                xmlDoc.Root.Add(KEY_7KElement);
-                            }
-
-                            // 检查是否为空白字符
-                            if (string.IsNullOrWhiteSpace(ID_7K) || string.IsNullOrWhiteSpace(Key_7K))
-                            {
-                                App.Log("账号或密码为空");
-                                // 调试输出
-                                //MessageBox.Show($"Username: {username}, Password: {password}");
-                                Growl.Warning("请输入账密");
-                            }
-                            else
-                            {
-                                App.Log("账号和密码已输入，开始检查游戏进程");
-                                bool isRunning = IsProcessRunning("dmmdzz");
-                                if (isRunning)
-                                {
-                                    App.Log("检测到游戏进程正在运行");
-#pragma warning disable CA1416 // 验证平台兼容性
-                                    Growl.Ask("检测到游戏正在运行，是否强制关闭游戏？", isConfirmed =>
-                                    {
-                                        if (isConfirmed)
-                                        {
-                                            App.Log("用户确认强制关闭游戏进程");
-                                            Process[] processes = Process.GetProcessesByName("dmmdzz");
-                                            foreach (Process process in processes)
-                                            {
-                                                process.Kill();
-                                            }
-                                            App.Log("已成功强制关闭游戏进程");
-                                            Growl.Success("已强制关闭游戏");
-                                        }
-                                        return true;
-                                    });
-#pragma warning restore CA1416 // 验证平台兼容性
-                                }
-                                else
-                                {
-                                    App.Log("游戏未在运行，准备启动游戏");
-                                    try
-                                    {
-                                        GamePath = gameDataElement.Value;
-                                        App.Log("开始执行HTTP请求获取游戏启动参数");
-                                        string result = await HttpRequester.ExecuteRequests(ID_7K, Key_7K, GamePath);
-                                        
-                                        // 处理返回结果
-                                        if (result.StartsWith("ERROR:"))
-                                        {
-                                            string errorCode = result.Substring(6); // 去掉"ERROR:"前缀
-                                            App.LogError("获取游戏启动参数失败", new Exception(errorCode));
-                                            
-                                            // 根据错误代码显示对应的错误信息
-                                            if (errorCode == "INVALID_CREDENTIALS")
-                                            {
-                                                Growl.Warning("错误的账户/密码");
-                                            }
-                                            else if (errorCode == "GAME_NOT_FOUND")
-                                            {
-                                                Growl.Warning("未找到游戏");
-                                            }
-                                            else
-                                            {
-                                                Growl.Warning($"获取游戏启动参数失败: {errorCode}");
-                                            }
-                                        }
-                                        else if (result.Contains("|"))
-                                        {
-                                            // 解析游戏路径和启动参数
-                                            string[] parts = result.Split('|');
-                                            if (parts.Length == 2)
-                                            {
-                                                string gameExePath = parts[0];
-                                                string startParams = parts[1];
-                                                
-                                                App.Log($"成功获取游戏启动参数，开始启动游戏: {gameExePath} 启动参数: {startParams}");
-                                                Process.Start(gameExePath, startParams);
-                                                App.Log("7K7K启动，等待窗口");
-                                                CheckGameWindow();
-                                            }
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        App.LogError("游戏启动过程出错", ex);
-                                        Growl.Error($"发生错误: {ex.Message}");
-                                    }
-                                }
-                            }
-                        }
+                        App.Log("账号或密码为空");
+                        Growl.Warning("请输入账密");
                     }
                     else
                     {
-                        Growl.Warning("game_data 项不存在");
+                        App.Log("账号和密码已输入，开始检查游戏进程");
+                        bool isRunning = IsProcessRunning("dmmdzz");
+                        if (isRunning)
+                        {
+                            App.Log("检测到游戏进程正在运行");
+#pragma warning disable CA1416 // 验证平台兼容性
+                            Growl.Ask("检测到游戏正在运行，是否强制关闭游戏？", isConfirmed =>
+                            {
+                                if (isConfirmed)
+                                {
+                                    App.Log("用户确认强制关闭游戏进程");
+                                    Process[] processes = Process.GetProcessesByName("dmmdzz");
+                                    foreach (Process process in processes)
+                                    {
+                                        process.Kill();
+                                    }
+                                    App.Log("已成功强制关闭游戏进程");
+                                    Growl.Success("已强制关闭游戏");
+                                }
+                                return true;
+                            });
+#pragma warning restore CA1416 // 验证平台兼容性
+                        }
+                        else
+                        {
+                            App.Log("游戏未在运行，准备启动游戏");
+                            try
+                            {
+                                // 保存账号ID到配置文件（密码不再保存）
+                                config.ID7K = ID_7K;
+                                ConfigManager.SaveConfig(config);
+                                
+                                App.Log("开始执行HTTP请求获取游戏启动参数");
+                                string result = await HttpRequester.ExecuteRequests(ID_7K, Key_7K, gamePath);
+                                
+                                // 处理返回结果
+                                if (result.StartsWith("ERROR:"))
+                                {
+                                    string errorCode = result.Substring(6); // 去掉"ERROR:"前缀
+                                    App.LogError("获取游戏启动参数失败", new Exception(errorCode));
+                                    
+                                    // 根据错误代码显示对应的错误信息
+                                    if (errorCode == "INVALID_CREDENTIALS")
+                                    {
+                                        Growl.Warning("错误的账户/密码");
+                                    }
+                                    else if (errorCode == "GAME_NOT_FOUND")
+                                    {
+                                        Growl.Warning("未找到游戏");
+                                    }
+                                    else
+                                    {
+                                        Growl.Warning($"获取游戏启动参数失败: {errorCode}");
+                                    }
+                                }
+                                else if (result.Contains("|"))
+                                {
+                                    // 解析游戏路径和启动参数
+                                    string[] parts = result.Split('|');
+                                    if (parts.Length == 2)
+                                    {
+                                        string gameExePath = parts[0];
+                                        string startParams = parts[1];
+                                        
+                                        App.Log($"成功获取游戏启动参数，开始启动游戏: {gameExePath} 启动参数: {startParams}");
+                                        Process.Start(gameExePath, startParams);
+                                        App.Log("7K7K启动，等待窗口");
+                                        CheckGameWindow();
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                App.LogError("游戏启动过程出错", ex);
+                                Growl.Error($"发生错误: {ex.Message}");
+                            }
+                        }
                     }
                 }
-                catch (Exception ex)
-                {
-                    Growl.Warning($"读取配置文件时出错: {ex.Message}");
-                }
+            }
+            catch (Exception ex)
+            {
+                App.LogError("读取配置文件时出错", ex);
+                Growl.Warning($"读取配置文件时出错: {ex.Message}");
             }
         }
         /// <summary>
@@ -776,30 +693,78 @@ namespace DMM_Hide_Launcher
         {
             try
             {
-                if (File.Exists(AccountsFilePath))
+                App.Log("开始从ConfigManager加载账号信息");
+                Accounts.Clear();
+                
+                // 使用ConfigManager获取账号信息
+                List<Others.Account> configAccounts = ConfigManager.GetAccounts();
+                
+                if (configAccounts != null && configAccounts.Count > 0)
                 {
-                    Accounts.Clear();
-                    string json = File.ReadAllText(AccountsFilePath);
-                    
-                    using (StringReader stringReader = new StringReader(json))
-                    using (JsonTextReader jsonReader = new JsonTextReader(stringReader))
+                    foreach (var configAccount in configAccounts)
                     {
-                        var accounts = JsonSerializer.Create().Deserialize<List<Account>>(jsonReader);
-                        
-                        if (accounts != null)
+                        // 将Config.Account类型转换为MainWindow.Account类型
+                        Accounts.Add(new Account
                         {
-                            foreach (var account in accounts)
-                            {
-                                Accounts.Add(account);
-                            }
-                        }
+                            Username = configAccount.Username,
+                            Password = configAccount.Password
+                        });
                     }
+                    App.Log($"成功加载{configAccounts.Count}个账号");
+                }
+                else
+                {
+                    App.Log("没有找到账号信息");
+                    
+                    // 如果没有账号信息，检查是否存在accounts.json文件，如果存在则导入
+                    ImportFromOldAccountsFile();
                 }
             }
             catch (Exception ex)
             {
                 App.LogError("加载账号数据失败", ex);
                 MessageBox.Show($"加载账号数据失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+        /// <summary>
+        /// 从旧的accounts.json文件导入账号信息
+        /// </summary>
+        private void ImportFromOldAccountsFile()
+        {
+            try
+            {
+                if (File.Exists(AccountsFilePath))
+                {
+                    App.Log("检测到旧的accounts.json文件，开始导入账号信息");
+                    string json = File.ReadAllText(AccountsFilePath);
+                    
+                    using (StringReader stringReader = new StringReader(json))
+                    using (JsonTextReader jsonReader = new JsonTextReader(stringReader))
+                    {
+                        var oldAccounts = JsonSerializer.Create().Deserialize<List<Account>>(jsonReader);
+                        
+                        if (oldAccounts != null && oldAccounts.Count > 0)
+                        {
+                            // 导入账号到ConfigManager
+                            foreach (var account in oldAccounts)
+                            {
+                                ConfigManager.AddOrUpdateAccount(account.Username, account.Password);
+                                Accounts.Add(account);
+                            }
+                            App.Log($"成功从旧文件导入{oldAccounts.Count}个账号");
+                            
+                            // 导入完成后删除旧文件
+                            File.Delete(AccountsFilePath);
+                            App.Log("已删除旧的accounts.json文件");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                App.LogError("从旧文件导入账号失败", ex);
+                // 这里不显示错误，因为这是一个可选操作
             }
         }
 
@@ -977,41 +942,22 @@ namespace DMM_Hide_Launcher
         /// <param name="path">游戏路径</param>
         private void SetGamePath(string path)
         {
-            App.Log($"设置游戏路径为: {path}");
-            game_path_text.Text = path;
-            gamePath = path;
-            GamePath = path;
-            
-            // 保存到配置文件
-            if (File.Exists(configFileName))
+            try
             {
-                try
-                {
-                    App.Log("配置文件存在，开始保存游戏路径");
-                    XDocument xmlDoc = XDocument.Load(configFileName);
-                    XElement gameDataElement = xmlDoc.Root.Element("game_data");
-                    if (gameDataElement != null)
-                    {
-                        App.Log("game_data元素已存在，更新值");
-                        gameDataElement.Value = path;
-                    }
-                    else
-                    {
-                        App.Log("game_data元素不存在，创建新元素");
-                        xmlDoc.Root.Add(new XElement("game_data", path));
-                    }
-                    xmlDoc.Save(configFileName);
-                    App.Log("游戏路径已保存到配置文件");
-                }
-                catch (Exception ex)
-                {
-                    App.LogError("保存游戏路径到配置文件时出错", ex);
-                    Growl.Error("保存配置失败，但路径已设置");
-                }
+                App.Log($"设置游戏路径为: {path}");
+                game_path_text.Text = path;
+                gamePath = path;
+                GamePath = path;
+                
+                // 使用ConfigManager保存游戏路径
+                ConfigManager.SetGamePath(path);
+                
+                App.Log("游戏路径已保存到配置文件");
             }
-            else
+            catch (Exception ex)
             {
-                App.Log("配置文件不存在，跳过保存");
+                App.LogError("保存游戏路径到配置文件时出错", ex);
+                Growl.Error("保存配置失败，但路径已设置");
             }
         }
         

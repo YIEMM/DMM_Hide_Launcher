@@ -1,12 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "F:\\out_git\\DMM_Hide_Launcher\\scr\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{C316E7D3-DA1B-4122-BA0B-6A554D0E7CC8}|DMM_Hide_Launcher\\DMM_Hide_Launcher.csproj|f:\\out_git\\dmm_hide_launcher\\scr\\dmm_hide_launcher\\others\\tools\\countwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{C316E7D3-DA1B-4122-BA0B-6A554D0E7CC8}|DMM_Hide_Launcher\\DMM_Hide_Launcher.csproj|solutionrelative:dmm_hide_launcher\\others\\tools\\countwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -14,7 +9,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -27,18 +22,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "CountWindow.xaml",
-              "DocumentMoniker": "F:\\out_git\\DMM_Hide_Launcher\\scr\\DMM_Hide_Launcher\\Others\\Tools\\CountWindow.xaml",
-              "RelativeDocumentMoniker": "DMM_Hide_Launcher\\Others\\Tools\\CountWindow.xaml",
-              "ToolTip": "F:\\out_git\\DMM_Hide_Launcher\\scr\\DMM_Hide_Launcher\\Others\\Tools\\CountWindow.xaml",
-              "RelativeToolTip": "DMM_Hide_Launcher\\Others\\Tools\\CountWindow.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-09-21T13:06:33.965Z",
-              "EditorCaption": ""
             }
           ]
         },

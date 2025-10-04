@@ -32,7 +32,7 @@ namespace DMM_Hide_Launcher.Others
                 }
                 return "DefaultDeviceId";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // 如果无法获取设备标识符，返回默认值
                 return "DefaultDeviceId";

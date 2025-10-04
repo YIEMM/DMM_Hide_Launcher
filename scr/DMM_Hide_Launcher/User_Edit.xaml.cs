@@ -95,11 +95,6 @@ namespace DMM_Hide_Launcher
         public event EventHandler User_Edit_Close;
 
         /// <summary>
-        /// 应用程序标识，用于生成设备特定密钥
-        /// </summary>
-        private const string ApplicationId = "DMM_Hide_Launcher_2024";
-
-        /// <summary>
         /// 窗口激活时调用
         /// 设置当前窗口为Growl通知的父容器，实现只在激活窗口显示通知的功能
         /// 确保通知信息只在当前可见的窗口显示，避免UI挤压和重叠问题
@@ -147,16 +142,62 @@ namespace DMM_Hide_Launcher
         // 加载保存的账号数据
         private void LoadAccounts()
         {
-            App.Log("开始加载账号数据: " + AccountsFilePath);
+            App.Log("开始加载账号数据: 使用ConfigManager");
+            try
+            {
+                // 清空当前账号列表
+                Accounts.Clear();
+                
+                // 使用ConfigManager获取账号信息
+                List<Others.Account> configAccounts = ConfigManager.GetAccounts();
+                
+                if (configAccounts != null && configAccounts.Count > 0)
+                {
+                    App.Log($"成功从ConfigManager获取 {configAccounts.Count} 个账号");
+                    foreach (var configAccount in configAccounts)
+                    {
+                        // 解密密码
+                        string decryptedPassword = CryptoHelper.DecryptString(configAccount.Password);
+                        Account decryptedAccount = new Account
+                        {
+                            Username = configAccount.Username,
+                            Password = decryptedPassword
+                        };
+                        App.Log($"加载账号: {decryptedAccount.Username}");
+                        
+                        // 添加到当前列表
+                        Accounts.Add(decryptedAccount);
+                    }
+                }
+                else
+                {
+                    App.Log("从ConfigManager未找到账号信息");
+                    
+                    // 如果没有账号信息，检查是否存在accounts.json文件，如果存在则导入
+                    ImportFromOldAccountsFile();
+                }
+            }
+            catch (Exception ex)
+            {
+                App.LogError("加载账号数据失败", ex);
+                MessageBox.Show($"加载账号数据失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+        /// <summary>
+        /// 从旧的accounts.json文件导入账号信息
+        /// </summary>
+        private void ImportFromOldAccountsFile()
+        {
             try
             {
                 if (File.Exists(AccountsFilePath))
                 {
-                    App.Log("账号文件存在，开始读取和解析");
+                    App.Log("检测到旧的accounts.json文件，开始导入账号信息");
                     string json = File.ReadAllText(AccountsFilePath);
                     var encryptedAccounts = JsonSerializer.Deserialize<List<Account>>(json);
 
-                    if (encryptedAccounts != null)
+                    if (encryptedAccounts != null && encryptedAccounts.Count > 0)
                     {
                         App.Log($"成功解析账号文件，共找到 {encryptedAccounts.Count} 个账号");
                         foreach (var encryptedAccount in encryptedAccounts)
@@ -169,8 +210,17 @@ namespace DMM_Hide_Launcher
                                 Password = decryptedPassword
                             };
                             App.Log($"加载账号: {decryptedAccount.Username}");
+                            
+                            // 添加到当前列表
                             Accounts.Add(decryptedAccount);
+                            
+                            // 保存到ConfigManager
+                            ConfigManager.AddOrUpdateAccount(encryptedAccount.Username, encryptedAccount.Password);
                         }
+                        
+                        // 导入完成后删除旧文件
+                        File.Delete(AccountsFilePath);
+                        App.Log("已删除旧的accounts.json文件");
                     }
                 }
                 else
@@ -180,37 +230,35 @@ namespace DMM_Hide_Launcher
             }
             catch (Exception ex)
             {
-                App.LogError("加载账号数据失败", ex);
-                MessageBox.Show($"加载账号数据失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                App.Log("账号加载操作完成");
+                App.LogError("从旧文件导入账号数据失败", ex);
+                // 这里不显示错误，因为这是一个可选操作
             }
         }
-
+        
         // 保存账号数据
         private void SaveAccounts()
         {
-            App.Log("开始保存账号数据到: " + AccountsFilePath);
+            App.Log("开始保存账号数据到ConfigManager");
             try
             {
-                // 创建加密后的账号列表
-                List<Account> encryptedAccounts = new List<Account>();
+                // 先清空ConfigManager中的所有账号
+                var configAccounts = ConfigManager.GetAccounts();
+                foreach (var configAccount in configAccounts)
+                {
+                    ConfigManager.DeleteAccount(configAccount.Username);
+                }
+                
+                // 然后重新添加所有账号
                 foreach (var account in Accounts)
                 {
                     // 加密密码
                     string encryptedPassword = CryptoHelper.EncryptString(account.Password);
-                    encryptedAccounts.Add(new Account
-                    {
-                        Username = account.Username,
-                        Password = encryptedPassword
-                    });
+                    
+                    // 添加到ConfigManager
+                    ConfigManager.AddOrUpdateAccount(account.Username, encryptedPassword);
                 }
-
-                string json = JsonSerializer.Serialize(encryptedAccounts);
-                File.WriteAllText(AccountsFilePath, json);
-                App.Log($"账号数据保存成功，共保存 {encryptedAccounts.Count} 个账号");
+                
+                App.Log($"账号数据保存成功，共保存 {Accounts.Count} 个账号到ConfigManager");
             }
             catch (Exception ex)
             {
