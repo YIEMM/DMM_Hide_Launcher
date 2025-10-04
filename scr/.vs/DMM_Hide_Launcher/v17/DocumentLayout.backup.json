@@ -3,20 +3,8 @@
   "WorkspaceRootPath": "F:\\out_git\\DMM_Hide_Launcher\\scr\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C316E7D3-DA1B-4122-BA0B-6A554D0E7CC8}|DMM_Hide_Launcher\\DMM_Hide_Launcher.csproj|f:\\out_git\\dmm_hide_launcher\\scr\\dmm_hide_launcher\\user_edit.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{C316E7D3-DA1B-4122-BA0B-6A554D0E7CC8}|DMM_Hide_Launcher\\DMM_Hide_Launcher.csproj|solutionrelative:dmm_hide_launcher\\user_edit.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C316E7D3-DA1B-4122-BA0B-6A554D0E7CC8}|DMM_Hide_Launcher\\DMM_Hide_Launcher.csproj|f:\\out_git\\dmm_hide_launcher\\scr\\dmm_hide_launcher\\mainstart.xaml||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{C316E7D3-DA1B-4122-BA0B-6A554D0E7CC8}|DMM_Hide_Launcher\\DMM_Hide_Launcher.csproj|solutionrelative:dmm_hide_launcher\\mainstart.xaml||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C316E7D3-DA1B-4122-BA0B-6A554D0E7CC8}|DMM_Hide_Launcher\\DMM_Hide_Launcher.csproj|f:\\out_git\\dmm_hide_launcher\\scr\\dmm_hide_launcher\\mainstart.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{C316E7D3-DA1B-4122-BA0B-6A554D0E7CC8}|DMM_Hide_Launcher\\DMM_Hide_Launcher.csproj|solutionrelative:dmm_hide_launcher\\mainstart.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C316E7D3-DA1B-4122-BA0B-6A554D0E7CC8}|DMM_Hide_Launcher\\DMM_Hide_Launcher.csproj|f:\\out_git\\dmm_hide_launcher\\scr\\dmm_hide_launcher\\others\\choosepathfind.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{C316E7D3-DA1B-4122-BA0B-6A554D0E7CC8}|DMM_Hide_Launcher\\DMM_Hide_Launcher.csproj|solutionrelative:dmm_hide_launcher\\others\\choosepathfind.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{C316E7D3-DA1B-4122-BA0B-6A554D0E7CC8}|DMM_Hide_Launcher\\DMM_Hide_Launcher.csproj|f:\\out_git\\dmm_hide_launcher\\scr\\dmm_hide_launcher\\others\\tools\\countwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{C316E7D3-DA1B-4122-BA0B-6A554D0E7CC8}|DMM_Hide_Launcher\\DMM_Hide_Launcher.csproj|solutionrelative:dmm_hide_launcher\\others\\tools\\countwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,10 +18,6 @@
           "Children": [
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
-            },
-            {
-              "$type": "Bookmark",
               "Name": "ST:0:0:{f4fc5ff1-28ef-4b04-ad02-6b298310ccc7}"
             },
             {
@@ -41,38 +25,19 @@
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
             },
             {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
+            },
+            {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "User_Edit.xaml",
-              "DocumentMoniker": "F:\\out_git\\DMM_Hide_Launcher\\scr\\DMM_Hide_Launcher\\User_Edit.xaml",
-              "RelativeDocumentMoniker": "DMM_Hide_Launcher\\User_Edit.xaml",
-              "ToolTip": "F:\\out_git\\DMM_Hide_Launcher\\scr\\DMM_Hide_Launcher\\User_Edit.xaml",
-              "RelativeToolTip": "DMM_Hide_Launcher\\User_Edit.xaml",
+              "Title": "CountWindow.xaml",
+              "DocumentMoniker": "F:\\out_git\\DMM_Hide_Launcher\\scr\\DMM_Hide_Launcher\\Others\\Tools\\CountWindow.xaml",
+              "RelativeDocumentMoniker": "DMM_Hide_Launcher\\Others\\Tools\\CountWindow.xaml",
+              "ToolTip": "F:\\out_git\\DMM_Hide_Launcher\\scr\\DMM_Hide_Launcher\\Others\\Tools\\CountWindow.xaml",
+              "RelativeToolTip": "DMM_Hide_Launcher\\Others\\Tools\\CountWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-09-17T13:40:31.787Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "ChoosePathFind.xaml",
-              "DocumentMoniker": "F:\\out_git\\DMM_Hide_Launcher\\scr\\DMM_Hide_Launcher\\Others\\ChoosePathFind.xaml",
-              "RelativeDocumentMoniker": "DMM_Hide_Launcher\\Others\\ChoosePathFind.xaml",
-              "ToolTip": "F:\\out_git\\DMM_Hide_Launcher\\scr\\DMM_Hide_Launcher\\Others\\ChoosePathFind.xaml",
-              "RelativeToolTip": "DMM_Hide_Launcher\\Others\\ChoosePathFind.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-09-17T10:26:09.821Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "MainStart.xaml",
-              "DocumentMoniker": "F:\\out_git\\DMM_Hide_Launcher\\scr\\DMM_Hide_Launcher\\MainStart.xaml",
-              "RelativeDocumentMoniker": "DMM_Hide_Launcher\\MainStart.xaml",
-              "ToolTip": "F:\\out_git\\DMM_Hide_Launcher\\scr\\DMM_Hide_Launcher\\MainStart.xaml",
-              "RelativeToolTip": "DMM_Hide_Launcher\\MainStart.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-09-17T10:25:29.317Z",
+              "WhenOpened": "2025-09-21T13:06:33.965Z",
               "EditorCaption": ""
             }
           ]
@@ -88,40 +53,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "Orientation": 0,
-      "VerticalTabListWidth": 256,
-      "FloatingWindowState": {
-        "Id": "9ef527b0-4063-4584-8078-3b9d778c0b92",
-        "Display": 0,
-        "X": 1034,
-        "Y": 211,
-        "Width": 800,
-        "Height": 600,
-        "WindowState": 0
-      },
-      "DocumentGroups": [
-        {
-          "DockedWidth": 200,
-          "SelectedChildIndex": 0,
-          "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "MainStart.xaml",
-              "DocumentMoniker": "F:\\out_git\\DMM_Hide_Launcher\\scr\\DMM_Hide_Launcher\\MainStart.xaml",
-              "RelativeDocumentMoniker": "DMM_Hide_Launcher\\MainStart.xaml",
-              "ToolTip": "F:\\out_git\\DMM_Hide_Launcher\\scr\\DMM_Hide_Launcher\\MainStart.xaml",
-              "RelativeToolTip": "DMM_Hide_Launcher\\MainStart.xaml",
-              "ViewState": "AgIAAHoAAAAAAAAAAAAAAIEAAAAaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-09-17T13:37:47.461Z",
-              "EditorCaption": ""
             }
           ]
         }

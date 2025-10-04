@@ -126,7 +126,10 @@
                     </Grid>
                 </TabItem>
                 <TabItem Header="Tools">
-
+                    <Grid Margin="20">
+                        <Button x:Name="CountButton" Content="count" Width="100" Height="40" FontSize="16"
+                                Click="CountButton_Click" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
                 </TabItem>
             </TabControl>
         </Grid>

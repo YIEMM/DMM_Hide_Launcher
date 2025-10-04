@@ -3,6 +3,7 @@ using AdonisUI.Controls;
 using HandyControl.Controls;
 using Newtonsoft.Json;
 using DMM_Hide_Launcher.Others;
+using DMM_Hide_Launcher.Others.Tools;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -1318,6 +1319,23 @@ namespace DMM_Hide_Launcher
             }
         }
         
+        /// <summary>
+        /// 计数按钮点击事件处理程序
+        /// 打开计数窗口
+        /// </summary>
+        private void CountButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CountWindow countWindow = new CountWindow();
+                countWindow.Show();
+            }
+            catch (Exception ex)
+            {
+                App.LogError("打开计数窗口时出错", ex);
+                MessageBox.Show("打开计数窗口失败：" + ex.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }
 
