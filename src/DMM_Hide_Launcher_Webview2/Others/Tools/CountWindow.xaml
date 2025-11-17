@@ -1,0 +1,65 @@
+<adonisControls:AdonisWindow x:Class="DMM_Hide_Launcher.Others.Tools.CountWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DMM_Hide_Launcher.Others.Tools"
+        xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
+        xmlns:controls="https://github.com/HandyOrg/HandyControl"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        mc:Ignorable="d"
+        Height="500"
+        Width="400"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="{DynamicResource MiSansFont}"
+        >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 标题区域 -->
+        <StackPanel Grid.Row="0" Margin="20,20,20,10">
+            <TextBlock Text="道具卡碎片计算" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- 输入区域 -->
+        <StackPanel Grid.Row="1" Margin="20">
+            <Grid RenderTransformOrigin="0.583,0.513">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0">
+                    <hc:SimplePanel Margin="0,0,100,0" HorizontalAlignment="Right" VerticalAlignment="Center" Width="98" Height="74">
+                        <TextBlock Text="当前等级" Width="98" TextAlignment="Center" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,6,0,0"/>
+                        <TextBox x:Name="CurrentLevelTextBox" TextAlignment="Center" Width="88" Height="24" Margin="5,20,5,5" Text="0" Style="{StaticResource TextBoxExtend}"/>
+                    </hc:SimplePanel>
+
+                    <hc:SimplePanel Margin="0,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Center" Width="98" Height="74">
+                        <TextBlock Text="目标等级" TextAlignment="Center" Width="98" VerticalAlignment="Top" Margin="0,5,0,0"/>
+                        <TextBox x:Name="TargetLevelTextBox" TextAlignment="Center" Text="13" Margin="5,20,5,5" Height="24" Style="{StaticResource TextBoxExtend}"/>
+                    </hc:SimplePanel>
+
+                </Grid>
+                <hc:SimplePanel Grid.Column="1" Margin="10,0,0,0" Width="auto" Height="74" HorizontalAlignment="Left">
+                    <TextBlock Text="卡片品质" Margin="0,5,0,0" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Top" />
+                    <hc:ComboBox x:Name="QualityComboBox" Width="140" Height="30" HorizontalAlignment="Center" Margin="0,28,0,0" VerticalAlignment="Top" Style="{StaticResource ComboBoxCapsule}">
+                        <ComboBoxItem Content="普通"/>
+                        <ComboBoxItem Content="稀有"/>
+                        <ComboBoxItem Content="史诗"/>
+                    </hc:ComboBox>
+                    
+                </hc:SimplePanel>
+            </Grid>
+
+            <Button x:Name="CalculateButton" Content="计算资源需求" Width="150" Height="40" HorizontalAlignment="Center" Margin="20" Click="CalculateButton_Click" Style="{StaticResource ButtonGroupItemSingle}"/>
+        </StackPanel>
+
+        <!-- 结果显示区域 -->
+        <TextBlock x:Name="Count_Out" Text="升级所需资源:" FontSize="18" FontWeight="Bold" Grid.Row="2" HorizontalAlignment="Center"/>
+    </Grid>
+</adonisControls:AdonisWindow>
