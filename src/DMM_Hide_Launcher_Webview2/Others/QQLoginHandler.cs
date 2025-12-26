@@ -260,7 +260,18 @@ namespace DMM_Hide_Launcher.Others
                 }
             
             // 使用cookie调用core_togame.php获取登录参数
-            return await GetLoginParamsFromCoreToGame();
+            string loginParamsResult = await GetLoginParamsFromCoreToGame();
+            
+            // 如果是成功的登录参数，直接返回格式化好的字符串，与普通版本保持一致
+            if (loginParamsResult.StartsWith("LOGIN_PARAMS:"))
+            {
+                string loginParamsJson = loginParamsResult.Replace("LOGIN_PARAMS:", "");
+                var loginParams = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(loginParamsJson);
+                return FormatLoginParams(loginParams);
+            }
+            
+            // 否则返回原始错误信息
+            return loginParamsResult;
         }
         catch (Exception ex)
         {

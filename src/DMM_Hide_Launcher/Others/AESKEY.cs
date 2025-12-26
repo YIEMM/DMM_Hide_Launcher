@@ -10,7 +10,7 @@ namespace DMM_Hide_Launcher.Others
     /// 加密助手类
     /// 提供AES加密解密功能，以及设备特定的密钥生成
     /// </summary>
-    public static class CryptoHelper
+    public static class AESKEY
     {
         private const string ApplicationId = "DMM_Hide_Launcher";
 
@@ -99,67 +99,68 @@ namespace DMM_Hide_Launcher.Others
         /// 使用AES算法加密字符串
         /// </summary>
         /// <param name="plainText">要加密的明文</param>
-        /// <returns>加密后的Base64字符串</returns>
+        /// <returns>加密后的字符串</returns>
         public static string EncryptString(string plainText)
         {
-            if (string.IsNullOrEmpty(plainText))
-                return string.Empty;
-
             try
             {
-                using (Aes aesAlg = Aes.Create())
+                byte[] key = GenerateDeviceSpecificKey();
+                byte[] iv = GenerateDeviceSpecificIV();
+
+                using (Aes aes = Aes.Create())
                 {
-                    aesAlg.Key = GenerateDeviceSpecificKey();
-                    aesAlg.IV = GenerateDeviceSpecificIV();
+                    aes.Key = key;
+                    aes.IV = iv;
 
-                    ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+                    ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
 
-                    using (MemoryStream msEncrypt = new MemoryStream())
+                    using (MemoryStream memoryStream = new MemoryStream())
                     {
-                        using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                        using (CryptoStream cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
                         {
-                            using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                            using (StreamWriter streamWriter = new StreamWriter(cryptoStream))
                             {
-                                swEncrypt.Write(plainText);
+                                streamWriter.Write(plainText);
                             }
-                            return Convert.ToBase64String(msEncrypt.ToArray());
                         }
+
+                        return Convert.ToBase64String(memoryStream.ToArray());
                     }
                 }
             }
             catch (Exception)
             {
-                // 如果加密失败，返回原字符串（不推荐，但为了保持兼容性）
-                return plainText;
+                // 发生异常时返回空字符串
+                return string.Empty;
             }
         }
 
         /// <summary>
         /// 使用AES算法解密字符串
         /// </summary>
-        /// <param name="cipherText">要解密的Base64编码的密文</param>
+        /// <param name="cipherText">要解密的密文</param>
         /// <returns>解密后的明文</returns>
         public static string DecryptString(string cipherText)
         {
-            if (string.IsNullOrEmpty(cipherText))
-                return string.Empty;
-
             try
             {
-                using (Aes aesAlg = Aes.Create())
+                byte[] key = GenerateDeviceSpecificKey();
+                byte[] iv = GenerateDeviceSpecificIV();
+
+                using (Aes aes = Aes.Create())
                 {
-                    aesAlg.Key = GenerateDeviceSpecificKey();
-                    aesAlg.IV = GenerateDeviceSpecificIV();
+                    aes.Key = key;
+                    aes.IV = iv;
 
-                    ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+                    ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
 
-                    using (MemoryStream msDecrypt = new MemoryStream(Convert.FromBase64String(cipherText)))
+                    using (MemoryStream memoryStream = new MemoryStream(Convert.FromBase64String(cipherText)))
                     {
-                        using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                        using (CryptoStream cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
                         {
-                            using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                            using (StreamReader streamReader = new StreamReader(cryptoStream))
                             {
-                                return srDecrypt.ReadToEnd();
+                                return streamReader.ReadToEnd();
                             }
                         }
                     }
@@ -167,8 +168,8 @@ namespace DMM_Hide_Launcher.Others
             }
             catch (Exception)
             {
-                // 如果解密失败，返回原字符串（可能是未加密的旧数据）
-                return cipherText;
+                // 发生异常时返回空字符串
+                return string.Empty;
             }
         }
     }

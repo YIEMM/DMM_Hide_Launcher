@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DMM_Hide_Launcher.Others
+namespace DMM_Hide_Launcher.Models
 {
     /// <summary>
     /// 配置类
@@ -19,8 +19,6 @@ namespace DMM_Hide_Launcher.Others
         /// 7K7K账号ID
         /// </summary>
         public string ID7K { get; set; } = "";
-        
-
         
         /// <summary>
         /// 账号列表

@@ -8,7 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
+
 using System.Threading.Tasks;
 using System.Windows;
 using MessageBox = AdonisUI.Controls.MessageBox;
@@ -34,8 +34,6 @@ namespace DMM_Hide_Launcher.Others
         public static async Task<string> ExecuteRequests(string username, string password, string GamePath)
         {
             // 获取当前日期
-            string playdate = DateTime.Now.ToString("yyyy-MM-dd");
-            string GamePath1 = GamePath;
             using (HttpClient client = new HttpClient())
             {
                 // 设置通用请求头
@@ -48,7 +46,7 @@ namespace DMM_Hide_Launcher.Others
                 string timekey = await Login(client, username, password, serverId);
 
                 // 第三个请求
-                return await CoreToGame(client, serverId, timekey, username, password, playdate, GamePath1);
+                return await CoreToGame(client, serverId, timekey, username, GamePath);
 
             }
         }
@@ -126,7 +124,7 @@ namespace DMM_Hide_Launcher.Others
             }
         }
 
-        static async Task<string> CoreToGame(HttpClient client, string serverId, string timekey, string username, string password, string playdate, string GamePath)
+        static async Task<string> CoreToGame(HttpClient client, string serverId, string timekey, string username, string GamePath)
         {
             try
             {
@@ -135,7 +133,7 @@ namespace DMM_Hide_Launcher.Others
                 var content = new StringContent(postData, Encoding.UTF8, "application/x-www-form-urlencoded");
 
                 // 设置 cookie
-                string cookie = $"SERVER_ID={serverId}; timekey={timekey}; username={username}; identity={username}; nickname=114514; userid=114514; kk=114514; logintime={timekey}; k7_lastlogin=114514; loginfrom=0011; avatar=http%3A%2F%2Fsface.7k7kimg.cn%2Fuicons%2Fphoto_default_s.png; securitycode=f5b4abfccd713a2b6e563042869ac6e0; k7_lastlogin=1970-01-01+13%3A44%3A42; k7_union=9999999; k7_username={username}; k7_uid=894078393; k7_from=17944284; k7_reg=1727098013; k7_ip=10.19.84.36; userprotect=a3f8773d6255165006eb2d16583732e2; userpermission=31f2d13b9ada1dad754295935f8236a7; k7_lastloginip=114.114.114.114";
+                string cookie = $"SERVER_ID={serverId}; timekey={timekey}; username={username}; identity={username}; nickname=114514; userid={username}; kk={username}; logintime={timekey}; k7_lastlogin=114514; loginfrom=0011; avatar=http%3A%2F%2Fsface.7k7kimg.cn%2Fuicons%2Fphoto_default_s.png; securitycode=f5b4abfccd713a2b6e563042869ac6e0; k7_lastlogin=1970-01-01+13%3A44%3A42; k7_union=9999999; k7_username={username}; k7_uid=none; k7_from=none; k7_reg=none; k7_ip=10.19.84.36; userprotect=a3f8773d6255165006eb2d16583732e2; userpermission=31f2d13b9ada1dad754295935f8236a7; k7_lastloginip=114.114.114.114";
                 client.DefaultRequestHeaders.Add("cookie", cookie);
 
                 HttpResponseMessage response = await client.PostAsync(url, content);
@@ -148,16 +146,16 @@ namespace DMM_Hide_Launcher.Others
                 responseBody = responseBody.Trim();
 
                 // 解析 JSON
-                using (JsonDocument jsonDoc = JsonDocument.Parse(responseBody))
+                JObject jsonObj = JObject.Parse(responseBody);
+                if (jsonObj.TryGetValue("status", out JToken statusToken) &&
+                    statusToken.Type == JTokenType.Integer &&
+                    (int)statusToken == 1 &&
+                    jsonObj.TryGetValue("url", out JToken urlToken) &&
+                    urlToken.Type == JTokenType.String &&
+                    (string)urlToken == "/games/tpbsn/dlq")
                 {
-                    JsonElement root = jsonDoc.RootElement;
-                    if (root.TryGetProperty("status", out JsonElement statusElement) &&
-                        statusElement.GetInt32() == 1 &&
-                        root.TryGetProperty("url", out JsonElement urlElement) &&
-                        urlElement.GetString() == "/games/tpbsn/dlq")
-                    {
-                        return "ERROR:INVALID_CREDENTIALS";
-                    }
+                    return "ERROR:INVALID_CREDENTIALS";
+                }
                     else
                     {
                         string[] files = Directory.GetFiles(GamePath, "dmmdzz.exe", SearchOption.AllDirectories);
@@ -175,7 +173,6 @@ namespace DMM_Hide_Launcher.Others
                         {
                             return "ERROR:GAME_NOT_FOUND";
                         }
-                    }
                 }
             }
             catch (Exception ex)

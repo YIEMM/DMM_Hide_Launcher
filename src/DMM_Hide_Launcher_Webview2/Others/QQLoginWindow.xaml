@@ -1,0 +1,18 @@
+<adonisControls:AdonisWindow x:Class="DMM_Hide_Launcher.Others.QQLoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
+        xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
+        mc:Ignorable="d"
+        Title="7K7K-通过QQ登录" Height="450" Width="600"
+        WindowStartupLocation="CenterOwner" 
+                             FontFamily="{DynamicResource MiSansFont}"
+                             IconVisibility="Collapsed"
+                             >
+    <Grid>
+        <!-- 使用WebBrowser控件加载QQ登录网页 -->
+        <WebBrowser x:Name="webBrowser" Navigated="webBrowser_Navigated" Margin="0,0,0,0"/>
+    </Grid>
+</adonisControls:AdonisWindow>

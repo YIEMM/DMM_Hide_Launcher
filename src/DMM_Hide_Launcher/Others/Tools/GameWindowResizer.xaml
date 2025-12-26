@@ -1,0 +1,99 @@
+<adonisControls:AdonisWindow x:Class="DMM_Hide_Launcher.Others.Tools.GameWindowResizer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DMM_Hide_Launcher.Others.Tools"
+        xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
+        xmlns:controls="https://github.com/HandyOrg/HandyControl"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        mc:Ignorable="d"
+        Height="370"
+        Width="350"
+        MinHeight="370"
+        MinWidth="350"
+        FontFamily="{DynamicResource MiSansFont}"
+        Title="调整游戏窗口"
+        >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- 窗口选择区域 -->
+        <StackPanel Margin="20,0,20,0" VerticalAlignment="Top" Height="61">
+            <TextBlock Text="选择游戏窗口:" Margin="0,5,0,5"/>
+            <Grid Height="35">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <hc:ComboBox x:Name="WindowComboBox" Width="Auto" Height="30" Grid.Column="0" Margin="0,0,5,0" Style="{StaticResource ComboBoxCapsule}" VerticalAlignment="Center" SelectionChanged="WindowComboBox_SelectionChanged"/>
+                <Button x:Name="RefreshButton" Content="刷新" Width="80" Height="30" Grid.Column="1" Click="RefreshButton_Click" Style="{StaticResource ButtonGroupItemSingle}"/>
+            </Grid>
+        </StackPanel>
+
+        <!-- 特殊定位选项 -->
+        <StackPanel Grid.Row="1" Margin="20,0,20,0" Height="82" VerticalAlignment="Top" Grid.RowSpan="3">
+            <TextBlock Text="快速定位:" Margin="0,5,0,5"/>
+            <hc:ButtonGroup Style="{StaticResource ButtonGroupSolid}">
+                <RadioButton Content="↖左上" Click="TopLeftButton_Click" Style="{StaticResource RadioGroupItemVerticalFirst}"/>
+                <RadioButton Content="↙️左下" Click="BottomLeftButton_Click" Style="{StaticResource RadioGroupItemVerticalFirst}"/>
+                <RadioButton Content="居中" Click="CenterButton_Click" Style="{StaticResource RadioGroupItemVerticalFirst}"/>
+                <RadioButton Content="右下↘️" Click="BottomRightButton_Click" Style="{StaticResource RadioGroupItemVerticalFirst}"/>
+                <RadioButton Content="右上↗️"  Click="TopRightButton_Click" Style="{StaticResource RadioGroupItemVerticalFirst}"/>
+            </hc:ButtonGroup>
+            <Button x:Name="ManualAdjustButton" Content="手动调整位置" Click="ManualAdjustButton_Click" Style="{StaticResource   ButtonGroupItemVerticalLast}" ToolTip="点击后，游戏窗口会跟随鼠标移动，直到你再次点击任意鼠标按键"/>
+        </StackPanel>
+
+        <!-- 窗口模式分辨率 -->
+        <StackPanel Grid.Row="4" Margin="20,5,20,10">
+            <TextBlock Text="窗口模式分辨率:" Margin="0,5,0,5"/>
+            <hc:ComboBox x:Name="PresetComboBox" Width="auto" Height="30" Style="{StaticResource ComboBoxCapsule}">
+                <ComboBoxItem Content="1551x903"/>
+                <ComboBoxItem Content="1280x745"/>
+                <ComboBoxItem Content="800x466"/>
+            </hc:ComboBox>
+            <Button x:Name="ApplyPresetButton" Content="应用分辨率" Width="120" Height="30" Margin="0,5,0,0" Click="ApplyPresetButton_Click" Style="{StaticResource ButtonGroupItemSingle}"/>
+        </StackPanel>
+
+        <!-- 无边框全屏选项 -->
+        <StackPanel Grid.Row="5" Margin="20,5,20,5">
+            <TextBlock Text="显示选项:" Margin="0,5,0,5"/>
+            <Grid Margin="0,5,0,5" VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <hc:ComboBox Grid.Column="0" x:Name="WindowModeComboBox" Width="Auto" Height="30" Margin="0,0,10,0" Style="{StaticResource ComboBoxCapsule}">
+                    <ComboBoxItem Content="正常窗口" IsSelected="True"/>
+                    <ComboBoxItem Content="无边框全屏"/>
+                    <ComboBoxItem Content="无边框窗口"/>
+                </hc:ComboBox>
+                <Button Grid.Column="1" x:Name="ApplyDisplayButton" Content="应用" Width="50" Height="30" Click="ApplyDisplayButton_Click" Style="{StaticResource ButtonGroupItemSingle}"/>
+            </Grid>
+        </StackPanel>
+        
+        <!-- 窗口可调整大小选项 -->
+        <StackPanel Grid.Row="6" Margin="20,5,20,20" Height="Auto">
+            <Grid HorizontalAlignment="Right">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <CheckBox x:Name="AllowResizeCheckBox" Content="允许窗口拖拽调整大小" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <Button x:Name="ApplyResizeButton" Content="应用" Width="80" Height="30" Grid.Column="1" Click="ApplyResizeButton_Click" Style="{StaticResource ButtonGroupItemSingle}"/>
+            </Grid>
+        </StackPanel>
+
+        <!-- 信息通知容器 -->
+        <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Right" VerticalAlignment="Top" HorizontalContentAlignment="Right" Height="8" Width="8">
+            <StackPanel x:Name="GrowlPanel_GameWindowResizer" VerticalAlignment="Top" Margin="0,-10,0,0"/>
+        </ScrollViewer>
+    </Grid>
+</adonisControls:AdonisWindow>

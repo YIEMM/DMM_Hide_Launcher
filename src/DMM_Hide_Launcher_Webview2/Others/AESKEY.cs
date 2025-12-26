@@ -10,7 +10,7 @@ namespace DMM_Hide_Launcher.Others
     /// 加密助手类
     /// 提供AES加密解密功能，以及设备特定的密钥生成
     /// </summary>
-    public static class CryptoHelper
+    public static class AESKEY
     {
         private const string ApplicationId = "DMM_Hide_Launcher";
 

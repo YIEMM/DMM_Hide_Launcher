@@ -21,6 +21,19 @@ namespace DMM_Hide_Launcher
     public partial class App : System.Windows.Application
     {
         /// <summary>
+        /// 系统主题变化时触发的事件
+        /// </summary>
+        public event EventHandler<bool> SystemThemeChanged;
+        
+        /// <summary>
+        /// 触发系统主题变化事件
+        /// </summary>
+        /// <param name="isDarkMode">是否为暗色主题</param>
+        protected void OnSystemThemeChanged(bool isDarkMode)
+        {
+            SystemThemeChanged?.Invoke(this, isDarkMode);
+        }
+        /// <summary>
     /// 导入Windows API函数，用于附加控制台
     /// </summary>
     [DllImport("kernel32.dll")]
@@ -132,7 +145,7 @@ namespace DMM_Hide_Launcher
     /// <summary>
     /// 日志启用标志
     /// </summary>
-    public static bool IsLogEnabled { get; private set; } = false;
+    public static bool IsLogMode { get; private set; } = false;
     
     /// <summary>
     /// 日志文件路径
@@ -172,7 +185,7 @@ namespace DMM_Hide_Launcher
             // 先处理命令行参数，设置日志模式标志
             Console.WriteLine("[DEBUG] 正在处理命令行参数...");
             ParseCommandLineArgs(e.Args);
-            Console.WriteLine($"[DEBUG] 命令行参数处理完成 - 调试模式: {IsDebugMode}, 日志模式: {IsLogEnabled}");
+            Console.WriteLine($"[DEBUG] 命令行参数处理完成 - 调试模式: {IsDebugMode}, 日志模式: {IsLogMode}");
             
             // 初始化日志文件路径
             string logDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
@@ -183,7 +196,7 @@ namespace DMM_Hide_Launcher
             Console.WriteLine($"[DEBUG] 日志文件路径: {LogFilePath}");
             
             // 根据日志模式和控制台附加状态决定是否创建新控制台
-            if (IsLogEnabled && GetConsoleWindow() == IntPtr.Zero)
+            if (IsLogMode && GetConsoleWindow() == IntPtr.Zero)
             {
                 Console.WriteLine("[DEBUG] 日志模式已启用，但未附加到控制台，准备创建新控制台...");
                 // 强制附加控制台以确保日志可见
@@ -194,7 +207,7 @@ namespace DMM_Hide_Launcher
             InitializeLogger();
             
             // 输出启动信息到控制台
-            if (IsLogEnabled || IsDebugMode)
+            if (IsLogMode || IsDebugMode)
             {
                 Console.WriteLine("DMM_Hide_Launcher 启动中...");
                 Console.WriteLine($"当前模式: {(IsDebugMode ? "调试模式" : "日志模式")}");
@@ -352,6 +365,9 @@ namespace DMM_Hide_Launcher
                 bool isDarkMode = IsSystemDarkMode();
                 App.Log($"检测到系统主题变化，当前主题: {(isDarkMode ? "暗色" : "亮色")}");
                 SetAppTheme(isDarkMode);
+                
+                // 触发系统主题变化事件，通知所有订阅者
+                OnSystemThemeChanged(isDarkMode);
             }
         }
         
@@ -565,13 +581,13 @@ namespace DMM_Hide_Launcher
                 if (arg.Equals("--debug", StringComparison.OrdinalIgnoreCase))
                 {
                     IsDebugMode = true;
-                    IsLogEnabled = true;
+                    IsLogMode = true;
                     mode = "调试模式";
                     showSecurityWarning = true;
                 }
                 else if (arg.Equals("--log", StringComparison.OrdinalIgnoreCase))
                 {
-                    IsLogEnabled = true;
+                    IsLogMode = true;
                     mode = "日志模式";
                     showSecurityWarning = true;
                 }
@@ -591,11 +607,11 @@ namespace DMM_Hide_Launcher
         }
         
         /// <summary>
-        /// 记录启动信息，此时IsLogEnabled已经设置
+        /// 记录启动信息，此时IsLogMode已经设置
         /// </summary>
         private void LogStartupInfo(string[] args)
         {
-            if (!IsLogEnabled)
+            if (!IsLogMode)
                 return;
                 
             // 确保日志目录存在
@@ -623,13 +639,13 @@ namespace DMM_Hide_Launcher
             {
                 App.Log("调试模式已启用");
             }
-            else if (IsLogEnabled)
+            else if (IsLogMode)
             {
                 App.Log("日志模式已启用");
             }
             
             // 记录最终配置状态
-            App.Log($"命令行参数处理完成 - 调试模式: {IsDebugMode}, 日志模式: {IsLogEnabled}");
+            App.Log($"命令行参数处理完成 - 调试模式: {IsDebugMode}, 日志模式: {IsLogMode}");
         }
 
         private void ProcessCommandLineArgs(string[] args)
@@ -673,7 +689,7 @@ namespace DMM_Hide_Launcher
                 }
 
                 // 配置控制台输出
-                if (IsLogEnabled || IsDebugMode)
+                if (IsLogMode || IsDebugMode)
                 {
                     loggerConfiguration.WriteTo.Console(
                         outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] [{Level:u3}] [进程ID:{ProcessId}] [线程ID:{ThreadId}] [{SourceContext}]: {Message:lj}{NewLine}{Exception}",
@@ -681,7 +697,7 @@ namespace DMM_Hide_Launcher
                 }
 
                 // 配置文件输出
-                if (IsLogEnabled)
+                if (IsLogMode)
                 {
                     // 确保日志目录存在
                     string logDirectory = Path.GetDirectoryName(LogFilePath);
@@ -728,12 +744,12 @@ namespace DMM_Hide_Launcher
             try
             {
                 // 非日志模式下直接返回，避免不必要的处理
-                if (!IsLogEnabled && !IsDebugMode)
+                if (!IsLogMode && !IsDebugMode)
                     return;
 
                 // 获取调用方信息
                 string callerInfo = "App";
-                if (IsDebugMode || IsLogEnabled)
+                if (IsDebugMode || IsLogMode)
                 {
                     System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(1, false);
                     if (stackTrace.FrameCount > 0)
@@ -753,7 +769,7 @@ namespace DMM_Hide_Launcher
                     }
                 }
                 // 降级方案：如果Serilog不可用，尝试使用控制台输出
-                else if (IsLogEnabled || IsDebugMode)
+                else if (IsLogMode || IsDebugMode)
                 {
                     try
                     {
@@ -782,14 +798,14 @@ namespace DMM_Hide_Launcher
         /// </summary>
         public static void LogError(string message, Exception exception = null)
         {
-            if (!IsLogEnabled && !IsDebugMode)
+            if (!IsLogMode && !IsDebugMode)
                 return;
 
             try
             {
                 // 获取调用方信息
                 string callerInfo = "App";
-                if (IsDebugMode || IsLogEnabled)
+                if (IsDebugMode || IsLogMode)
                 {
                     System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(1, false);
                     if (stackTrace.FrameCount > 0)
@@ -816,7 +832,7 @@ namespace DMM_Hide_Launcher
                     }
                 }
                 // 降级方案：如果Serilog不可用，尝试使用控制台输出
-                else if (IsLogEnabled || IsDebugMode)
+                else if (IsLogMode || IsDebugMode)
                 {
                     try
                     {
@@ -861,14 +877,14 @@ namespace DMM_Hide_Launcher
         /// </summary>
         public static void LogWarning(string message)
         {
-            if (!IsLogEnabled && !IsDebugMode)
+            if (!IsLogMode && !IsDebugMode)
                 return;
 
             try
             {
                 // 获取调用方信息
                 string callerInfo = "App";
-                if (IsDebugMode || IsLogEnabled)
+                if (IsDebugMode || IsLogMode)
                 {
                     System.Diagnostics.StackTrace stackTrace = new System.Diagnostics.StackTrace(1, false);
                     if (stackTrace.FrameCount > 0)
@@ -888,7 +904,7 @@ namespace DMM_Hide_Launcher
                     }
                 }
                 // 降级方案：如果Serilog不可用，尝试使用控制台输出
-                else if (IsLogEnabled || IsDebugMode)
+                else if (IsLogMode || IsDebugMode)
                 {
                     try
                     {

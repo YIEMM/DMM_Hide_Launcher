@@ -4,13 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Win32;
-using DMM_Hide_Launcher;
-using System.Diagnostics;
-using System.Windows;
 using System.Collections.Concurrent;
-using System;
-using System.Threading;
-using MessageBox = AdonisUI.Controls.MessageBox;
 
 // 忽略Windows特定API的平台兼容性警告
 #pragma warning disable CA1416
@@ -54,8 +48,6 @@ namespace DMM_Hide_Launcher.Others
             @"dmmdzz_7k7k\hide_pc_launcher.exe",
             @"dmmdzz_7k7k\DmmdzzLoader.exe"
         };
-        
-
 
         public List<string> FindGamePaths()
         {
@@ -198,15 +190,14 @@ namespace DMM_Hide_Launcher.Others
                                             string displayName = subKey.GetValue("DisplayName") as string;
                                             string installLocation = subKey.GetValue("InstallLocation") as string;
 
-                                            if (displayName != null && 
-                                                (displayName.IndexOf("dmmdzz", StringComparison.OrdinalIgnoreCase) >= 0 || 
-                                                 displayName.IndexOf("逃跑吧少年", StringComparison.OrdinalIgnoreCase) >= 0 || 
-                                                 displayName.IndexOf("逃跑吧！少年", StringComparison.OrdinalIgnoreCase) >= 0) &&
-                                                !string.IsNullOrEmpty(installLocation) && Directory.Exists(installLocation))
+                                            // 如果安装位置有效且包含游戏名称
+                                            if (!string.IsNullOrEmpty(installLocation) && 
+                                                Directory.Exists(installLocation) && 
+                                                (installLocation.Contains("dmmdzz_4399") || installLocation.Contains("dmmdzz_7k7k")))
                                             {
                                                 if (results.Add(installLocation))
                                                 {
-                                                    App.Log($"从卸载注册表找到游戏路径: {installLocation}");
+                                                    App.Log($"从注册表找到游戏路径: {installLocation}");
                                                 }
                                             }
                                         }
@@ -214,8 +205,7 @@ namespace DMM_Hide_Launcher.Others
                                 }
                                 catch (Exception ex)
                                 {
-                                    // 记录警告日志
-                                    App.LogWarning($"访问注册表项{registryPath}\\{subKeyName}时出错: {ex.Message}");
+                                    App.LogError($"处理注册表子键{subKeyName}时出错", ex);
                                 }
                             }
                         }
@@ -224,324 +214,133 @@ namespace DMM_Hide_Launcher.Others
             }
             catch (Exception ex)
             {
-                App.LogError("注册表搜索错误", ex);
+                App.LogError("注册表搜索时发生错误", ex);
             }
 
-            App.Log($"注册表搜索完成，找到{results.Count}个游戏路径");
             return results.ToList();
         }
 
-        // 搜索常见安装路径
+        // 搜索常见路径
         private List<string> SearchCommonPaths()
         {
-            App.Log("开始搜索常见安装路径");
+            App.Log("开始搜索常见游戏路径");
             
-            // 使用HashSet提高去重效率
             HashSet<string> results = new HashSet<string>();
-            // 预先调整容量以减少重新哈希的开销
-            results.EnsureCapacity(_commonInstallPaths.Length * 2);
 
             try
             {
-                // 检查常见安装路径
-                App.Log("检查预定义的常见安装路径");
                 foreach (string path in _commonInstallPaths)
                 {
-                    App.Log($"检查路径: {path}");
                     if (Directory.Exists(path))
                     {
-                        if (results.Add(path))
+                        App.Log($"检查常见路径: {path}");
+                        
+                        // 搜索游戏可执行文件
+                        foreach (string exe in _gameExecutables)
                         {
-                            App.Log($"找到有效的游戏路径: {path}");
+                            string exePath = Path.Combine(path, exe);
+                            if (File.Exists(exePath))
+                            {
+                                if (results.Add(path))
+                                {
+                                    App.Log($"在常见路径中找到游戏: {path}");
+                                }
+                                break;
+                            }
                         }
 
-                    }
-
-                }
-
-                // 搜索所有本地驱动器的Program Files目录
-                App.Log("开始搜索所有本地驱动器的Program Files目录");
-                DriveInfo[] drives = DriveInfo.GetDrives();
-                // 预过滤以避免多次重复计算
-                var fixedReadyDrives = drives.Where(d => d.IsReady && d.DriveType == DriveType.Fixed).ToList();
-                int readyDrivesCount = fixedReadyDrives.Count;
-                App.Log($"找到{readyDrivesCount}个可用的固定驱动器");
-                // 优化：只在有有效驱动器时执行后续操作
-                if (readyDrivesCount > 0)
-                {
-                    foreach (DriveInfo drive in fixedReadyDrives)
-                    {
-                        App.Log($"检查驱动器: {drive.RootDirectory.FullName}");
-                        string driveRoot = drive.RootDirectory.FullName;
-                        
-                        // 避免对光盘驱动器进行长时间搜索
-                        if (driveRoot.Equals("D:\\", StringComparison.OrdinalIgnoreCase) && drive.DriveType == DriveType.CDRom)
-                            continue;
-                        
-                        // 使用预构建的路径组合以减少内存分配
-                        CheckAndAddPath(Path.Combine(driveRoot, "Program Files", "dmmdzz_4399"), results);
-                        CheckAndAddPath(Path.Combine(driveRoot, "Program Files (x86)", "dmmdzz_4399"), results);
-                        CheckAndAddPath(Path.Combine(driveRoot, "Program Files", "dmmdzz_7k7k"), results);
-                        CheckAndAddPath(Path.Combine(driveRoot, "Program Files (x86)", "dmmdzz_7k7k"), results);
+                        // 检查子目录
+                        string[] subDirs = Directory.GetDirectories(path);
+                        foreach (string subDir in subDirs)
+                        {
+                            foreach (string exe in _gameExecutables)
+                            {
+                                string exePath = Path.Combine(subDir, exe);
+                                if (File.Exists(exePath))
+                                {
+                                    string gamePath = Path.GetDirectoryName(exePath);
+                                    if (results.Add(gamePath))
+                                    {
+                                        App.Log($"在子目录中找到游戏: {gamePath}");
+                                    }
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
-                App.LogError("常见路径搜索错误", ex);
+                App.LogError("搜索常见路径时发生错误", ex);
             }
 
-            App.Log($"常见路径搜索完成，找到{results.Count}个游戏路径");
             return results.ToList();
         }
 
-        // 检查路径是否存在并添加到结果集合
-        private void CheckAndAddPath(string path, HashSet<string> results)
-        {
-            App.Log($"检查并添加路径: {path}");
-            try
-            {
-                if (Directory.Exists(path))
-                {
-                    if (results.Add(path))
-                    {
-                        App.Log($"添加有效的游戏路径: {path}");
-                    }
-
-                }
-
-            }
-            catch (Exception ex)
-            {
-                // 即使禁用详细日志，错误也需要记录
-                App.LogError($"检查路径错误: {path}", ex);
-            }
-        }
-
-        // 验证路径是否包含游戏可执行文件
-        public bool ValidateGamePath(string path)
-        {
-            App.Log($"开始验证游戏路径: {path}");
-            
-            // 参数验证
-            if (string.IsNullOrEmpty(path))
-            {
-                    App.Log("路径为空");
-                    return false;
-                }
-            
-            try
-            {
-                if (!Directory.Exists(path))
-                {
-                    App.Log($"路径不存在，验证失败: {path}");
-                    return false;
-                }
-
-                App.Log($"路径存在，检查是否包含游戏可执行文件");
-                // 检查是否包含游戏可执行文件
-                App.Log($"检查可执行文件: {string.Join(", ", _gameExecutables)}");
-                
-                // 优化：先检查主目录
-                foreach (string exeName in _gameExecutables)
-                {
-                    string exePath = Path.Combine(path, exeName);
-                    if (File.Exists(exePath))
-                    {
-                        App.Log($"找到游戏可执行文件: {exePath}，验证通过");
-                        return true;
-                    }
-                }
-
-                App.Log($"直接目录中未找到可执行文件，检查子目录");
-                // 检查子目录
-                string[] subDirectories = Directory.GetDirectories(path);
-                
-                // 优化：提前返回条件判断，减少不必要的循环
-                if (subDirectories.Length > 0)
-                {
-                    App.Log($"找到{subDirectories.Length}个子目录");
-                    // 优化：使用并行检查来加速验证过程
-                    bool found = false;
-                    
-                    // 对于少量子目录，顺序检查更高效
-                    if (subDirectories.Length <= 5)
-                    {
-                        foreach (string dir in subDirectories)
-                        {
-                            foreach (string exeName in _gameExecutables)
-                            {
-                                if (File.Exists(Path.Combine(dir, exeName)))
-                                {
-                                    App.Log($"在子目录{dir}中找到游戏可执行文件{exeName}，验证通过");
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // 对于大量子目录，使用并行检查
-                        Parallel.ForEach(subDirectories, (dir, state) =>
-                        {
-                            foreach (string exeName in _gameExecutables)
-                            {
-                                if (File.Exists(Path.Combine(dir, exeName)))
-                                {
-                                    found = true;
-                                    state.Break();
-                                }
-                            }
-                        });
-                        
-                        if (found)
-                            return true;
-                    }
-                }
-
-                App.Log($"在路径及子目录中未找到游戏可执行文件，验证失败: {path}");
-                return false;
-            }
-            catch (Exception ex)
-            {
-                // 即使禁用详细日志，错误也需要记录
-                App.LogError($"验证路径时发生异常: {path}", ex);
-                return false;
-            }
-        }
-
-        // 搜索正在运行的游戏进程
-        /// <summary>
-        /// 搜索正在运行的游戏进程
-        /// 通过直接获取特定名称的进程来提高搜索效率，避免遍历所有进程
-        /// 从找到的游戏进程中提取游戏安装路径
-        /// </summary>
-        /// <returns>找到的游戏安装路径列表</returns>
+        // 搜索运行中的进程
         private List<string> SearchRunningProcesses()
         {
-            App.Log("开始搜索正在运行的游戏进程");
+            App.Log("开始搜索运行中的游戏进程");
             
-            // 使用HashSet提高去重效率
             HashSet<string> results = new HashSet<string>();
-            int accessDeniedCount = 0;
-            bool showMessageBox = false;
 
             try
             {
-                foreach (string exeName in _gameExecutables)
+                foreach (System.Diagnostics.Process process in System.Diagnostics.Process.GetProcesses())
                 {
-                    App.Log($"搜索进程: {exeName}");
-                    string exeNameWithoutExtension = Path.GetFileNameWithoutExtension(exeName);
-                    
-                    // 优化：使用GetProcessesByName直接获取指定名称的进程，避免遍历所有进程
                     try
                     {
-                        Process[] gameProcesses = Process.GetProcessesByName(exeNameWithoutExtension);
-                        App.Log($"找到{gameProcesses.Length}个名称为{exeNameWithoutExtension}的进程");
-
-                        foreach (Process process in gameProcesses)
+                        if (!string.IsNullOrEmpty(process.MainModule?.FileName))
                         {
-                            try
+                            string processPath = process.MainModule.FileName;
+                            foreach (string exe in _gameExecutables)
                             {
-                                // 安全获取进程的主模块文件路径，避免不必要的异常
-                                string processPath = null;
-                                try
-                                {
-                                    if (process.MainModule != null && !string.IsNullOrEmpty(process.MainModule.FileName))
-                                    {
-                                        processPath = process.MainModule.FileName;
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    // 只在第一次遇到权限问题时显示MessageBox
-                                    if (ex.Message.Contains("拒绝访问") && !showMessageBox)
-                                    {
-                                        accessDeniedCount++;
-                                        App.LogWarning($"访问进程{process.ProcessName}(ID: {process.Id})信息时出错: {ex.Message}。这可能是因为进程以管理员权限运行，而当前程序没有足够权限访问。");
-                                        showMessageBox = true;
-                                    }
-                                    else
-                                    {
-                                        App.LogWarning($"访问进程{process.ProcessName}(ID: {process.Id})信息时出错: {ex.Message}");
-                                    }
-                                    continue;
-                                }
-
-                                if (!string.IsNullOrEmpty(processPath))
+                                if (processPath.EndsWith(exe, StringComparison.OrdinalIgnoreCase))
                                 {
                                     string gamePath = Path.GetDirectoryName(processPath);
-                                    if (!string.IsNullOrEmpty(gamePath))
+                                    if (results.Add(gamePath))
                                     {
-                                        // 特殊处理dmmdzz.exe进程的路径
-                                        if (string.Equals(exeName, dmmdzzExe, StringComparison.OrdinalIgnoreCase))
-                                        {
-                                            string lowerGamePath = gamePath.ToLower();
-                                            // 检查路径是否包含dmmdzz_4399\game*模式
-                                            int index4399 = lowerGamePath.IndexOf(dmmdzz4399Game);
-                                            if (index4399 >= 0)
-                                            {
-                                                // 只使用dmmdzz_4399目录（保留原始大小写，移除尾部反斜杠）
-                                                gamePath = gamePath.Substring(0, index4399 + dmmdzz4399Length);
-                                                App.Log($"对dmmdzz.exe进程应用特殊路径处理，修改为: {gamePath}");
-                                            }
-                                            // 检查路径是否包含dmmdzz_7k7k\game*模式
-                                            else
-                                            {
-                                                int index7k7k = lowerGamePath.IndexOf(dmmdzz7k7kGame);
-                                                if (index7k7k >= 0)
-                                                {
-                                                    // 只使用dmmdzz_7k7k目录（保留原始大小写，移除尾部反斜杠）
-                                                    gamePath = gamePath.Substring(0, index7k7k + dmmdzz7k7kLength);
-                                                    App.Log($"对dmmdzz.exe进程应用特殊路径处理，修改为: {gamePath}");
-                                                }
-                                            }
-                                        }
-                                          
-                                        // 使用HashSet的Add方法自动去重
-                                        if (results.Add(gamePath))
-                                        {
-                                            App.Log($"从运行进程找到游戏路径: {gamePath}");
-                                        }
+                                        App.Log($"从运行进程中找到游戏: {gamePath}");
                                     }
+                                    break;
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                // 防止在处理一个进程时影响整个搜索过程
-                                App.LogWarning($"处理进程{process?.ProcessName}时发生错误: {ex.Message}");
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        App.LogWarning($"获取进程{exeNameWithoutExtension}时发生错误: {ex.Message}");
+                        // 忽略访问被拒绝的进程
                     }
                 }
             }
             catch (Exception ex)
             {
-                // 即使禁用详细日志，错误也需要记录
                 App.LogError("搜索运行进程时发生错误", ex);
             }
 
-            // 如果有进程因为权限问题无法访问，在操作完成后统一显示一次提示
-            if (showMessageBox)
+            return results.ToList();
+        }
+
+        // 验证游戏路径是否有效
+        public bool ValidateGamePath(string gamePath)
+        {
+            if (string.IsNullOrEmpty(gamePath) || !Directory.Exists(gamePath))
             {
-                // 使用Dispatcher将MessageBox调用切换到UI线程
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                {
-                    MessageBox.Show("无法通过进程访问程序路径，可以尝试通过管理员启动当前程序\n\n当然您可以继续通过其他方式获取程序路径", 
-                        "警告", 
-                        AdonisUI.Controls.MessageBoxButton.OK, 
-                        AdonisUI.Controls.MessageBoxImage.Information);
-                });
+                return false;
             }
 
+            // 检查是否存在游戏可执行文件
+            foreach (string exe in _gameExecutables)
+            {
+                string exePath = Path.Combine(gamePath, exe);
+                if (File.Exists(exePath))
+                {
+                    return true;
+                }
+            }
 
-              
-            App.Log($"进程搜索完成，找到{results.Count}个游戏路径");
-            return results.ToList();
+            return false;
         }
     }
 }

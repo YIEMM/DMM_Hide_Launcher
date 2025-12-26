@@ -42,7 +42,13 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBox x:Name="game_path_text" TextWrapping="Wrap" adonisExtensions:WatermarkExtension.Watermark="游戏目录(请输入dmmdzz.exe上层目录)" TextChanged="GamePath_TextChanged" adonisExtensions:CornerRadiusExtension.CornerRadius="4" adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4" adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10" />
-                <Button x:Name="FindPathButton" Content="自动查找" Grid.Column="1" adonisExtensions:CornerRadiusExtension.CornerRadius="4" adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4" adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10" Click="FindPathButton_Click" Height="28" Width="64"/>
+                <Button x:Name="FindPathButton" Content="自动查找" Grid.Column="1" adonisExtensions:CornerRadiusExtension.CornerRadius="4" adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4" adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10" Click="FindPathButton_Click" Height="28" Width="64">
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="手动选择路径" Click="ManualSelectPath_Click"/>
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
                 <Button Grid.Column="2" Content="保存"  Margin="10,0,0,0" VerticalAlignment="Center" Click="SaveVersionDataToFile" adonisExtensions:CornerRadiusExtension.CornerRadius="4" adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4" adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10" HorizontalAlignment="Center" Width="40" Height="26"/>
 
             </Grid>
@@ -120,8 +126,12 @@
                 </TabItem>
                 <TabItem Header="Tools">
                     <Grid Margin="20">
-                        <Button x:Name="CountButton" Content="count" Width="100" Height="40" FontSize="16"
-                                Click="CountButton_Click" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Button x:Name="CountButton" Content="count" Width="100" Height="40" FontSize="16"
+                                    Click="CountButton_Click" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                            <Button x:Name="GameWindowResizerButton" Content="调整游戏窗口" Width="150" Height="40" FontSize="16"
+                                    Click="GameWindowResizerButton_Click" HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Grid>
                 </TabItem>
             </TabControl>

@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
+using Newtonsoft.Json;
+using DMM_Hide_Launcher.Models;
 
-namespace DMM_Hide_Launcher.Others
+namespace DMM_Hide_Launcher.Managers
 {
     /// <summary>
     /// 配置管理器类
@@ -17,12 +18,12 @@ namespace DMM_Hide_Launcher.Others
         private const string ConfigFilePath = "config.json";
         
         /// <summary>
-        /// JSON序列化选项
+        /// JSON序列化设置
         /// </summary>
-        private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+        private static readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
         {
-            WriteIndented = true, // 格式化输出
-            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping // 支持中文等非ASCII字符
+            Formatting = Formatting.Indented, // 格式化输出
+            StringEscapeHandling = StringEscapeHandling.EscapeNonAscii // 支持中文等非ASCII字符
         };
         
         /// <summary>
@@ -36,7 +37,7 @@ namespace DMM_Hide_Launcher.Others
                 try
                 {
                     string json = File.ReadAllText(ConfigFilePath);
-                    return JsonSerializer.Deserialize<Config>(json) ?? CreateDefaultConfig();
+                    return JsonConvert.DeserializeObject<Config>(json) ?? CreateDefaultConfig();
                 }
                 catch (Exception)
                 {
@@ -59,7 +60,7 @@ namespace DMM_Hide_Launcher.Others
         {
             try
             {
-                string json = JsonSerializer.Serialize(config, JsonOptions);
+                string json = JsonConvert.SerializeObject(config, JsonSettings);
                 File.WriteAllText(ConfigFilePath, json);
             }
             catch (Exception ex)
@@ -108,10 +109,10 @@ namespace DMM_Hide_Launcher.Others
         /// 获取账号列表
         /// </summary>
         /// <returns>账号列表</returns>
-        public static List<Account> GetAccounts()
+        public static List<Models.Account> GetAccounts()
         {
             Config config = LoadConfig();
-            return config.Accounts ?? new List<Account>();
+            return config.Accounts ?? new List<Models.Account>();
         }
         
         /// <summary>
@@ -124,7 +125,7 @@ namespace DMM_Hide_Launcher.Others
             Config config = LoadConfig();
             
             // 查找是否已存在该账号
-            Account existingAccount = config.Accounts.Find(a => a.Username == username);
+            Models.Account existingAccount = config.Accounts.Find(a => a.Username == username);
             
             if (existingAccount != null)
             {
@@ -134,7 +135,7 @@ namespace DMM_Hide_Launcher.Others
             else
             {
                 // 添加新账号
-                config.Accounts.Add(new Account { Username = username, Password = password });
+                config.Accounts.Add(new Models.Account { Username = username, Password = password });
             }
             
             SaveConfig(config);

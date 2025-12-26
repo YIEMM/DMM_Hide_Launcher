@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Text.Json;
+using Newtonsoft.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -17,6 +17,8 @@ using MessageBoxResult = AdonisUI.Controls.MessageBoxResult;
 using System.Security.Cryptography;
 using System.Text;
 using System.Management;
+using DMM_Hide_Launcher.Models;
+using DMM_Hide_Launcher.Managers;
 using DMM_Hide_Launcher.Others;
 
 
@@ -149,15 +151,15 @@ namespace DMM_Hide_Launcher
                 Accounts.Clear();
                 
                 // 使用ConfigManager获取账号信息
-                List<Others.Account> configAccounts = ConfigManager.GetAccounts();
-                
-                if (configAccounts != null && configAccounts.Count > 0)
+                 List<Models.Account> configAccounts = ConfigManager.GetAccounts();
+                  
+                 if (configAccounts != null && configAccounts.Count > 0)
                 {
                     App.Log($"成功从ConfigManager获取 {configAccounts.Count} 个账号");
                     foreach (var configAccount in configAccounts)
                     {
                         // 解密密码
-                        string decryptedPassword = CryptoHelper.DecryptString(configAccount.Password);
+                        string decryptedPassword = AESKEY.DecryptString(configAccount.Password);
                         Account decryptedAccount = new Account
                         {
                             Username = configAccount.Username,
@@ -195,7 +197,7 @@ namespace DMM_Hide_Launcher
                 {
                     App.Log("检测到旧的accounts.json文件，开始导入账号信息");
                     string json = File.ReadAllText(AccountsFilePath);
-                    var encryptedAccounts = JsonSerializer.Deserialize<List<Account>>(json);
+                    var encryptedAccounts = JsonConvert.DeserializeObject<List<Account>>(json);
 
                     if (encryptedAccounts != null && encryptedAccounts.Count > 0)
                     {
@@ -203,7 +205,7 @@ namespace DMM_Hide_Launcher
                         foreach (var encryptedAccount in encryptedAccounts)
                         {
                             // 解密密码
-                            string decryptedPassword = CryptoHelper.DecryptString(encryptedAccount.Password);
+                            string decryptedPassword = AESKEY.DecryptString(encryptedAccount.Password);
                             Account decryptedAccount = new Account
                             {
                                 Username = encryptedAccount.Username,
@@ -252,7 +254,7 @@ namespace DMM_Hide_Launcher
                 foreach (var account in Accounts)
                 {
                     // 加密密码
-                    string encryptedPassword = CryptoHelper.EncryptString(account.Password);
+                    string encryptedPassword = AESKEY.EncryptString(account.Password);
                     
                     // 添加到ConfigManager
                     ConfigManager.AddOrUpdateAccount(account.Username, encryptedPassword);
@@ -627,7 +629,7 @@ namespace DMM_Hide_Launcher
                 foreach (var account in Accounts)
                 {
                     // 加密密码
-                    string encryptedPassword = CryptoHelper.EncryptString(account.Password);
+                    string encryptedPassword = AESKEY.EncryptString(account.Password);
                     exportData.Accounts.Add(new Account
                     {
                         Username = account.Username,
@@ -636,7 +638,7 @@ namespace DMM_Hide_Launcher
                 }
 
                 // 序列化导出数据为JSON
-                string json = JsonSerializer.Serialize(exportData, new JsonSerializerOptions { WriteIndented = true });
+                string json = JsonConvert.SerializeObject(exportData, Formatting.Indented);
                 
                 // 写入文件
                 File.WriteAllText(filePath, json);
@@ -670,7 +672,7 @@ namespace DMM_Hide_Launcher
                 }
 
                 // 序列化导出数据为JSON
-                string json = JsonSerializer.Serialize(exportData, new JsonSerializerOptions { WriteIndented = true });
+                string json = JsonConvert.SerializeObject(exportData, Formatting.Indented);
                 
                 // 写入文件
                 File.WriteAllText(filePath, json);
@@ -693,7 +695,7 @@ namespace DMM_Hide_Launcher
                 string json = File.ReadAllText(filePath);
                 
                 // 尝试解析为ExportAccountData格式（带AES标记的格式）
-                ExportAccountData importData = JsonSerializer.Deserialize<ExportAccountData>(json);
+                ExportAccountData importData = JsonConvert.DeserializeObject<ExportAccountData>(json);
                 
                 if (importData == null || importData.Accounts == null || importData.Accounts.Count == 0)
                 {
@@ -720,7 +722,7 @@ namespace DMM_Hide_Launcher
                         // 如果数据已加密（根据AES标记），尝试解密密码
                         try
                         {
-                            passwordToUse = CryptoHelper.DecryptString(importedAccount.Password);
+                            passwordToUse = AESKEY.DecryptString(importedAccount.Password);
                             App.Log($"成功解密账号 '{importedAccount.Username}' 的密码");
                         }
                         catch (Exception ex)

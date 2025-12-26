@@ -2,6 +2,8 @@ using AdonisUI;
 using AdonisUI.Controls;
 using HandyControl.Controls;
 using Newtonsoft.Json;
+using DMM_Hide_Launcher.Models;
+using DMM_Hide_Launcher.Managers;
 using DMM_Hide_Launcher.Others;
 using DMM_Hide_Launcher.Others.Tools;
 using System.Collections.ObjectModel;
@@ -74,6 +76,7 @@ namespace DMM_Hide_Launcher
         /// 主题状态标志，true表示暗色主题，false表示亮色主题
         /// </summary>
         private bool _isDark;
+        
 
         /// <summary>
         /// 窗口检测器实例，用于持续监测游戏窗口状态
@@ -103,6 +106,8 @@ namespace DMM_Hide_Launcher
             Growl.SetGrowlParent(GrowlPanel_MainStart, false);
         }
         
+
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -118,6 +123,12 @@ namespace DMM_Hide_Launcher
                          UriKind.Absolute
                          );
             Button_Theme_Image.Source = new BitmapImage(Theme_Ico_Uri);
+            
+            // 订阅系统主题变化事件
+            if (App.Current is App app)
+            {
+                app.SystemThemeChanged += OnSystemThemeChanged;
+            }
 
             // 记录程序启动信息
             App.Log("程序启动，主窗口初始化开始");
@@ -257,19 +268,16 @@ namespace DMM_Hide_Launcher
                     {
                         Game_Version = match.Groups[1].Value.Trim();
                         App.Log($"成功获取游戏版本号: {Game_Version}");
-                        Console.WriteLine(Game_Version);
                     }
                     else
                     {
                         App.Log("未找到版本号");
-                        Console.WriteLine("未找到版本号");
                     }
                 }
             }
             catch (Exception ex)
             {
                 App.LogError("获取版本信息时出错", ex);
-                Console.WriteLine("发生错误: " + ex.Message);
             }
         }
         private async Task<Dictionary<string, List<string>>> Load_Update_XML_Second()
@@ -343,7 +351,7 @@ namespace DMM_Hide_Launcher
                 GamePath = config.GamePath;
                 
                 App.Log("配置文件加载成功，游戏路径: " + (GamePath ?? "未设置"));
-                App.Log("配置文件加载成功，7K账号: " + (config.ID7K ?? "未设置"));
+                App.Log("配置文件加载成功，上次7K账号: " + (config.ID7K ?? "未设置"));
                 
                 User_Text.Text = config.ID7K;
                 game_path_text.Text = GamePath;
@@ -507,20 +515,31 @@ namespace DMM_Hide_Launcher
             App.Log("开始7K-QQ登录方式启动游戏");
             try
             {
-                QQLoginWindow qqWindow = new QQLoginWindow();
-                qqWindow.Owner = this;
+                QQLoginWindow QQLoginWindow = new QQLoginWindow();
+                QQLoginWindow.Owner = this;
                 
                 // 在新线程中显示登录窗口，避免阻塞UI
                 await Task.Run(() =>
                 {
                     Dispatcher.Invoke(() =>
                     {
-                        qqWindow.ShowDialog();
+                        QQLoginWindow.ShowDialog();
                     });
                 });
                 
-                // 获取QQ登录窗口的响应内容
-                string Login_KEY = qqWindow.Login_KEY_7KQQ;
+                // 获取QQ登录窗口的响应内容（静态属性）
+                // 等待一段时间，让后台POST请求有足够的时间完成
+                string Login_KEY = "";
+                int maxWaitTime = 3000; // 最大等待时间（毫秒）
+                int waitInterval = 100; // 检查间隔（毫秒）
+                int elapsedTime = 0;
+                
+                while (string.IsNullOrEmpty(Login_KEY) && elapsedTime < maxWaitTime)
+                {
+                    await Task.Delay(waitInterval);
+                    Login_KEY = DMM_Hide_Launcher.Others.QQLoginWindow.Login_KEY_7KQQ;
+                    elapsedTime += waitInterval;
+                }
                 
                 if (!string.IsNullOrEmpty(Login_KEY) && !Login_KEY.StartsWith("ERROR:"))
                 {
@@ -719,6 +738,24 @@ namespace DMM_Hide_Launcher
                 Growl.Warning($"读取配置文件时出错: {ex.Message}");
             }
         }
+        
+        /// <summary>
+        /// 计数按钮点击事件处理程序
+        /// 打开计数窗口
+        /// </summary>
+        private void CountButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Others.Tools.CountWindow countWindow = new CountWindow();
+                countWindow.Show();
+            }
+            catch (Exception ex)
+            {
+                App.LogError("打开计算器窗口时出错", ex);
+                MessageBox.Show("打开计算器窗口失败：" + ex.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
         /// <summary>
         /// 检查指定名称的进程是否正在运行
         /// </summary>
@@ -733,7 +770,7 @@ namespace DMM_Hide_Launcher
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"检查进程时出错: {ex.Message}");
+                App.LogError($"检查进程时出错: {ex.Message}");
             }
 
             return false;
@@ -761,18 +798,18 @@ namespace DMM_Hide_Launcher
                 Accounts.Clear();
                 
                 // 使用ConfigManager获取账号信息
-                List<Others.Account> configAccounts = ConfigManager.GetAccounts();
-                
-                if (configAccounts != null && configAccounts.Count > 0)
-                {
+                 List<Models.Account> configAccounts = ConfigManager.GetAccounts();
+                  
+                 if (configAccounts != null && configAccounts.Count > 0)
+                 {
                     foreach (var configAccount in configAccounts)
                     {
-                        // 将Config.Account类型转换为MainWindow.Account类型
-                        Accounts.Add(new Account
-                        {
-                            Username = configAccount.Username,
-                            Password = configAccount.Password
-                        });
+                        // 将Models.Account类型转换为MainWindow.Account类型
+                      Accounts.Add(new Account
+                      {
+                          Username = configAccount.Username,
+                          Password = configAccount.Password
+                      });
                     }
                     App.Log($"成功加载{configAccounts.Count}个账号");
                 }
@@ -831,8 +868,6 @@ namespace DMM_Hide_Launcher
                 // 这里不显示错误，因为这是一个可选操作
             }
         }
-
-
         private void EditUser_Click(object sender, RoutedEventArgs e)
         {
             User_Edit editWindow = new User_Edit();
@@ -845,7 +880,6 @@ namespace DMM_Hide_Launcher
             // 显示模态对话框
             bool? result = editWindow.ShowDialog();
         }
-
         private void Use_User_Button_Click(object sender, RoutedEventArgs e)
         {
             App.Log("开始账号切换操作");
@@ -853,7 +887,7 @@ namespace DMM_Hide_Launcher
             {
                 App.Log($"切换至账号: {account.Username}");
                 User_Text.Text = account.Username;
-                Password.Password = CryptoHelper.DecryptString(account.Password);
+                Password.Password = AESKEY.DecryptString(account.Password);
                 _selectedAccount = account;
                 User_Tab.SelectedIndex = 1;
                 App.Log("账号切换完成，切换到游戏启动标签页");
@@ -1001,6 +1035,63 @@ namespace DMM_Hide_Launcher
         }
         
         /// <summary>
+        /// 手动选择路径按钮点击事件
+        /// 直接打开文件夹选择对话框，让用户手动选择游戏路径
+        /// </summary>
+        /// <param name="sender">事件发送者（菜单项）</param>
+        /// <param name="e">路由事件参数</param>
+        private void ManualSelectPath_Click(object sender, RoutedEventArgs e)
+        {
+            App.Log("开始手动选择游戏路径");
+            
+            try
+            {
+                // 创建GamePathFinder实例用于验证路径
+                GamePathFinder pathFinder = new GamePathFinder();
+                
+                // 使用using语句确保资源正确释放
+                using (System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog
+                {
+                    Description = "请选择游戏安装目录",
+                    ShowNewFolderButton = false
+                })
+                {
+                    if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        string manualPath = folderDialog.SelectedPath;
+                        App.Log($"用户手动选择路径: {manualPath}");
+                        
+                        if (pathFinder.ValidateGamePath(manualPath))
+                        {
+                            SetGamePath(manualPath);
+                            Growl.Success("已手动选择游戏目录");
+                            App.Log("手动选择路径成功并已保存");
+                        }
+                        else
+                        {
+                            Growl.Error("所选目录不包含游戏文件，请重新选择");
+                            App.LogWarning($"所选路径无效: {manualPath}");
+                        }
+                    }
+                    else
+                    {
+                        App.Log("用户取消了手动选择路径操作");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                App.LogError("手动选择游戏路径时出错", ex);
+                AdonisUI.Controls.MessageBox.Show(
+                    $"手动选择游戏路径时出错: {ex.Message}", 
+                    "错误", 
+                    MessageBoxButton.OK, 
+                    MessageBoxImage.Error
+                );
+            }
+        }
+        
+        /// <summary>
         /// 设置游戏路径并保存到配置文件
         /// </summary>
         /// <param name="path">游戏路径</param>
@@ -1053,7 +1144,31 @@ namespace DMM_Hide_Launcher
             
             App.Log($"主题切换完成，当前主题: {(_isDark ? "暗色" : "亮色")}");
         }
-        
+                /// <summary>
+        /// 处理系统主题变化事件
+        /// </summary>
+        /// <param name="sender">事件发送者</param>
+        /// <param name="isDarkMode">是否为暗色主题</param>
+        private void OnSystemThemeChanged(object sender, bool isDarkMode)
+        {
+            App.Log($"系统主题变化事件触发，新主题: {(isDarkMode ? "暗色" : "亮色")}");
+            
+            // 更新本地主题状态
+            _isDark = isDarkMode;
+            
+            // 更新主题按钮图标
+            this.Dispatcher.Invoke(() =>
+            {
+                var Theme_Ico_Uri = new Uri(
+                     _isDark ?
+                     "pack://application:,,,/DMM_Hide_Launcher;component/public/sun.ico" :
+                     "pack://application:,,,/DMM_Hide_Launcher;component/public/moon.ico",
+                     UriKind.Absolute
+                     );
+                Button_Theme_Image.Source = new BitmapImage(Theme_Ico_Uri);
+            });
+        }
+
         /// <summary>
         /// 检测游戏窗口是否运行
         /// 简化版：使用单一线程处理窗口检测，避免过多嵌套的任务
@@ -1324,22 +1439,24 @@ namespace DMM_Hide_Launcher
                 App.LogError("停止窗口监测时出错", ex);
             }
         }
-        
-        /// <summary>
-        /// 计数按钮点击事件处理程序
-        /// 打开计数窗口
-        /// </summary>
-        private void CountButton_Click(object sender, RoutedEventArgs e)
+
+        private void GameWindowResizerButton_Click(object sender, RoutedEventArgs e)
         {
+            // 打开游戏窗口调整工具
             try
             {
-                CountWindow countWindow = new CountWindow();
-                countWindow.Show();
+                App.Log("[调试] 开始创建GameWindowResizer实例");
+                Others.Tools.GameWindowResizer resizer = new Others.Tools.GameWindowResizer();
+                App.Log("[调试] GameWindowResizer实例创建成功，准备显示窗口");
+                resizer.Show();
+                App.Log("[调试] GameWindowResizer窗口显示命令已发送");
             }
             catch (Exception ex)
             {
-                App.LogError("打开计算器窗口时出错", ex);
-                MessageBox.Show("打开计算器窗口失败：" + ex.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                App.Log($"[错误] 打开游戏窗口调整工具失败: {ex.Message}");
+                App.Log($"[错误详情] {ex.StackTrace}");
+                MessageBox.Show($"打开游戏窗口调整工具失败: {ex.Message}\n\n详细错误:\n{ex.StackTrace}", 
+                    "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

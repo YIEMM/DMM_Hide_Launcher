@@ -8,7 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
+
 using System.Threading.Tasks;
 using System.Windows;
 using MessageBox = AdonisUI.Controls.MessageBox;
@@ -146,16 +146,16 @@ namespace DMM_Hide_Launcher.Others
                 responseBody = responseBody.Trim();
 
                 // 解析 JSON
-                using (JsonDocument jsonDoc = JsonDocument.Parse(responseBody))
+                JObject jsonObj = JObject.Parse(responseBody);
+                if (jsonObj.TryGetValue("status", out JToken statusToken) &&
+                    statusToken.Type == JTokenType.Integer &&
+                    (int)statusToken == 1 &&
+                    jsonObj.TryGetValue("url", out JToken urlToken) &&
+                    urlToken.Type == JTokenType.String &&
+                    (string)urlToken == "/games/tpbsn/dlq")
                 {
-                    JsonElement root = jsonDoc.RootElement;
-                    if (root.TryGetProperty("status", out JsonElement statusElement) &&
-                        statusElement.GetInt32() == 1 &&
-                        root.TryGetProperty("url", out JsonElement urlElement) &&
-                        urlElement.GetString() == "/games/tpbsn/dlq")
-                    {
-                        return "ERROR:INVALID_CREDENTIALS";
-                    }
+                    return "ERROR:INVALID_CREDENTIALS";
+                }
                     else
                     {
                         string[] files = Directory.GetFiles(GamePath, "dmmdzz.exe", SearchOption.AllDirectories);
@@ -173,7 +173,6 @@ namespace DMM_Hide_Launcher.Others
                         {
                             return "ERROR:GAME_NOT_FOUND";
                         }
-                    }
                 }
             }
             catch (Exception ex)

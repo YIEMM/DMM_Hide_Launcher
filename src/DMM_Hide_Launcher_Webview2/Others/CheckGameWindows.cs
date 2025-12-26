@@ -188,10 +188,10 @@ namespace DMM_Hide_Launcher.Others
                 // 检查窗口标题是否包含目标窗口名称
                 foreach (string targetName in _targetWindowNames)
                 {
-                    if (title.IndexOf(targetName, StringComparison.OrdinalIgnoreCase) >= 0)
+                    if (string.Equals(title, targetName, StringComparison.OrdinalIgnoreCase))
                     {
                         found = true;
-                         
+                          
                         // 如果需要收集窗口标题
                         if (collectWindowTitles && windowTitles != null && !windowTitles.Contains(title))
                         {

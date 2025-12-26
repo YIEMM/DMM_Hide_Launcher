@@ -1,6 +1,7 @@
-using System;using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 
-namespace DMM_Hide_Launcher.Others
+namespace DMM_Hide_Launcher.Models
 {
     /// <summary>
     /// 配置类
