@@ -48,7 +48,7 @@ jobs:
     - name: Create pre-release
       id: create_release
       run: |
-        gh release create "pre-release-${{ steps.date.outputs.date }}" --title "Pre-release ${{ steps.date.outputs.date }}" --prerelease --draft=false
+        gh release create "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" --title "Pre-release ${{ steps.date.outputs.date }}" --prerelease --draft=false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
