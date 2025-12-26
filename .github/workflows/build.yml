@@ -48,7 +48,9 @@ jobs:
     - name: Create pre-release
       id: create_release
       run: |
-        gh release create "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" --title "Pre-release ${{ steps.date.outputs.date }}" --prerelease --draft=false
+        $tagName = "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}"
+        gh release create $tagName --title "Pre-release ${{ steps.date.outputs.date }}" --prerelease --draft=false
+        echo "tag_name=$tagName" >> $env:GITHUB_OUTPUT
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
@@ -57,7 +59,7 @@ jobs:
     - name: Upload normal x64 artifact
       run: |
         Copy-Item ./publish/normal/x64/DMM_Hide_Launcher.exe ./publish/normal/x64/DMM_Hide_Launcher_normal_x64.exe
-        gh release upload "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" ./publish/normal/x64/DMM_Hide_Launcher_normal_x64.exe --clobber
+        gh release upload ${{ steps.create_release.outputs.tag_name }} ./publish/normal/x64/DMM_Hide_Launcher_normal_x64.exe --clobber
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
@@ -65,7 +67,7 @@ jobs:
     - name: Upload normal x86 artifact
       run: |
         Copy-Item ./publish/normal/x86/DMM_Hide_Launcher.exe ./publish/normal/x86/DMM_Hide_Launcher_normal_x86.exe
-        gh release upload "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" ./publish/normal/x86/DMM_Hide_Launcher_normal_x86.exe --clobber
+        gh release upload ${{ steps.create_release.outputs.tag_name }} ./publish/normal/x86/DMM_Hide_Launcher_normal_x86.exe --clobber
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
@@ -73,7 +75,7 @@ jobs:
     - name: Upload WebView2 x64 artifact
       run: |
         Copy-Item ./publish/webview2/x64/DMM_Hide_Launcher.exe ./publish/webview2/x64/DMM_Hide_Launcher_webview2_x64.exe
-        gh release upload "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" ./publish/webview2/x64/DMM_Hide_Launcher_webview2_x64.exe --clobber
+        gh release upload ${{ steps.create_release.outputs.tag_name }} ./publish/webview2/x64/DMM_Hide_Launcher_webview2_x64.exe --clobber
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
@@ -81,7 +83,7 @@ jobs:
     - name: Upload WebView2 x86 artifact
       run: |
         Copy-Item ./publish/webview2/x86/DMM_Hide_Launcher.exe ./publish/webview2/x86/DMM_Hide_Launcher_webview2_x86.exe
-        gh release upload "Pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" ./publish/webview2/x86/DMM_Hide_Launcher_webview2_x86.exe --clobber
+        gh release upload ${{ steps.create_release.outputs.tag_name }} ./publish/webview2/x86/DMM_Hide_Launcher_webview2_x86.exe --clobber
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
