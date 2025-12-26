@@ -515,6 +515,52 @@ namespace DMM_Hide_Launcher
             App.Log("开始7K-QQ登录方式启动游戏");
             try
             {
+                // 首先获取并验证游戏路径
+                var config = ConfigManager.LoadConfig();
+                string gamePath = config.GamePath;
+                
+                if (string.IsNullOrEmpty(gamePath) || !Directory.Exists(gamePath))
+                {
+                    App.Log("游戏路径无效");
+                    Growl.Warning("找不到游戏位置，请检查设置中的游戏目录");
+                    return;
+                }
+                
+                // 检查游戏进程
+                bool isRunning = IsProcessRunning("dmmdzz");
+                if (isRunning)
+                {
+                    App.Log("检测到游戏正在运行");
+#pragma warning disable CA1416 // 验证平台兼容性
+                    Growl.Ask("检测到游戏正在运行，是否强制关闭游戏？", isConfirmed =>
+                    {
+                        if (isConfirmed)
+                        {
+                            App.Log("用户确认强制关闭游戏");
+                            Process[] processes = Process.GetProcessesByName("dmmdzz");
+                            foreach (Process process in processes)
+                            {
+                                process.Kill();
+                            }
+                            App.Log("已强制关闭游戏进程");
+                            Growl.Success("已强制关闭游戏");
+                        }
+                        return true;
+                    });
+#pragma warning restore CA1416 // 验证平台兼容性
+                    return;
+                }
+                
+                // 验证游戏可执行文件是否存在
+                string[] files = Directory.GetFiles(gamePath, "dmmdzz.exe", SearchOption.AllDirectories);
+                if (files.Length == 0)
+                {
+                    App.Log("未找到游戏可执行文件");
+                    Growl.Warning("未找到游戏");
+                    return;
+                }
+                
+                // 游戏目录校验通过后，再进行登录获取KEY
                 QQLoginWindow QQLoginWindow = new QQLoginWindow();
                 QQLoginWindow.Owner = this;
                 
@@ -545,60 +591,14 @@ namespace DMM_Hide_Launcher
                 {
                     App.Log($"获取到7K-QQ登录响应: {Login_KEY}");
                     
-                    // 获取游戏路径
-                    var config = ConfigManager.LoadConfig();
-                    string gamePath = config.GamePath;
+                    string gameExePath = files[0];
+                    App.Log($"找到游戏可执行文件: {gameExePath}");
                     
-                    if (string.IsNullOrEmpty(gamePath) || !Directory.Exists(gamePath))
-                    {
-                        App.Log("游戏路径无效");
-                        Growl.Warning("找不到游戏位置，请检查设置中的游戏目录");
-                        return;
-                    }
-                    
-                    // 检查游戏进程
-                    bool isRunning = IsProcessRunning("dmmdzz");
-                    if (isRunning)
-                    {
-                        App.Log("检测到游戏正在运行");
-#pragma warning disable CA1416 // 验证平台兼容性
-                        Growl.Ask("检测到游戏正在运行，是否强制关闭游戏？", isConfirmed =>
-                        {
-                            if (isConfirmed)
-                            {
-                                App.Log("用户确认强制关闭游戏");
-                                Process[] processes = Process.GetProcessesByName("dmmdzz");
-                                foreach (Process process in processes)
-                                {
-                                    process.Kill();
-                                }
-                                App.Log("已强制关闭游戏进程");
-                                Growl.Success("已强制关闭游戏");
-                            }
-                            return true;
-                        });
-#pragma warning restore CA1416 // 验证平台兼容性
-                        return;
-                    }
-                    
-                    // 查找游戏可执行文件
-                    string[] files = Directory.GetFiles(gamePath, "dmmdzz.exe", SearchOption.AllDirectories);
-                    if (files.Length > 0)
-                    {
-                        string gameExePath = files[0];
-                        App.Log($"找到游戏可执行文件: {gameExePath}");
-                        
-                        // 使用解析后的响应内容启动游戏
-                        App.Log($"使用7K-QQ登录响应启动游戏: {gameExePath} 启动参数: {Login_KEY}");
-                        Process.Start(gameExePath, Login_KEY);
-                        App.Log("7K-QQ登录启动成功，等待窗口");
-                        CheckGameWindow();
-                    }
-                    else
-                    {
-                        App.Log("未找到游戏可执行文件");
-                        Growl.Warning("未找到游戏");
-                    }
+                    // 使用解析后的响应内容启动游戏
+                    App.Log($"使用7K-QQ登录响应启动游戏: {gameExePath} 启动参数: {Login_KEY}");
+                    Process.Start(gameExePath, Login_KEY);
+                    App.Log("7K-QQ登录启动成功，等待窗口");
+                    CheckGameWindow();
                 }
                 else
                 {
@@ -618,11 +618,7 @@ namespace DMM_Hide_Launcher
             App.Log("开始启动7k7k游戏");
             try
             {
-                string ID_7K = User_Text.Text;
-                string Key_7K = Password.Password;
-                App.Log($"用户账号: {ID_7K}");
-                
-                // 使用ConfigManager获取配置
+                // 首先使用ConfigManager获取配置
                 var config = ConfigManager.LoadConfig();
                 
                 // 获取游戏路径
@@ -634,102 +630,103 @@ namespace DMM_Hide_Launcher
                 {
                     App.Log("游戏路径为空");
                     Growl.Warning("找不到游戏位置，请选择在设置中输入游戏目录");
+                    return;
                 }
-                else if (!Directory.Exists(gamePath))
+                if (!Directory.Exists(gamePath))
                 {
                     App.Log("游戏目录不存在");
                     Growl.Warning("游戏目录不存在，请检查路径");
+                    return;
                 }
-                else
+                
+                // 检查游戏进程
+                bool isRunning = IsProcessRunning("dmmdzz");
+                if (isRunning)
                 {
-                    App.Log("游戏目录存在，开始处理账号信息");
-                    
-                    // 检查是否为空白字符
-                    if (string.IsNullOrWhiteSpace(ID_7K) || string.IsNullOrWhiteSpace(Key_7K))
-                    {
-                        App.Log("账号或密码为空");
-                        Growl.Warning("请输入账密");
-                    }
-                    else
-                    {
-                        App.Log("账号和密码已输入，开始检查游戏进程");
-                        bool isRunning = IsProcessRunning("dmmdzz");
-                        if (isRunning)
-                        {
-                            App.Log("检测到游戏进程正在运行");
+                    App.Log("检测到游戏进程正在运行");
 #pragma warning disable CA1416 // 验证平台兼容性
-                            Growl.Ask("检测到游戏正在运行，是否强制关闭游戏？", isConfirmed =>
+                    Growl.Ask("检测到游戏正在运行，是否强制关闭游戏？", isConfirmed =>
+                    {
+                        if (isConfirmed)
+                        {
+                            App.Log("用户确认强制关闭游戏进程");
+                            Process[] processes = Process.GetProcessesByName("dmmdzz");
+                            foreach (Process process in processes)
                             {
-                                if (isConfirmed)
-                                {
-                                    App.Log("用户确认强制关闭游戏进程");
-                                    Process[] processes = Process.GetProcessesByName("dmmdzz");
-                                    foreach (Process process in processes)
-                                    {
-                                        process.Kill();
-                                    }
-                                    App.Log("已成功强制关闭游戏进程");
-                                    Growl.Success("已强制关闭游戏");
-                                }
-                                return true;
-                            });
+                                process.Kill();
+                            }
+                            App.Log("已成功强制关闭游戏进程");
+                            Growl.Success("已强制关闭游戏");
+                        }
+                        return true;
+                    });
 #pragma warning restore CA1416 // 验证平台兼容性
+                    return;
+                }
+                
+                // 游戏目录校验通过后，再获取账号密码和处理
+                string ID_7K = User_Text.Text;
+                string Key_7K = Password.Password;
+                App.Log($"用户账号: {ID_7K}");
+                
+                // 检查是否为空白字符
+                if (string.IsNullOrWhiteSpace(ID_7K) || string.IsNullOrWhiteSpace(Key_7K))
+                {
+                    App.Log("账号或密码为空");
+                    Growl.Warning("请输入账密");
+                    return;
+                }
+                
+                App.Log("游戏目录存在且账号密码已输入，准备启动游戏");
+                try
+                {
+                    // 保存账号ID到配置文件（密码不再保存）
+                    config.ID7K = ID_7K;
+                    ConfigManager.SaveConfig(config);
+                    
+                    App.Log("开始执行HTTP请求获取游戏启动参数");
+                    string result = await HttpRequester.ExecuteRequests(ID_7K, Key_7K, gamePath);
+                    
+                    // 处理返回结果
+                    if (result.StartsWith("ERROR:"))
+                    {
+                        string errorCode = result.Substring(6); // 去掉"ERROR:"前缀
+                        App.LogError("获取游戏启动参数失败", new Exception(errorCode));
+                        
+                        // 根据错误代码显示对应的错误信息
+                        if (errorCode == "INVALID_CREDENTIALS")
+                        {
+                            Growl.Warning("错误的账户/密码");
+                        }
+                        else if (errorCode == "GAME_NOT_FOUND")
+                        {
+                            Growl.Warning("未找到游戏");
                         }
                         else
                         {
-                            App.Log("游戏未在运行，准备启动游戏");
-                            try
-                            {
-                                // 保存账号ID到配置文件（密码不再保存）
-                                config.ID7K = ID_7K;
-                                ConfigManager.SaveConfig(config);
-                                
-                                App.Log("开始执行HTTP请求获取游戏启动参数");
-                                string result = await HttpRequester.ExecuteRequests(ID_7K, Key_7K, gamePath);
-                                
-                                // 处理返回结果
-                                if (result.StartsWith("ERROR:"))
-                                {
-                                    string errorCode = result.Substring(6); // 去掉"ERROR:"前缀
-                                    App.LogError("获取游戏启动参数失败", new Exception(errorCode));
-                                    
-                                    // 根据错误代码显示对应的错误信息
-                                    if (errorCode == "INVALID_CREDENTIALS")
-                                    {
-                                        Growl.Warning("错误的账户/密码");
-                                    }
-                                    else if (errorCode == "GAME_NOT_FOUND")
-                                    {
-                                        Growl.Warning("未找到游戏");
-                                    }
-                                    else
-                                    {
-                                        Growl.Warning($"获取游戏启动参数失败: {errorCode}");
-                                    }
-                                }
-                                else if (result.Contains("|"))
-                                {
-                                    // 解析游戏路径和启动参数
-                                    string[] parts = result.Split('|');
-                                    if (parts.Length == 2)
-                                    {
-                                        string gameExePath = parts[0];
-                                        string startParams = parts[1];
-                                        
-                                        App.Log($"成功获取游戏启动参数，开始启动游戏: {gameExePath} 启动参数: {startParams}");
-                                        Process.Start(gameExePath, startParams);
-                                        App.Log("7K7K启动，等待窗口");
-                                        CheckGameWindow();
-                                    }
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                App.LogError("游戏启动过程出错", ex);
-                                Growl.Error($"发生错误: {ex.Message}");
-                            }
+                            Growl.Warning($"获取游戏启动参数失败: {errorCode}");
                         }
                     }
+                    else if (result.Contains("|"))
+                    {
+                        // 解析游戏路径和启动参数
+                        string[] parts = result.Split('|');
+                        if (parts.Length == 2)
+                        {
+                            string gameExePath = parts[0];
+                            string startParams = parts[1];
+                            
+                            App.Log($"成功获取游戏启动参数，开始启动游戏: {gameExePath} 启动参数: {startParams}");
+                            Process.Start(gameExePath, startParams);
+                            App.Log("7K7K启动，等待窗口");
+                            CheckGameWindow();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    App.LogError("游戏启动过程出错", ex);
+                    Growl.Error($"发生错误: {ex.Message}");
                 }
             }
             catch (Exception ex)
