@@ -120,5 +120,13 @@ jobs:
                 repo: context.repo.repo,
                 release_id: release.id
               });
+              
+              // 删除对应的tag
+              console.log(`Deleting old tag: ${release.tag_name}`);
+              await github.rest.git.deleteRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `tags/${release.tag_name}`
+              });
             }
           }
