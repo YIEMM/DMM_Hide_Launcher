@@ -47,59 +47,54 @@ jobs:
       
     - name: Create pre-release
       id: create_release
-      uses: actions/create-release@v1
+      run: |
+        gh release create "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" \
+          --title "Pre-release ${{ steps.date.outputs.date }}" \
+          --prerelease \
+          --draft false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}
-        release_name: Pre-release ${{ steps.date.outputs.date }}
-        draft: false
-        prerelease: true
       
     # 为WebView2版本创建zip包
     # 上传普通版本x64
     - name: Upload normal x64 artifact
-      uses: actions/upload-release-asset@v1
+      run: |
+        gh release upload "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" \
+          ./publish/normal/x64/DMM_Hide_Launcher.exe \
+          --clobber \
+          --label "DMM_Hide_Launcher_normal_x64.exe"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./publish/normal/x64/DMM_Hide_Launcher.exe
-        asset_name: DMM_Hide_Launcher_normal_x64.exe
-        asset_content_type: application/octet-stream
       
     # 上传普通版本x86
     - name: Upload normal x86 artifact
-      uses: actions/upload-release-asset@v1
+      run: |
+        gh release upload "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" \
+          ./publish/normal/x86/DMM_Hide_Launcher.exe \
+          --clobber \
+          --label "DMM_Hide_Launcher_normal_x86.exe"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./publish/normal/x86/DMM_Hide_Launcher.exe
-        asset_name: DMM_Hide_Launcher_normal_x86.exe
-        asset_content_type: application/octet-stream
       
     # 上传WebView2版本x64
     - name: Upload WebView2 x64 artifact
-      uses: actions/upload-release-asset@v1
+      run: |
+        gh release upload "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" \
+          ./publish/webview2/x64/DMM_Hide_Launcher.exe \
+          --clobber \
+          --label "DMM_Hide_Launcher_webview2_x64.exe"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./publish/webview2/x64/DMM_Hide_Launcher.exe
-        asset_name: DMM_Hide_Launcher_webview2_x64.exe
-        asset_content_type: application/octet-stream
       
     # 上传WebView2版本x86
     - name: Upload WebView2 x86 artifact
-      uses: actions/upload-release-asset@v1
+      run: |
+        gh release upload "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" \
+          ./publish/webview2/x86/DMM_Hide_Launcher.exe \
+          --clobber \
+          --label "DMM_Hide_Launcher_webview2_x86.exe"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./publish/webview2/x86/DMM_Hide_Launcher.exe
-        asset_name: DMM_Hide_Launcher_webview2_x86.exe
-        asset_content_type: application/octet-stream
 
     - name: Delete other pre-releases
       uses: actions/github-script@v7
