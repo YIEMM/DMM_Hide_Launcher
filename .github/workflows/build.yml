@@ -42,13 +42,13 @@ jobs:
       
     - name: Get current date
       id: date
-      run: echo "date=$(Get-Date -Format 'yyyy-MM-dd')" >> $env:GITHUB_OUTPUT
+      run: echo "date=$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" >> $env:GITHUB_OUTPUT
       shell: pwsh
       
     - name: Create pre-release
       id: create_release
       run: |
-        gh release create "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" --title "Pre-release ${{ steps.date.outputs.date }}" --prerelease --draft=false
+        gh release create "pre-release-${{ steps.date.outputs.date }}" --title "Pre-release ${{ steps.date.outputs.date }}" --prerelease --draft=false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
@@ -81,7 +81,7 @@ jobs:
     - name: Upload WebView2 x86 artifact
       run: |
         Copy-Item ./publish/webview2/x86/DMM_Hide_Launcher.exe ./publish/webview2/x86/DMM_Hide_Launcher_webview2_x86.exe
-        gh release upload "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" ./publish/webview2/x86/DMM_Hide_Launcher_webview2_x86.exe --clobber
+        gh release upload "Pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" ./publish/webview2/x86/DMM_Hide_Launcher_webview2_x86.exe --clobber
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
