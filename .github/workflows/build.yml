@@ -24,21 +24,35 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore src/DMM_Hide_Launcher.sln
       
-    # 构建普通版本 - x64
-    - name: Build normal version - x64
-      run: dotnet publish src/DMM_Hide_Launcher/DMM_Hide_Launcher.csproj -c Release -r win-x64 --no-self-contained /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=false /p:DebugType=None /p:TrimUnusedDependencies=true /p:IncludeAllContentForSelfExtract=false -o ./publish/normal/x64
-      
-    # 构建普通版本 - x86
-    - name: Build normal version - x86
-      run: dotnet publish src/DMM_Hide_Launcher/DMM_Hide_Launcher.csproj -c Release -r win-x86 --no-self-contained /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=false /p:DebugType=None /p:TrimUnusedDependencies=true /p:IncludeAllContentForSelfExtract=false -o ./publish/normal/x86
-      
-    # 构建WebView2版本 - x64 (使用用户指定的构建参数)
-    - name: Build WebView2 version - x64
-      run: dotnet publish src/DMM_Hide_Launcher_Webview2/DMM_Hide_Launcher.csproj -c Release -r win-x64 --no-self-contained /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:DebugType=None /p:TrimUnusedDependencies=true /p:IncludeAllContentForSelfExtract=true -o ./publish/webview2/x64
-      
-    # 构建WebView2版本 - x86 (使用用户指定的构建参数)
-    - name: Build WebView2 version - x86
-      run: dotnet publish src/DMM_Hide_Launcher_Webview2/DMM_Hide_Launcher.csproj -c Release -r win-x86 --no-self-contained /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:DebugType=None /p:TrimUnusedDependencies=true /p:IncludeAllContentForSelfExtract=true -o ./publish/webview2/x86
+    # 并行构建所有版本
+    - name: Build all versions in parallel
+      run: |
+        $jobs = @()
+        
+        # 构建普通版本 - x64
+        $jobs += Start-Job -ScriptBlock { dotnet publish src/DMM_Hide_Launcher/DMM_Hide_Launcher.csproj -c Release -r win-x64 --no-self-contained /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=false /p:DebugType=None /p:TrimUnusedDependencies=true /p:IncludeAllContentForSelfExtract=false -o ./publish/normal/x64 }
+        
+        # 构建普通版本 - x86
+        $jobs += Start-Job -ScriptBlock { dotnet publish src/DMM_Hide_Launcher/DMM_Hide_Launcher.csproj -c Release -r win-x86 --no-self-contained /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=false /p:DebugType=None /p:TrimUnusedDependencies=true /p:IncludeAllContentForSelfExtract=false -o ./publish/normal/x86 }
+        
+        # 构建WebView2版本 - x64
+        $jobs += Start-Job -ScriptBlock { dotnet publish src/DMM_Hide_Launcher_Webview2/DMM_Hide_Launcher.csproj -c Release -r win-x64 --no-self-contained /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:DebugType=None /p:TrimUnusedDependencies=true /p:IncludeAllContentForSelfExtract=true -o ./publish/webview2/x64 }
+        
+        # 构建WebView2版本 - x86
+        $jobs += Start-Job -ScriptBlock { dotnet publish src/DMM_Hide_Launcher_Webview2/DMM_Hide_Launcher.csproj -c Release -r win-x86 --no-self-contained /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true /p:DebugType=None /p:TrimUnusedDependencies=true /p:IncludeAllContentForSelfExtract=true -o ./publish/webview2/x86 }
+        
+        # 等待所有作业完成
+        Wait-Job $jobs
+        
+        # 检查作业结果
+        foreach ($job in $jobs) {
+            $result = Receive-Job $job
+            if ($job.State -ne 'Completed') {
+                Write-Error "Build job failed: $($job.Name)"
+                exit 1
+            }
+        }
+      shell: pwsh
       
     - name: Get current date
       id: date
