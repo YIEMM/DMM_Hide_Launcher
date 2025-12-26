@@ -56,28 +56,28 @@ jobs:
     # 上传普通版本x64
     - name: Upload normal x64 artifact
       run: |
-        gh release upload "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" ./publish/normal/x64/DMM_Hide_Launcher.exe --clobber --label "DMM_Hide_Launcher_normal_x64.exe"
+        gh release upload "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" ./publish/normal/x64/DMM_Hide_Launcher.exe --clobber
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
     # 上传普通版本x86
     - name: Upload normal x86 artifact
       run: |
-        gh release upload "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" ./publish/normal/x86/DMM_Hide_Launcher.exe --clobber --label "DMM_Hide_Launcher_normal_x86.exe"
+        gh release upload "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" ./publish/normal/x86/DMM_Hide_Launcher.exe --clobber
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
     # 上传WebView2版本x64
     - name: Upload WebView2 x64 artifact
       run: |
-        gh release upload "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" ./publish/webview2/x64/DMM_Hide_Launcher.exe --clobber --label "DMM_Hide_Launcher_webview2_x64.exe"
+        gh release upload "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" ./publish/webview2/x64/DMM_Hide_Launcher.exe --clobber
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
     # 上传WebView2版本x86
     - name: Upload WebView2 x86 artifact
       run: |
-        gh release upload "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" ./publish/webview2/x86/DMM_Hide_Launcher.exe --clobber --label "DMM_Hide_Launcher_webview2_x86.exe"
+        gh release upload "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}" ./publish/webview2/x86/DMM_Hide_Launcher.exe --clobber
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
