@@ -26,19 +26,19 @@ jobs:
       
     # 构建普通版本 - x64
     - name: Build normal version - x64
-      run: dotnet publish src/DMM_Hide_Launcher/DMM_Hide_Launcher.csproj -c Release -r win-x64 --self-contained false --no-self-contained /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=false /p:DebugType=None /p:TrimUnusedDependencies=true /p:EnableCompressionInSingleFile=true /p:IncludeAllContentForSelfExtract=false /p:RuntimeIdentifier=win-x64 -o ./publish/normal/x64
+      run: dotnet publish src/DMM_Hide_Launcher/DMM_Hide_Launcher.csproj -c Release -r win-x64 --no-self-contained /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=false /p:DebugType=None /p:TrimUnusedDependencies=true /p:EnableCompressionInSingleFile=true /p:IncludeAllContentForSelfExtract=false -o ./publish/normal/x64
       
     # 构建普通版本 - x86
     - name: Build normal version - x86
-      run: dotnet publish src/DMM_Hide_Launcher/DMM_Hide_Launcher.csproj -c Release -r win-x86 --self-contained false --no-self-contained /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=false /p:DebugType=None /p:TrimUnusedDependencies=true /p:EnableCompressionInSingleFile=true /p:IncludeAllContentForSelfExtract=false /p:RuntimeIdentifier=win-x86 -o ./publish/normal/x86
+      run: dotnet publish src/DMM_Hide_Launcher/DMM_Hide_Launcher.csproj -c Release -r win-x86 --no-self-contained /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=false /p:DebugType=None /p:TrimUnusedDependencies=true /p:EnableCompressionInSingleFile=true /p:IncludeAllContentForSelfExtract=false -o ./publish/normal/x86
       
     # 构建WebView2版本 - x64
     - name: Build WebView2 version - x64
-      run: dotnet publish src/DMM_Hide_Launcher_Webview2/DMM_Hide_Launcher.csproj -c Release -r win-x64 --self-contained false --no-self-contained /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=false /p:DebugType=None /p:TrimUnusedDependencies=true /p:EnableCompressionInSingleFile=true /p:IncludeAllContentForSelfExtract=false /p:RuntimeIdentifier=win-x64 -o ./publish/webview2/x64
+      run: dotnet publish src/DMM_Hide_Launcher_Webview2/DMM_Hide_Launcher.csproj -c Release -r win-x64 --no-self-contained /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=false /p:DebugType=None /p:TrimUnusedDependencies=true /p:EnableCompressionInSingleFile=true /p:IncludeAllContentForSelfExtract=false -o ./publish/webview2/x64
       
     # 构建WebView2版本 - x86
     - name: Build WebView2 version - x86
-      run: dotnet publish src/DMM_Hide_Launcher_Webview2/DMM_Hide_Launcher.csproj -c Release -r win-x86 --self-contained false --no-self-contained /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=false /p:DebugType=None /p:TrimUnusedDependencies=true /p:EnableCompressionInSingleFile=true /p:IncludeAllContentForSelfExtract=false /p:RuntimeIdentifier=win-x86 -o ./publish/webview2/x86
+      run: dotnet publish src/DMM_Hide_Launcher_Webview2/DMM_Hide_Launcher.csproj -c Release -r win-x86 --no-self-contained /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=false /p:DebugType=None /p:TrimUnusedDependencies=true /p:EnableCompressionInSingleFile=true /p:IncludeAllContentForSelfExtract=false -o ./publish/webview2/x86
       
     - name: Get current date
       id: date
