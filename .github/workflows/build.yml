@@ -45,27 +45,6 @@ jobs:
       run: echo "date=$(Get-Date -Format 'yyyy-MM-dd')" >> $env:GITHUB_OUTPUT
       shell: pwsh
       
-    - name: Delete existing pre-release
-      uses: actions/github-script@v7
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const releases = await github.rest.repos.listReleases({
-            owner: context.repo.owner,
-            repo: context.repo.repo
-          });
-          
-          for (const release of releases.data) {
-            if (release.prerelease) {
-              console.log(`Deleting existing pre-release: ${release.id}`);
-              await github.rest.repos.deleteRelease({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                release_id: release.id
-              });
-            }
-          }
-      
     - name: Create pre-release
       id: create_release
       uses: actions/create-release@v1
@@ -121,3 +100,25 @@ jobs:
         asset_path: ./publish/webview2/x86/DMM_Hide_Launcher.exe
         asset_name: DMM_Hide_Launcher_webview2_x86.exe
         asset_content_type: application/octet-stream
+
+    - name: Delete other pre-releases
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const currentTag = "pre-release-${{ steps.date.outputs.date }}-${{ github.sha }}";
+          const releases = await github.rest.repos.listReleases({
+            owner: context.repo.owner,
+            repo: context.repo.repo
+          });
+          
+          for (const release of releases.data) {
+            if (release.prerelease && release.tag_name !== currentTag) {
+              console.log(`Deleting old pre-release: ${release.id} (${release.tag_name})`);
+              await github.rest.repos.deleteRelease({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: release.id
+              });
+            }
+          }
