@@ -1,3 +1,9 @@
-﻿<Weavers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FodyWeavers.xsd">
-  <Costura />
+<Weavers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FodyWeavers.xsd">
+  <Costura>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <NativeLibraryPath>runtimes\win-x86\native</NativeLibraryPath>
+    <NativeLibraryPath>runtimes\win-x64\native</NativeLibraryPath>
+    <IncludeDebugSymbols>false</IncludeDebugSymbols>
+    <IncludePdb>false</IncludePdb>
+  </Costura>
 </Weavers>

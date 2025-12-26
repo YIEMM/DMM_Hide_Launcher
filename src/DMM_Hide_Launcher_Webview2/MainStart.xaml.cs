@@ -512,68 +512,81 @@ namespace DMM_Hide_Launcher
             App.Log("开始7K-QQ登录方式启动游戏");
             try
             {
-                // 使用WebView2版本的QQ登录处理器
-                QQLoginHandler qqLoginHandler = new QQLoginHandler();
-                string Login_KEY = await qqLoginHandler.RunQQLoginProcess();
+                // 获取游戏路径并验证
+                var config = ConfigManager.LoadConfig();
+                string gamePath = config.GamePath;
+                App.Log($"从配置文件读取游戏路径: {gamePath}");
+                
+                // 验证游戏路径
+                if (string.IsNullOrEmpty(gamePath))
+                {
+                    App.Log("游戏路径为空");
+                    Growl.Warning("找不到游戏位置，请选择在设置中输入游戏目录");
+                    return;
+                }
+                else if (!Directory.Exists(gamePath))
+                {
+                    App.Log("游戏目录不存在");
+                    Growl.Warning("游戏目录不存在，请检查路径");
+                    return;
+                }
+                
+                // 检查游戏可执行文件是否存在
+                string[] files = Directory.GetFiles(gamePath, "dmmdzz.exe", SearchOption.AllDirectories);
+                if (files.Length == 0)
+                {
+                    App.Log("未找到游戏可执行文件");
+                    Growl.Warning("未找到游戏");
+                    return;
+                }
+                
+                // 检查游戏进程
+                bool isRunning = IsProcessRunning("dmmdzz");
+                if (isRunning)
+                {
+                    App.Log("检测到游戏正在运行");
+#pragma warning disable CA1416 // 验证平台兼容性
+                    Growl.Ask("检测到游戏正在运行，是否强制关闭游戏？", isConfirmed =>
+                    {
+                        if (isConfirmed)
+                        {
+                            App.Log("用户确认强制关闭游戏");
+                            Process[] processes = Process.GetProcessesByName("dmmdzz");
+                            foreach (Process process in processes)
+                            {
+                                process.Kill();
+                            }
+                            App.Log("已强制关闭游戏进程");
+                            Growl.Success("已强制关闭游戏");
+                        }
+                        return true;
+                    });
+#pragma warning restore CA1416 // 验证平台兼容性
+                    return;
+                }
+                
+                // 游戏目录验证通过，开始QQ登录流程
+                App.Log("游戏目录验证通过，开始QQ登录流程");
+                string Login_KEY = await ShowQQLoginWindow();
                 
                 if (!string.IsNullOrEmpty(Login_KEY) && !Login_KEY.StartsWith("ERROR:"))
                 {
                     App.Log($"获取到7K-QQ登录响应: {Login_KEY}");
                     
-                    // 获取游戏路径
-                    var config = ConfigManager.LoadConfig();
-                    string gamePath = config.GamePath;
+                    string gameExePath = files[0];
+                    App.Log($"找到游戏可执行文件: {gameExePath}");
                     
-                    if (string.IsNullOrEmpty(gamePath) || !Directory.Exists(gamePath))
-                    {
-                        App.Log("游戏路径无效");
-                        Growl.Warning("找不到游戏位置，请检查设置中的游戏目录");
-                        return;
-                    }
-                    
-                    // 检查游戏进程
-                    bool isRunning = IsProcessRunning("dmmdzz");
-                    if (isRunning)
-                    {
-                        App.Log("检测到游戏正在运行");
-#pragma warning disable CA1416 // 验证平台兼容性
-                        Growl.Ask("检测到游戏正在运行，是否强制关闭游戏？", isConfirmed =>
-                        {
-                            if (isConfirmed)
-                            {
-                                App.Log("用户确认强制关闭游戏");
-                                Process[] processes = Process.GetProcessesByName("dmmdzz");
-                                foreach (Process process in processes)
-                                {
-                                    process.Kill();
-                                }
-                                App.Log("已强制关闭游戏进程");
-                                Growl.Success("已强制关闭游戏");
-                            }
-                            return true;
-                        });
-#pragma warning restore CA1416 // 验证平台兼容性
-                        return;
-                    }
-                    
-                    // 查找游戏可执行文件
-                    string[] files = Directory.GetFiles(gamePath, "dmmdzz.exe", SearchOption.AllDirectories);
-                    if (files.Length > 0)
-                    {
-                        string gameExePath = files[0];
-                        App.Log($"找到游戏可执行文件: {gameExePath}");
-                        
-                        // 直接使用QQLoginHandler返回的格式化好的登录参数启动游戏，与普通版本保持一致
-                        App.Log($"使用7K-QQ登录响应启动游戏: {gameExePath} 启动参数: {Login_KEY}");
-                        Process.Start(gameExePath, Login_KEY);
-                        App.Log("7K-QQ登录启动成功，等待窗口");
-                        CheckGameWindow();
-                    }
-                    else
-                    {
-                        App.Log("未找到游戏可执行文件");
-                        Growl.Warning("未找到游戏");
-                    }
+                    // 直接使用QQLoginWindow返回的格式化好的登录参数启动游戏，与普通版本保持一致
+                    App.Log($"使用7K-QQ登录响应启动游戏: {gameExePath} 启动参数: {Login_KEY}");
+                    Process.Start(gameExePath, Login_KEY);
+                    App.Log("7K-QQ登录启动成功，等待窗口");
+                    CheckGameWindow();
+                }
+                else if (!string.IsNullOrEmpty(Login_KEY) && Login_KEY.StartsWith("ERROR:"))
+                {
+                    App.Log($"7K-QQ登录响应错误: {Login_KEY}");
+                    string errorMessage = Login_KEY.Substring(6); // 去掉"ERROR:"前缀
+                    Growl.Warning($"7K-QQ登录失败: {errorMessage}");
                 }
                 else
                 {
@@ -586,6 +599,43 @@ namespace DMM_Hide_Launcher
                 App.LogError("7K-QQ登录方式启动游戏时出错", ex);
                 Growl.Warning($"启动游戏时出错: {ex.Message}");
             }
+        }
+        
+        /// <summary>
+        /// 显示QQ登录窗口并等待登录结果
+        /// </summary>
+        /// <returns>登录结果字符串</returns>
+        private Task<string> ShowQQLoginWindow()
+        {
+            var tcs = new TaskCompletionSource<string>();
+            
+            // 在UI线程上创建并显示登录窗口
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                try
+                {
+                    App.Log("创建QQ登录窗口实例");
+                    var loginWindow = new QQLoginWindow();
+                    loginWindow.Owner = this;
+                    
+                    // 处理登录完成事件
+                    loginWindow.LoginCompleted += (sender, result) =>
+                    {
+                        App.Log($"QQ登录窗口返回结果: {result}");
+                        tcs.SetResult(result);
+                    };
+                    
+                    // 显示窗口
+                    loginWindow.ShowDialog();
+                }
+                catch (Exception ex)
+                {
+                    App.LogError("显示QQ登录窗口时出错", ex);
+                    tcs.SetResult($"ERROR:显示QQ登录窗口时出错: {ex.Message}");
+                }
+            });
+            
+            return tcs.Task;
         }
         private async void Start_Game_7k7k_Click(object sender, RoutedEventArgs e)
         {

@@ -5,14 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:adonisUi="clr-namespace:AdonisUI;assembly=AdonisUI"
         xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
-        Title="7K7K-通过QQ登录" Height="450" Width="600"
-        WindowStartupLocation="CenterOwner" 
-                             FontFamily="{DynamicResource MiSansFont}"
-                             IconVisibility="Collapsed"
-                             >
+        Title="QQ登录 - 7K7K逃跑吧少年" Height="600" Width="800"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="{DynamicResource MiSansFont}"
+        IconVisibility="Collapsed"
+        >
     <Grid>
-        <!-- 使用WebBrowser控件加载QQ登录网页 -->
-        <WebBrowser x:Name="webBrowser" Navigated="webBrowser_Navigated" Margin="0,0,0,0"/>
+        <!-- 使用WebView2控件加载QQ登录网页 -->
+        <wv2:WebView2 x:Name="webView" />
     </Grid>
 </adonisControls:AdonisWindow>

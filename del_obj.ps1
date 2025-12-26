@@ -1,0 +1,1 @@
+Remove-Item -Path ".\src\DMM_Hide_Launcher\bin",".\src\DMM_Hide_Launcher\obj",".\src\DMM_Hide_Launcher_Webview2\bin",".\src\DMM_Hide_Launcher_Webview2\obj" -Recurse -Force
