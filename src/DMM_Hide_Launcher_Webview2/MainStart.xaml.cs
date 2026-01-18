@@ -1448,6 +1448,16 @@ namespace DMM_Hide_Launcher
             {
                 App.LogError("停止窗口监测时出错", ex);
             }
+            
+            try
+            {
+                // 创建临时文件清理脚本
+                Services.CreateCleanupScript();
+            }
+            catch (Exception ex)
+            {
+                App.LogError("创建清理脚本时出错", ex);
+            }
         }
         
         /// <summary>
@@ -1485,6 +1495,123 @@ namespace DMM_Hide_Launcher
                 App.Log($"[错误详情] {ex.StackTrace}");
                 MessageBox.Show($"打开游戏窗口调整工具失败: {ex.Message}\n\n详细错误:\n{ex.StackTrace}", 
                     "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+        /// <summary>
+        /// 获取游戏版本按钮点击事件
+        /// 打开游戏更新窗口，检查并更新游戏版本
+        /// </summary>
+        private void GameUpdateButton_Click(object sender, RoutedEventArgs e)
+        {
+            App.Log("开始游戏更新流程");
+            try
+            {
+                // 验证游戏路径
+                if (string.IsNullOrEmpty(GamePath))
+                {
+                    App.Log("游戏路径为空");
+                    Growl.Warning("请先设置游戏路径");
+                    return;
+                }
+
+                if (!Directory.Exists(GamePath))
+                {
+                    App.Log("游戏目录不存在: " + GamePath);
+                    Growl.Warning("游戏目录不存在，请检查路径");
+                    return;
+                }
+
+                // 验证目标版本号
+                if (string.IsNullOrEmpty(Game_Version))
+                {
+                    App.Log("目标版本号为空");
+                    Growl.Warning("无法获取目标版本号");
+                    return;
+                }
+
+                App.Log($"游戏路径: {GamePath}, 目标版本: {Game_Version}");
+
+                // 创建并显示游戏更新窗口
+                Others.Game_Update updateWindow = new Others.Game_Update(GamePath, Game_Version);
+                updateWindow.Owner = this;
+                updateWindow.ShowDialog();
+
+                App.Log("游戏更新窗口已关闭");
+            }
+            catch (Exception ex)
+            {
+                App.LogError("游戏更新流程出错", ex);
+                MessageBox.Show($"游戏更新出错: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+        private partial class Services
+        {
+            /// <summary>
+            /// 创建临时文件清理脚本，在程序关闭后执行
+            /// </summary>
+            public static void CreateCleanupScript()
+            {
+                try
+                {
+                    // 获取临时目录中的下载文件
+                    string tempPath = Path.GetTempPath();
+                    var tempFiles = Directory.GetFiles(tempPath, "hide_*.zip").ToList();
+                    
+                    // 读取清理列表文件
+                    string cleanupListPath = Path.Combine(tempPath, "dmm_cleanup_files.txt");
+                    if (File.Exists(cleanupListPath))
+                    {
+                        var listedFiles = File.ReadAllLines(cleanupListPath)
+                            .Where(line => !string.IsNullOrWhiteSpace(line) && File.Exists(line))
+                            .ToList();
+                        tempFiles.AddRange(listedFiles);
+                    }
+                    
+                    if (tempFiles.Count == 0)
+                    {
+                        return; // 没有需要清理的文件
+                    }
+                    
+                    // 创建批处理脚本
+                    string scriptPath = Path.Combine(tempPath, $"cleanup_{Guid.NewGuid()}.bat");
+                    
+                    using (var writer = new StreamWriter(scriptPath, false, Encoding.Default))
+                    {
+                        writer.WriteLine("@echo off");
+                        writer.WriteLine("chcp 65001 >nul");
+                        writer.WriteLine("timeout /t 3 /nobreak >nul"); // 等待3秒确保程序完全关闭
+                        
+                        foreach (string file in tempFiles.Distinct()) // 去重
+                        {
+                            writer.WriteLine($"if exist \"{file}\" del /f /q \"{file}\"");
+                        }
+                        
+                        // 删除清理列表文件
+                        writer.WriteLine($"if exist \"{cleanupListPath}\" del /f /q \"{cleanupListPath}\"");
+                        
+                        // 删除脚本自身
+                        writer.WriteLine($"del /f /q \"%~f0\"");
+                        writer.WriteLine("exit");
+                    }
+                    
+                    // 启动隐藏的批处理脚本
+                    var processInfo = new ProcessStartInfo
+                    {
+                        FileName = scriptPath,
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                        CreateNoWindow = true,
+                        UseShellExecute = false
+                    };
+                    
+                    Process.Start(processInfo);
+                    App.Log($"已创建清理脚本，将清理 {tempFiles.Distinct().Count()} 个临时文件");
+                }
+                catch (Exception ex)
+                {
+                    App.LogError("创建清理脚本失败", ex);
+                }
             }
         }
     }

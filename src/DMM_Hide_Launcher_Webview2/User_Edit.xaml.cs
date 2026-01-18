@@ -343,7 +343,7 @@ namespace DMM_Hide_Launcher
         }
 
         // 取消按钮点击事件
-        private async void BtnCancel_Click(object sender, RoutedEventArgs e)
+        private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
             App.Log("取消按钮点击，清除输入数据");
             ClearInputs();

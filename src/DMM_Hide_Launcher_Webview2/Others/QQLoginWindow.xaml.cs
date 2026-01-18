@@ -29,7 +29,17 @@ namespace DMM_Hide_Launcher.Others
     public partial class QQLoginWindow : AdonisWindow
     {
         // QQ登录URL - 根据流程图
-        private static readonly string QQ_LOGIN_URL = "https://8.7k7k.com/Connect2.1/example/oauth/index.php?referer=http://web.7k7k.com/api/gwlogin.php?aid=17923609&refer=//web.7k7k.com/games/tpbsn/dlq/";
+        private static readonly string QQ_LOGIN_URL = "http://8.7k7k.com/Connect2.1/example/oauth/index.php?referer=http://web.7k7k.com/games/tpbsn/dlq";
+        
+        /// <summary>
+        /// 7K7K 微信登录授权URL
+        /// </summary>
+        private static readonly string WECHAT_LOGIN_URL = "https://open.weixin.qq.com/connect/qrconnect?response_type=code&appid=wx4b2ea8fbad86e262&redirect_uri=http://zc.7k7k.com/Wx/oauth/callback.php&state=73cdedfbb78f07edb3950b62ed58cd1e%2526referer%253Dhttp%253A%252F%252Fweb.7k7k.com%252Fapi%252Fwxlogin_wd.php%253Faid%253D17923610%2526refer%253D//web.7k7k.com/games/tpbsn/dlq/%253Fthird%253D1%2523bottom&scope=snsapi_login,snsapi_userinfo";
+        
+        /// <summary>
+        /// 目标游戏页面URL片段
+        /// </summary>
+        private const string TARGET_GAME_URL = "web.7k7k.com/games/tpbsn/dlq/";
         
         // 存储获取到的cookie
         private Dictionary<string, string> _browserCookies = new Dictionary<string, string>();
@@ -75,6 +85,66 @@ namespace DMM_Hide_Launcher.Others
                 System.Windows.MessageBox.Show($"加载网页时出错: {ex.Message}", "错误", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
         }
+        
+        private void BtnClose_Click(object sender, RoutedEventArgs e)
+        {
+            App.Log("用户点击关闭按钮");
+            Close();
+        }
+        
+        private void BtnQQLogin_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                App.Log("用户点击QQ登录按钮");
+                if (webView.CoreWebView2 != null)
+                {
+                    webView.CoreWebView2.Navigate(QQ_LOGIN_URL);
+                    App.Log("QQ登录页面已加载");
+                }
+            }
+            catch (Exception ex)
+            {
+                App.LogError("加载QQ登录窗口时出错", ex);
+                System.Windows.MessageBox.Show($"加载QQ登录窗口时出错: {ex.Message}", "错误", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+        
+        private void BtnWeChatLogin_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                App.Log("用户点击微信登录按钮");
+                if (webView.CoreWebView2 != null)
+                {
+                    webView.CoreWebView2.Navigate(WECHAT_LOGIN_URL);
+                    App.Log("微信登录页面已加载");
+                }
+            }
+            catch (Exception ex)
+            {
+                App.LogError("加载微信登录窗口时出错", ex);
+                System.Windows.MessageBox.Show($"加载微信登录窗口时出错: {ex.Message}", "错误", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+        
+        private void BtnLastLogin_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                App.Log("用户点击上一次登录按钮");
+                if (webView.CoreWebView2 != null)
+                {
+                    webView.CoreWebView2.Navigate("https://web.7k7k.com/games/tpbsn/dlq/");
+                    App.Log("游戏页面已加载");
+                }
+            }
+            catch (Exception ex)
+            {
+                App.LogError("加载游戏页面时出错", ex);
+                System.Windows.MessageBox.Show($"加载游戏页面时出错: {ex.Message}", "错误", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
 
         /// <summary>
         /// WebView2初始化完成事件处理
@@ -92,9 +162,8 @@ namespace DMM_Hide_Launcher.Others
                     // 注册导航完成事件
                     webView.CoreWebView2.NavigationCompleted += WebView_NavigationCompleted;
                     
-                    // 导航到登录URL
-                    webView.CoreWebView2.Navigate(QQ_LOGIN_URL);
-                    App.Log($"已导航到登录URL: {QQ_LOGIN_URL}");
+                    // 不自动导航，等待用户点击按钮选择登录方式
+                    App.Log("WebView2初始化完成，等待用户选择登录方式");
                 }
                 else
                 {
@@ -155,38 +224,50 @@ namespace DMM_Hide_Launcher.Others
                 App.Log($"包含gwlogin.php: {url.Contains("gwlogin.php")}");
                 App.Log($"包含userinfo.html: {url.Contains("userinfo.html")}");
                 
-                // 检查是否已经获取到必要的cookie，无论当前URL是什么
-                if (_cookiesForLogin.ContainsKey("SERVER_ID") && _cookiesForLogin.ContainsKey("timekey"))
+                // 排除登录授权页面，避免误判
+                if (url.Contains("open.weixin.qq.com") || url.Contains("8.7k7k.com/Connect2.1") || url.Contains("zc.7k7k.com/Wx/oauth"))
                 {
-                    App.Log("已获取到必要的Cookie信息，准备关闭窗口");
-                    
-                    // 将cookie复制到类变量中，以便后续使用
-                    lock (_browserCookies)
-                    {
-                        _browserCookies.Clear();
-                        foreach (var cookie in _cookiesForLogin)
-                        {
-                            _browserCookies.Add(cookie.Key, cookie.Value);
-                        }
-                    }
-                    
-                    // 获取登录参数
-                    string loginResult = await GetLoginParamsFromCoreToGame();
-                    
-                    // 关闭窗口
-                    OnLoginCompleted(loginResult);
-                    this.Close();
+                    return;
                 }
-                else
+                
+                // 实时监测特定网址并输出Cookie（支持HTTP和HTTPS）
+                if (url.Contains(TARGET_GAME_URL))
                 {
-                    // 记录缺失的Cookie信息
-                    StringBuilder missingCookies = new StringBuilder();
-                    if (!_cookiesForLogin.ContainsKey("SERVER_ID"))
-                        missingCookies.Append("SERVER_ID, ");
-                    if (!_cookiesForLogin.ContainsKey("timekey"))
-                        missingCookies.Append("timekey");
+                    App.Log("检测到目标游戏页面！正在获取Cookie...");
                     
-                    App.Log($"尚未获取到必要的Cookie: {missingCookies.ToString().TrimEnd(',', ' ')}");
+                    // 检查是否已经获取到必要的cookie，无论当前URL是什么
+                    if (_cookiesForLogin.ContainsKey("SERVER_ID") && _cookiesForLogin.ContainsKey("timekey"))
+                    {
+                        App.Log("已获取到必要的Cookie信息，准备关闭窗口");
+                        
+                        // 将cookie复制到类变量中，以便后续使用
+                        lock (_browserCookies)
+                        {
+                            _browserCookies.Clear();
+                            foreach (var cookie in _cookiesForLogin)
+                            {
+                                _browserCookies.Add(cookie.Key, cookie.Value);
+                            }
+                        }
+                        
+                        // 获取登录参数
+                        string loginResult = await GetLoginParamsFromCoreToGame();
+                        
+                        // 关闭窗口
+                        OnLoginCompleted(loginResult);
+                        this.Close();
+                    }
+                    else
+                    {
+                        // 记录缺失的Cookie信息
+                        StringBuilder missingCookies = new StringBuilder();
+                        if (!_cookiesForLogin.ContainsKey("SERVER_ID"))
+                            missingCookies.Append("SERVER_ID, ");
+                        if (!_cookiesForLogin.ContainsKey("timekey"))
+                            missingCookies.Append("timekey");
+                        
+                        App.Log($"尚未获取到必要的Cookie: {missingCookies.ToString().TrimEnd(',', ' ')}");
+                    }
                 }
             }
             catch (Exception ex)
