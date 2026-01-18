@@ -8,6 +8,7 @@ using System.Web;
 using System.Windows;
 using System.Windows.Navigation;
 using AdonisUI.Controls;
+using HandyControl.Controls;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -74,6 +75,10 @@ namespace DMM_Hide_Launcher.Others
         /// </summary>
         private const string QQ_LOGIN_URL = "http://8.7k7k.com/Connect2.1/example/oauth/index.php?referer=http://web.7k7k.com/games/tpbsn/dlq";
         /// <summary>
+        /// 7K7K 微信登录授权URL
+        /// </summary>
+        private const string WECHAT_LOGIN_URL = "https://open.weixin.qq.com/connect/qrconnect?response_type=code&appid=wx4b2ea8fbad86e262&redirect_uri=http://zc.7k7k.com/Wx/oauth/callback.php&state=73cdedfbb78f07edb3950b62ed58cd1e%2526referer%253Dhttp%253A%252F%252Fweb.7k7k.com%252Fapi%252Fwxlogin_wd.php%253Faid%253D17923610%2526refer%253D//web.7k7k.com/games/tpbsn/dlq/%253Fthird%253D1%2523bottom&scope=snsapi_login,snsapi_userinfo";
+        /// <summary>
         /// 7K7K参数请求链接
         /// </summary>
         private const string GAME_CORE_URL = "https://web.7k7k.com/games/dlq/core_togame.php";
@@ -128,26 +133,65 @@ namespace DMM_Hide_Launcher.Others
         {
             InitializeComponent();
             Loaded += QQLoginWindow_Loaded;
-            // 每次创建登录窗口时重置登录密钥
             Login_KEY_7KQQ = "";
         }
 
         private void QQLoginWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            App.Log("第三方登录窗口已加载");
+        }
+
+        private void BtnClose_Click(object sender, RoutedEventArgs e)
+        {
+            App.Log("用户点击关闭按钮");
+            Close();
+        }
+
+        private void BtnQQLogin_Click(object sender, RoutedEventArgs e)
+        {
             try
             {
-                // 设置WebBrowser使用Edge内核
+                App.Log("用户点击QQ登录按钮");
                 SetEdgeKernel();
-                
-                // 确保WebBrowser控件加载完成后导航到指定网址
                 webBrowser.Navigate(QQ_LOGIN_URL);
-                
-                App.Log("QQ登录窗口已加载，WebBrowser已设置为Edge内核");
+                App.Log("QQ登录页面已加载");
             }
             catch (Exception ex)
             {
                 App.LogError("加载QQ登录窗口时出错", ex);
-                System.Windows.MessageBox.Show($"加载网页时出错: {ex.Message}", "错误", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                System.Windows.MessageBox.Show($"加载QQ登录窗口时出错: {ex.Message}", "错误", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnWeChatLogin_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                App.Log("用户点击微信登录按钮");
+                SetEdgeKernel();
+                webBrowser.Navigate(WECHAT_LOGIN_URL);
+                App.Log("微信登录页面已加载");
+            }
+            catch (Exception ex)
+            {
+                App.LogError("加载微信登录窗口时出错", ex);
+                System.Windows.MessageBox.Show($"加载微信登录窗口时出错: {ex.Message}", "错误", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnLastLogin_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                App.Log("用户点击上一次登录按钮");
+                SetEdgeKernel();
+                webBrowser.Navigate("https://web.7k7k.com/games/tpbsn/dlq/");
+                App.Log("游戏页面已加载");
+            }
+            catch (Exception ex)
+            {
+                App.LogError("加载游戏页面时出错", ex);
+                System.Windows.MessageBox.Show($"加载游戏页面时出错: {ex.Message}", "错误", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
         }
 
@@ -408,6 +452,19 @@ namespace DMM_Hide_Launcher.Others
                     {
                         errorMsg = (string)msgToken;
                     }
+                    
+                    // 检查是否为未实名提示
+                    if (jsonObj.TryGetValue("url", out JToken urlToken) && urlToken.Type == JTokenType.String)
+                    {
+                        string url = (string)urlToken;
+                        if (url == "\u672a\u5b9e\u540d" || url.Contains("未实名"))
+                        {
+                            App.Log("检测到未实名提示");
+                            Growl.Warning("未实名认证，请先完成实名认证");
+                            return "ERROR:NOT_REALNAME";
+                        }
+                    }
+                    
                     App.LogError($"游戏请求失败: {errorMsg}");
                     return $"ERROR:REQUEST_FAILED-{errorMsg}";
                 }
@@ -509,6 +566,12 @@ namespace DMM_Hide_Launcher.Others
             {
                 string currentUrl = e.Uri.ToString();
                 App.Log($"WebBrowser已导航到: {currentUrl}");
+                
+                // 排除登录授权页面，避免误判
+                if (currentUrl.Contains("open.weixin.qq.com") || currentUrl.Contains("8.7k7k.com/Connect2.1") || currentUrl.Contains("zc.7k7k.com/Wx/oauth"))
+                {
+                    return;
+                }
                 
                 // 实时监测特定网址并输出Cookie（支持HTTP和HTTPS）
                 if (currentUrl.Contains(TARGET_GAME_URL))

@@ -23,6 +23,7 @@ using MessageBoxButton = AdonisUI.Controls.MessageBoxButton;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
 using System.Windows.Media;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 // 忽略Windows特定API的平台兼容性警告
@@ -736,23 +737,7 @@ namespace DMM_Hide_Launcher
             }
         }
         
-        /// <summary>
-        /// 计数按钮点击事件处理程序
-        /// 打开计数窗口
-        /// </summary>
-        private void CountButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Others.Tools.CountWindow countWindow = new CountWindow();
-                countWindow.Show();
-            }
-            catch (Exception ex)
-            {
-                App.LogError("打开计算器窗口时出错", ex);
-                MessageBox.Show("打开计算器窗口失败：" + ex.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
+
         /// <summary>
         /// 检查指定名称的进程是否正在运行
         /// </summary>
@@ -1281,7 +1266,7 @@ namespace DMM_Hide_Launcher
                     this.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         // 播放提示音
-                        PlayNotificationSound();
+                        Services.PlayNotificationSound();
 
                         App.Log($"检测到游戏窗口启动，运行中的窗口: {string.Join(", ", e.RunningWindowTitles)}");
                         
@@ -1306,94 +1291,6 @@ namespace DMM_Hide_Launcher
         }
         
         /// <summary>
-        /// 播放通知提示音
-        /// 增强版：添加了更健壮的错误处理和文件格式检测
-        /// </summary>
-        private void PlayNotificationSound()
-        {
-            try
-            {
-                // 使用Application.GetResourceStream从内嵌资源中加载提示音
-                string soundUri = "pack://application:,,,/DMM_Hide_Launcher;component/public/Message.wav";
-                App.Log("尝试播放提示音(内嵌资源): " + soundUri);
-                
-                // 使用Application.GetResourceStream获取资源流
-                Uri uri = new Uri(soundUri, UriKind.RelativeOrAbsolute);
-                System.Windows.Resources.StreamResourceInfo resourceInfo = System.Windows.Application.GetResourceStream(uri);
-                
-                if (resourceInfo != null && resourceInfo.Stream != null)
-                {
-                    using (var stream = resourceInfo.Stream)
-                    {
-                        try
-                        {
-                            // 验证文件大小，避免过小的文件
-                            if (stream.Length < 44) // WAV文件至少需要44字节的头部
-                            {
-                                App.LogWarning("提示音文件过小，可能不是有效的WAV文件: " + stream.Length + " 字节");
-                                return;
-                            }
-                            
-                            // 检查WAV文件头标志
-                            byte[] header = new byte[4];
-                            stream.Read(header, 0, 4);
-                            string headerString = System.Text.Encoding.ASCII.GetString(header);
-                            stream.Seek(0, SeekOrigin.Begin); // 重置流位置
-                            
-                            if (headerString != "RIFF")
-                            {
-                                App.LogWarning("检测到无效的WAV文件头: " + headerString);
-                                return;
-                            }
-                            
-                            // 从资源流创建SoundPlayer
-                            using (System.Media.SoundPlayer player = new System.Media.SoundPlayer(stream))
-                            {
-                                // 先同步加载，确保文件格式正确
-                                player.Load(); // 同步加载，可以捕获格式错误
-                                player.Play(); // 异步播放，不会阻塞UI
-                                App.Log("提示音播放请求已发送");
-                            }
-                        }
-                        catch (InvalidOperationException ioEx)
-                        {
-                            // 特定处理WAV文件格式错误
-                            App.LogError("WAV文件格式错误: " + ioEx.Message, ioEx);
-                            // 尝试使用Windows内置提示音作为备选
-                            try
-                            {
-                                System.Media.SystemSounds.Asterisk.Play();
-                                App.Log("已使用系统默认提示音代替");
-                            }
-                            catch (Exception sysEx)
-                            {
-                                App.LogError("播放系统提示音时也出错", sysEx);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    App.LogWarning("无法获取内嵌提示音资源");
-                    // 尝试使用Windows内置提示音作为备选
-                    try
-                    {
-                        System.Media.SystemSounds.Asterisk.Play();
-                        App.Log("已使用系统默认提示音代替");
-                    }
-                    catch (Exception sysEx)
-                    {
-                        App.LogError("播放系统提示音时也出错", sysEx);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                App.LogError("播放提示音时出错", ex);
-            }
-        }
-        
-        /// <summary>
         /// 停止游戏窗口监测
         /// </summary>
         private void StopGameWindowMonitoring()
@@ -1402,7 +1299,7 @@ namespace DMM_Hide_Launcher
             {
                 if (_windowDetector != null && _windowDetector.IsMonitoring)
                 {
-                    _windowDetector.WindowStateChanged -= OnGameWindowStateChanged;
+                     _windowDetector.WindowStateChanged -= OnGameWindowStateChanged;
                     _windowDetector.StopMonitoring();
                     App.Log("窗口监测已停止（已检测到目标窗口）");
                 }
@@ -1435,8 +1332,37 @@ namespace DMM_Hide_Launcher
             {
                 App.LogError("停止窗口监测时出错", ex);
             }
+            
+            try
+            {
+                // 创建临时文件清理脚本
+                Services.CreateCleanupScript();
+            }
+            catch (Exception ex)
+            {
+                App.LogError("创建清理脚本时出错", ex);
+            }
         }
-
+        
+        /// <summary>
+        /// 道具卡计算工具
+        /// </summary>
+        private void CountButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Others.Tools.CountWindow countWindow = new CountWindow();
+                countWindow.Show();
+            }
+            catch (Exception ex)
+            {
+                App.LogError("打开道具卡计算工具窗口时出错", ex);
+                MessageBox.Show("打开道具卡计算工具窗口失败：" + ex.Message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        /// <summary>
+        /// 游戏窗口调整工具
+        /// </summary>
         private void GameWindowResizerButton_Click(object sender, RoutedEventArgs e)
         {
             // 打开游戏窗口调整工具
@@ -1454,6 +1380,211 @@ namespace DMM_Hide_Launcher
                 App.Log($"[错误详情] {ex.StackTrace}");
                 MessageBox.Show($"打开游戏窗口调整工具失败: {ex.Message}\n\n详细错误:\n{ex.StackTrace}", 
                     "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+                
+        /// <summary>
+        /// 获取游戏版本按钮点击事件
+        /// 打开游戏更新窗口，检查并更新游戏版本
+        /// </summary>
+        private void GameUpdateButton_Click(object sender, RoutedEventArgs e)
+        {
+            App.Log("开始游戏更新流程");
+            try
+            {
+                // 验证游戏路径
+                if (string.IsNullOrEmpty(GamePath))
+                {
+                    App.Log("游戏路径为空");
+                    Growl.Warning("请先设置游戏路径");
+                    return;
+                }
+
+                if (!Directory.Exists(GamePath))
+                {
+                    App.Log("游戏目录不存在: " + GamePath);
+                    Growl.Warning("游戏目录不存在，请检查路径");
+                    return;
+                }
+
+                // 验证目标版本号
+                if (string.IsNullOrEmpty(Game_Version))
+                {
+                    App.Log("目标版本号为空");
+                    Growl.Warning("无法获取目标版本号");
+                    return;
+                }
+
+                App.Log($"游戏路径: {GamePath}, 目标版本: {Game_Version}");
+
+                // 创建并显示游戏更新窗口
+                Others.Game_Update updateWindow = new Others.Game_Update(GamePath, Game_Version);
+                updateWindow.Owner = this;
+                updateWindow.ShowDialog();
+
+                App.Log("游戏更新窗口已关闭");
+            }
+            catch (Exception ex)
+            {
+                App.LogError("游戏更新流程出错", ex);
+                MessageBox.Show($"游戏更新出错: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+        private partial class Services
+        {
+            /// <summary>
+            /// 创建临时文件清理脚本，在程序关闭后执行
+            /// </summary>
+            public static void CreateCleanupScript()
+            {
+                try
+                {
+                    // 获取临时目录中的下载文件
+                    string tempPath = Path.GetTempPath();
+                    var tempFiles = Directory.GetFiles(tempPath, "hide_*.zip").ToList();
+                    
+                    // 读取清理列表文件
+                    string cleanupListPath = Path.Combine(tempPath, "dmm_cleanup_files.txt");
+                    if (File.Exists(cleanupListPath))
+                    {
+                        var listedFiles = File.ReadAllLines(cleanupListPath)
+                            .Where(line => !string.IsNullOrWhiteSpace(line) && File.Exists(line))
+                            .ToList();
+                        tempFiles.AddRange(listedFiles);
+                    }
+                    
+                    if (tempFiles.Count == 0)
+                    {
+                        return; // 没有需要清理的文件
+                    }
+                    
+                    // 创建批处理脚本
+                    string scriptPath = Path.Combine(tempPath, $"cleanup_{Guid.NewGuid()}.bat");
+                    
+                    using (var writer = new StreamWriter(scriptPath, false, Encoding.Default))
+                    {
+                        writer.WriteLine("@echo off");
+                        writer.WriteLine("chcp 65001 >nul");
+                        writer.WriteLine("timeout /t 3 /nobreak >nul"); // 等待3秒确保程序完全关闭
+                        
+                        foreach (string file in tempFiles.Distinct()) // 去重
+                        {
+                            writer.WriteLine($"if exist \"{file}\" del /f /q \"{file}\"");
+                        }
+                        
+                        // 删除清理列表文件
+                        writer.WriteLine($"if exist \"{cleanupListPath}\" del /f /q \"{cleanupListPath}\"");
+                        
+                        // 删除脚本自身
+                        writer.WriteLine($"del /f /q \"%~f0\"");
+                        writer.WriteLine("exit");
+                    }
+                    
+                    // 启动隐藏的批处理脚本
+                    var processInfo = new ProcessStartInfo
+                    {
+                        FileName = scriptPath,
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                        CreateNoWindow = true,
+                        UseShellExecute = false
+                    };
+                    
+                    Process.Start(processInfo);
+                    App.Log($"已创建清理脚本，将清理 {tempFiles.Distinct().Count()} 个临时文件");
+                }
+                catch (Exception ex)
+                {
+                    App.LogError("创建清理脚本失败", ex);
+                }
+            }
+            
+            /// <summary>
+            /// 播放通知提示音
+            /// 增强版：添加了更健壮的错误处理和文件格式检测
+            /// </summary>
+            public static void PlayNotificationSound()
+            {
+                try
+                {
+                    // 使用Application.GetResourceStream从内嵌资源中加载提示音
+                    string soundUri = "pack://application:,,,/DMM_Hide_Launcher;component/public/Message.wav";
+                    App.Log("尝试播放提示音(内嵌资源): " + soundUri);
+                    
+                    // 使用Application.GetResourceStream获取资源流
+                    Uri uri = new Uri(soundUri, UriKind.RelativeOrAbsolute);
+                    System.Windows.Resources.StreamResourceInfo resourceInfo = System.Windows.Application.GetResourceStream(uri);
+                    
+                    if (resourceInfo != null && resourceInfo.Stream != null)
+                    {
+                        using (var stream = resourceInfo.Stream)
+                        {
+                            try
+                            {
+                                // 验证文件大小，避免过小的文件
+                                if (stream.Length < 44) // WAV文件至少需要44字节的头部
+                                {
+                                    App.LogWarning("提示音文件过小，可能不是有效的WAV文件: " + stream.Length + " 字节");
+                                    return;
+                                }
+                                
+                                // 检查WAV文件头标志
+                                byte[] header = new byte[4];
+                                stream.Read(header, 0, 4);
+                                string headerString = System.Text.Encoding.ASCII.GetString(header);
+                                stream.Seek(0, SeekOrigin.Begin); // 重置流位置
+                                
+                                if (headerString != "RIFF")
+                                {
+                                    App.LogWarning("检测到无效的WAV文件头: " + headerString);
+                                    return;
+                                }
+                                
+                                // 从资源流创建SoundPlayer
+                                using (System.Media.SoundPlayer player = new System.Media.SoundPlayer(stream))
+                                {
+                                    // 先同步加载，确保文件格式正确
+                                    player.Load(); // 同步加载，可以捕获格式错误
+                                    player.Play(); // 异步播放，不会阻塞UI
+                                    App.Log("提示音播放请求已发送");
+                                }
+                            }
+                            catch (InvalidOperationException ioEx)
+                            {
+                                // 特定处理WAV文件格式错误
+                                App.LogError("WAV文件格式错误: " + ioEx.Message, ioEx);
+                                // 尝试使用Windows内置提示音作为备选
+                                try
+                                {
+                                    System.Media.SystemSounds.Asterisk.Play();
+                                    App.Log("已使用系统默认提示音代替");
+                                }
+                                catch (Exception sysEx)
+                                {
+                                    App.LogError("播放系统提示音时也出错", sysEx);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        App.LogWarning("无法获取内嵌提示音资源");
+                        // 尝试使用Windows内置提示音作为备选
+                        try
+                        {
+                            System.Media.SystemSounds.Asterisk.Play();
+                            App.Log("已使用系统默认提示音代替");
+                        }
+                        catch (Exception sysEx)
+                        {
+                            App.LogError("播放系统提示音时也出错", sysEx);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    App.LogError("播放提示音时出错", ex);
+                }
             }
         }
     }
