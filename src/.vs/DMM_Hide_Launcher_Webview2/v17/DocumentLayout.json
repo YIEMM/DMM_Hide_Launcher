@@ -3,12 +3,8 @@
   "WorkspaceRootPath": "F:\\out_git\\DMM_Hide_Launcher\\src\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{4788FE9B-41A8-664C-5074-B54DE64A4030}|DMM_Hide_Launcher_Webview2\\DMM_Hide_Launcher_Webview2.csproj|f:\\out_git\\dmm_hide_launcher\\src\\dmm_hide_launcher_webview2\\others\\qqloginwindow.xaml.cs||{8B382828-6202-11D1-8870-0000F87579D2}|",
-      "RelativeMoniker": "D:0:0:{4788FE9B-41A8-664C-5074-B54DE64A4030}|DMM_Hide_Launcher_Webview2\\DMM_Hide_Launcher_Webview2.csproj|solutionrelative:dmm_hide_launcher_webview2\\others\\qqloginwindow.xaml.cs||{8B382828-6202-11D1-8870-0000F87579D2}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4788FE9B-41A8-664C-5074-B54DE64A4030}|DMM_Hide_Launcher_Webview2\\DMM_Hide_Launcher_Webview2.csproj|f:\\out_git\\dmm_hide_launcher\\src\\dmm_hide_launcher_webview2\\others\\game_update.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{4788FE9B-41A8-664C-5074-B54DE64A4030}|DMM_Hide_Launcher_Webview2\\DMM_Hide_Launcher_Webview2.csproj|solutionrelative:dmm_hide_launcher_webview2\\others\\game_update.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{4788FE9B-41A8-664C-5074-B54DE64A4030}|DMM_Hide_Launcher_Webview2\\DMM_Hide_Launcher_Webview2.csproj|f:\\out_git\\dmm_hide_launcher\\src\\dmm_hide_launcher_webview2\\mainstart.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{4788FE9B-41A8-664C-5074-B54DE64A4030}|DMM_Hide_Launcher_Webview2\\DMM_Hide_Launcher_Webview2.csproj|solutionrelative:dmm_hide_launcher_webview2\\mainstart.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     }
   ],
   "DocumentGroupContainers": [
@@ -47,26 +43,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "QQLoginWindow.xaml.cs",
-              "DocumentMoniker": "F:\\out_git\\DMM_Hide_Launcher\\src\\DMM_Hide_Launcher_Webview2\\Others\\QQLoginWindow.xaml.cs",
-              "RelativeDocumentMoniker": "DMM_Hide_Launcher_Webview2\\Others\\QQLoginWindow.xaml.cs",
-              "ToolTip": "F:\\out_git\\DMM_Hide_Launcher\\src\\DMM_Hide_Launcher_Webview2\\Others\\QQLoginWindow.xaml.cs",
-              "RelativeToolTip": "DMM_Hide_Launcher_Webview2\\Others\\QQLoginWindow.xaml.cs",
-              "ViewState": "AgIAAIUAAAAAAAAAAAAkwJwAAAAVAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-19T14:12:24.999Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Game_Update.xaml",
-              "DocumentMoniker": "F:\\out_git\\DMM_Hide_Launcher\\src\\DMM_Hide_Launcher_Webview2\\Others\\Game_Update.xaml",
-              "RelativeDocumentMoniker": "DMM_Hide_Launcher_Webview2\\Others\\Game_Update.xaml",
-              "ToolTip": "F:\\out_git\\DMM_Hide_Launcher\\src\\DMM_Hide_Launcher_Webview2\\Others\\Game_Update.xaml",
-              "RelativeToolTip": "DMM_Hide_Launcher_Webview2\\Others\\Game_Update.xaml",
+              "Title": "MainStart.xaml",
+              "DocumentMoniker": "F:\\out_git\\DMM_Hide_Launcher\\src\\DMM_Hide_Launcher_Webview2\\MainStart.xaml",
+              "RelativeDocumentMoniker": "DMM_Hide_Launcher_Webview2\\MainStart.xaml",
+              "ToolTip": "F:\\out_git\\DMM_Hide_Launcher\\src\\DMM_Hide_Launcher_Webview2\\MainStart.xaml",
+              "RelativeToolTip": "DMM_Hide_Launcher_Webview2\\MainStart.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2026-01-19T14:10:19.512Z"
+              "WhenOpened": "2026-01-20T09:43:24.001Z",
+              "EditorCaption": ""
             }
           ]
         },

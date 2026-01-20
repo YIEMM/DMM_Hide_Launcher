@@ -15,7 +15,7 @@ namespace DMM_Hide_Launcher.Managers
         /// <summary>
         /// 配置文件路径
         /// </summary>
-        private const string ConfigFilePath = "config.json";
+        private static readonly string ConfigFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
         
         /// <summary>
         /// JSON序列化设置
