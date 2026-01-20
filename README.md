@@ -1,5 +1,7 @@
 # DMM_Hide_Launcher
-
+<div style="background: #fff3cd; border-left: 4px solid #ffc107; color: #856404; padding: 12px 16px; border-radius: 4px; margin: 16px 0;">
+  <strong>⚠️ 警告：</strong>后续可能会终止对edge内核版本的支持，建议使用webview2版体验该程序
+</div>
 一款简洁且实用的DMM游戏启动器
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
@@ -56,7 +58,7 @@ DMM_Hide_Launcher 是一款专为DMM游戏打造的启动器，旨在简化游�
 ## 📖 使用指南
 
 ### 首次运行配置
-1. 运行程序后，系统会自动创建默认配置文件 `config.xml`
+1. 运行程序后，系统会自动创建默认配置文件 `config.json`
 2. 在主界面点击 "游戏路径" 输入框，手动输入游戏安装路径
    ```
    例如，若游戏可执行文件路径为 `C:\dmmdzz_4399\game\dmmdzz.exe`，则应写入路径 `C:\dmmdzz_4399`
@@ -69,7 +71,7 @@ DMM_Hide_Launcher 是一款专为DMM游戏打造的启动器，旨在简化游�
 2. 输入用户名和密码，点击"保存"按钮添加新账号
 3. 对于已添加的账号，您可以进行编辑或删除操作
 4. 支持账号导入导出功能，方便在不同设备间迁移账号信息
-5. 所有账号信息会使用AES加密算法加密后保存在本地的 `accounts.json` 文件中
+5. 所有账号信息会使用AES加密算法加密后保存在本地的 `config.json` 文件中
    > 注意：尽管程序使用了加密技术保护您的账号信息，但仍请妥善保管您的程序和配置文件，避免泄露
 
 
@@ -80,19 +82,25 @@ DMM_Hide_Launcher 是一款专为DMM游戏打造的启动器，旨在简化游�
 
 ## ⚙️ 配置详解
 
-### 配置文件 (config.xml)
-配置文件位于程序根目录，采用XML格式，包含以下主要配置项：
+### 配置文件 (config.json)
+配置文件位于程序根目录，采用JSON格式，包含以下主要配置项：
 
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<config>
-  <game_data>游戏安装路径</game_data>
-  <ID_7K>平台ID</ID_7K>
-</config>
+```json
+{
+  "game_data": "游戏安装路径",
+  "ID_7K": "平台ID",
+  "Accounts": [
+    {
+      "Username": "账号用户名",
+      "Password": "加密后的密码"
+    }
+  ]
+}
 ```
 
 - **game_data**：游戏客户端的安装路径
-- **ID_7K**：游戏平台的唯一标识ID
+- **ID_7K**：游戏平台的唯一标识ID，用于登录快捷登录输入密码
+- **Accounts**：账号列表，每个账号包含用户名和加密后的密码
 
 > 💡 提示：您可以直接编辑此文件或通过程序界面进行配置修改
 
@@ -117,7 +125,7 @@ DMM_Hide_Launcher.exe --log
 
 ### 日志系统
 - 日志文件保存在程序根目录下的 `Logs` 文件夹中
-- 日志文件名格式为 `DMM_Hide_Launcher_yyyyMMdd_HHmmss.log`
+- 日志文件名格式为 `DMM_Hide_Launcher_YYYYMMDD_HHMMSS.log`
 - 启用 `--log` 参数后，可以在控制台实时查看日志输出
 - 日志包含程序启动、配置加载、账号管理、游戏启动等关键操作记录
 
@@ -134,7 +142,7 @@ DMM_Hide_Launcher.exe --log
 - **问题**：添加账号后无法保存或重启程序后账号丢失
 - **解决方法**：
   1. 确保程序有文件写入权限（尝试以管理员身份运行）
-  2. 检查 `accounts.json` 文件是否损坏，可尝试删除后重新创建
+  2. 检查 `config.json` 文件是否损坏，可尝试删除后重新创建
 
 ### 网络连接问题
 - **问题**：无法获取游戏版本信息

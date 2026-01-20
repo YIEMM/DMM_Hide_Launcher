@@ -3,6 +3,9 @@ name: Auto Build
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - 'LICENSE'
 
 permissions:
   contents: write
