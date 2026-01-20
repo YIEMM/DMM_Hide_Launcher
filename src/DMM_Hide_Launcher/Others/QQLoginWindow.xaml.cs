@@ -102,6 +102,11 @@ namespace DMM_Hide_Launcher.Others
         /// </summary>
         public static string Login_KEY_7KQQ { get; private set; } = "";
 
+        /// <summary>
+        /// 用户是否主动关闭登录窗口
+        /// </summary>
+        public static bool UserClosed { get; private set; } = false;
+
 
         /// <summary>
         /// 修改注册表信息使WebBrowser使用Edge内核
@@ -133,7 +138,9 @@ namespace DMM_Hide_Launcher.Others
         {
             InitializeComponent();
             Loaded += QQLoginWindow_Loaded;
+            webBrowser.Visibility = Visibility.Collapsed;
             Login_KEY_7KQQ = "";
+            UserClosed = false;
         }
 
         private void QQLoginWindow_Loaded(object sender, RoutedEventArgs e)
@@ -144,6 +151,8 @@ namespace DMM_Hide_Launcher.Others
         private void BtnClose_Click(object sender, RoutedEventArgs e)
         {
             App.Log("用户点击关闭按钮");
+            UserClosed = true;
+            Growl.Info("已关闭登录窗口");
             Close();
         }
 
@@ -155,6 +164,7 @@ namespace DMM_Hide_Launcher.Others
                 SetEdgeKernel();
                 webBrowser.Navigate(QQ_LOGIN_URL);
                 App.Log("QQ登录页面已加载");
+                webBrowser.Visibility = Visibility.Visible;
             }
             catch (Exception ex)
             {
@@ -171,6 +181,7 @@ namespace DMM_Hide_Launcher.Others
                 SetEdgeKernel();
                 webBrowser.Navigate(WECHAT_LOGIN_URL);
                 App.Log("微信登录页面已加载");
+                webBrowser.Visibility = Visibility.Visible;
             }
             catch (Exception ex)
             {
@@ -184,6 +195,7 @@ namespace DMM_Hide_Launcher.Others
             try
             {
                 App.Log("用户点击上一次登录按钮");
+                webBrowser.Visibility = Visibility.Collapsed;
                 SetEdgeKernel();
                 webBrowser.Navigate("https://web.7k7k.com/games/tpbsn/dlq/");
                 App.Log("游戏页面已加载");

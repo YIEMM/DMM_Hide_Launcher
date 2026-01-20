@@ -70,7 +70,7 @@
                             <controls:TextBox x:Name="User_Text" TextWrapping="Wrap" controls:InfoElement.Placeholder="请输入用户名" TextChanged="User_TextChanged" Margin="14,33,14,0" Height="28" VerticalAlignment="Top" FontFamily="Microsoft YaHei"/>
                             <controls:PasswordBox x:Name="Password"  controls:InfoElement.Placeholder="请输入密码"  Margin="14,76,14,0" Height="28" VerticalAlignment="Top" />
                             <Button x:Name="Button_of_7K7K_Game_Start" Content="7K7K" VerticalAlignment="Top" Click="Start_Game_7k7k_Click" Margin="44,117,44,0" HorizontalAlignment="Stretch" Height="28" adonisExtensions:CornerRadiusExtension.CornerRadius="4" adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4" adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10" />
-                            <Button x:Name="Button_of_7K7K_Game_Start_byQQ" Content="通过QQ" VerticalAlignment="Top" Click="Start_Game_7k7k_byQQ_Click" Margin="14,153,107,0" Height="23" adonisExtensions:CornerRadiusExtension.CornerRadius="4" adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4" adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10"/>
+                            <Button x:Name="Button_of_7K7K_Game_Start_byQQ" Content="第三方登录" VerticalAlignment="Top" Click="Start_Game_7k7k_byQQ_Click" Margin="14,153,107,0" Height="23" adonisExtensions:CornerRadiusExtension.CornerRadius="4" adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4" adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10"/>
                         </controls:SimplePanel>
                     </Grid>
                 </controls:TabItem>
@@ -104,7 +104,7 @@
                             <RowDefinition/>
                         </Grid.RowDefinitions>
                         <DockPanel Grid.Row="0">
-                            <TextBlock Text="7K7K账号管理" FontWeight="Bold" DockPanel.Dock="Left" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="第三方账号管理" FontWeight="Bold" DockPanel.Dock="Left" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             <Button x:Name="EditUser" Content="编辑账号" Click="EditUser_Click" DockPanel.Dock="Right" Width="99"
                                  adonisExtensions:CornerRadiusExtension.CornerRadius="4" adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4" adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,20,0"/>
                         </DockPanel>

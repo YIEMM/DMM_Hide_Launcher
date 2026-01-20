@@ -509,7 +509,7 @@ namespace DMM_Hide_Launcher
         }
         private async void Start_Game_7k7k_byQQ_Click(object sender, RoutedEventArgs e)
         {
-            App.Log("开始7K-QQ登录方式启动游戏");
+            App.Log("开始第三方登录方式启动游戏");
             try
             {
                 // 获取游戏路径并验证
@@ -567,75 +567,64 @@ namespace DMM_Hide_Launcher
                 
                 // 游戏目录验证通过，开始QQ登录流程
                 App.Log("游戏目录验证通过，开始QQ登录流程");
-                string Login_KEY = await ShowQQLoginWindow();
+                
+                // 显示QQ登录窗口
+                QQLoginWindow QQLoginWindow = new QQLoginWindow();
+                QQLoginWindow.Owner = this;
+                
+                // 在新线程中显示登录窗口，避免阻塞UI
+                await Task.Run(() =>
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        QQLoginWindow.ShowDialog();
+                    });
+                });
+                
+                // 获取QQ登录窗口的响应内容（静态属性）
+                // 等待一段时间，让后台POST请求有足够的时间完成
+                string Login_KEY = "";
+                int maxWaitTime = 3000; // 最大等待时间（毫秒）
+                int waitInterval = 100; // 检查间隔（毫秒）
+                int elapsedTime = 0;
+                
+                while (string.IsNullOrEmpty(Login_KEY) && elapsedTime < maxWaitTime)
+                {
+                    await Task.Delay(waitInterval);
+                    Login_KEY = DMM_Hide_Launcher.Others.QQLoginWindow.Login_KEY_7KQQ;
+                    elapsedTime += waitInterval;
+                }
                 
                 if (!string.IsNullOrEmpty(Login_KEY) && !Login_KEY.StartsWith("ERROR:"))
                 {
-                    App.Log($"获取到7K-QQ登录响应: {Login_KEY}");
+                    App.Log($"获取到第三方登录响应: {Login_KEY}");
                     
                     string gameExePath = files[0];
                     App.Log($"找到游戏可执行文件: {gameExePath}");
                     
                     // 直接使用QQLoginWindow返回的格式化好的登录参数启动游戏，与普通版本保持一致
-                    App.Log($"使用7K-QQ登录响应启动游戏: {gameExePath} 启动参数: {Login_KEY}");
+                    App.Log($"使用第三方登录响应启动游戏: {gameExePath} 启动参数: {Login_KEY}");
                     Process.Start(gameExePath, Login_KEY);
-                    App.Log("7K-QQ登录启动成功，等待窗口");
+                    App.Log("第三方登录启动成功，等待窗口");
                     CheckGameWindow();
                 }
                 else if (!string.IsNullOrEmpty(Login_KEY) && Login_KEY.StartsWith("ERROR:"))
                 {
-                    App.Log($"7K-QQ登录响应错误: {Login_KEY}");
+                    App.Log($"第三方登录响应错误: {Login_KEY}");
                     string errorMessage = Login_KEY.Substring(6); // 去掉"ERROR:"前缀
-                    Growl.Warning($"7K-QQ登录失败: {errorMessage}");
+                    Growl.Warning($"第三方登录失败: {errorMessage}");
                 }
-                else
+                else if (!DMM_Hide_Launcher.Others.QQLoginWindow.UserClosed)
                 {
-                    App.Log("7K-QQ登录响应无效或为空");
-                    Growl.Warning("7K-QQ登录失败，请重试");
+                    App.Log("第三方登录响应无效或为空");
+                    Growl.Warning("第三方登录失败，请重试");
                 }
             }
             catch (Exception ex)
             {
-                App.LogError("7K-QQ登录方式启动游戏时出错", ex);
+                App.LogError("第三方登录方式启动游戏时出错", ex);
                 Growl.Warning($"启动游戏时出错: {ex.Message}");
             }
-        }
-        
-        /// <summary>
-        /// 显示QQ登录窗口并等待登录结果
-        /// </summary>
-        /// <returns>登录结果字符串</returns>
-        private Task<string> ShowQQLoginWindow()
-        {
-            var tcs = new TaskCompletionSource<string>();
-            
-            // 在UI线程上创建并显示登录窗口
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
-            {
-                try
-                {
-                    App.Log("创建QQ登录窗口实例");
-                    var loginWindow = new QQLoginWindow();
-                    loginWindow.Owner = this;
-                    
-                    // 处理登录完成事件
-                    loginWindow.LoginCompleted += (sender, result) =>
-                    {
-                        App.Log($"QQ登录窗口返回结果: {result}");
-                        tcs.SetResult(result);
-                    };
-                    
-                    // 显示窗口
-                    loginWindow.ShowDialog();
-                }
-                catch (Exception ex)
-                {
-                    App.LogError("显示QQ登录窗口时出错", ex);
-                    tcs.SetResult($"ERROR:显示QQ登录窗口时出错: {ex.Message}");
-                }
-            });
-            
-            return tcs.Task;
         }
         private async void Start_Game_7k7k_Click(object sender, RoutedEventArgs e)
         {

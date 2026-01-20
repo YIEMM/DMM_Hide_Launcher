@@ -16,6 +16,7 @@ using System.IO;
 using Application = System.Windows.Application;
 using AdonisUI;
 using AdonisUI.Controls;
+using HandyControl.Controls;
 using MessageBox = AdonisUI.Controls.MessageBox;
 using MessageBoxButton = AdonisUI.Controls.MessageBoxButton;
 using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
@@ -23,8 +24,8 @@ using MessageBoxImage = AdonisUI.Controls.MessageBoxImage;
 namespace DMM_Hide_Launcher.Others
 {
     /// <summary>
-    /// QQ登录窗口
-    /// 负责处理7K7K平台的QQ登录流程
+    /// 第三方登录窗口
+    /// 负责处理第三方登录流程
     /// </summary>
     public partial class QQLoginWindow : AdonisWindow
     {
@@ -41,14 +42,21 @@ namespace DMM_Hide_Launcher.Others
         /// </summary>
         private const string TARGET_GAME_URL = "web.7k7k.com/games/tpbsn/dlq/";
         
+        /// <summary>
+        /// 7KQQ登录密钥
+        /// </summary>
+        public static string Login_KEY_7KQQ { get; private set; }
+        
+        /// <summary>
+        /// 用户是否主动关闭登录窗口
+        /// </summary>
+        public static bool UserClosed { get; private set; } = false;
+        
         // 存储获取到的cookie
         private Dictionary<string, string> _browserCookies = new Dictionary<string, string>();
         private Dictionary<string, string> _cookiesForLogin;
 
-        /// <summary>
-        /// 登录结果事件
-        /// </summary>
-        public event EventHandler<string> LoginCompleted;
+
 
         /// <summary>
         /// 构造函数
@@ -57,6 +65,10 @@ namespace DMM_Hide_Launcher.Others
         {
             InitializeComponent();
             Loaded += QQLoginWindow_Loaded;
+            webView.Visibility = System.Windows.Visibility.Collapsed;
+            // 初始化登录密钥
+            Login_KEY_7KQQ = "";
+            UserClosed = false;
         }
 
         private async void QQLoginWindow_Loaded(object sender, RoutedEventArgs e)
@@ -69,10 +81,10 @@ namespace DMM_Hide_Launcher.Others
                 webView.CoreWebView2InitializationCompleted += WebView_CoreWebView2InitializationCompleted;
                 
                 App.Log("QQ登录窗口已加载，正在初始化WebView2");
-                
+
                 // 设置UserDataFolder到TEMP目录
-                string tempPath = Path.GetTempPath();
-                string userDataFolder = Path.Combine(tempPath, "DMM_Hide_Launcher_WebView2");
+                string localPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                string userDataFolder = Path.Combine(localPath, "HDL");
                 App.Log($"正在设置WebView2 UserDataFolder到: {userDataFolder}");
                 
                 // 创建CoreWebView2Environment并初始化WebView2
@@ -89,6 +101,8 @@ namespace DMM_Hide_Launcher.Others
         private void BtnClose_Click(object sender, RoutedEventArgs e)
         {
             App.Log("用户点击关闭按钮");
+            UserClosed = true;
+            Growl.Info("已关闭登录窗口");
             Close();
         }
         
@@ -101,6 +115,7 @@ namespace DMM_Hide_Launcher.Others
                 {
                     webView.CoreWebView2.Navigate(QQ_LOGIN_URL);
                     App.Log("QQ登录页面已加载");
+                    webView.Visibility = System.Windows.Visibility.Visible;
                 }
             }
             catch (Exception ex)
@@ -119,6 +134,7 @@ namespace DMM_Hide_Launcher.Others
                 {
                     webView.CoreWebView2.Navigate(WECHAT_LOGIN_URL);
                     App.Log("微信登录页面已加载");
+                    webView.Visibility = System.Windows.Visibility.Visible;
                 }
             }
             catch (Exception ex)
@@ -135,6 +151,7 @@ namespace DMM_Hide_Launcher.Others
                 App.Log("用户点击上一次登录按钮");
                 if (webView.CoreWebView2 != null)
                 {
+                    webView.Visibility = System.Windows.Visibility.Collapsed;
                     webView.CoreWebView2.Navigate("https://web.7k7k.com/games/tpbsn/dlq/");
                     App.Log("游戏页面已加载");
                 }
@@ -170,7 +187,7 @@ namespace DMM_Hide_Launcher.Others
                     string errorDetails = e.InitializationException != null ? e.InitializationException.Message : "未知错误";
                     string errorMessage = $"WebView2初始化失败: {errorDetails}\n请确保已安装Microsoft Edge WebView2 Runtime";
                     App.LogError("WebView2初始化失败", new Exception(errorDetails, e.InitializationException));
-                    OnLoginCompleted(errorMessage);
+                    Login_KEY_7KQQ = errorMessage;
                     this.Close();
                 }
             }
@@ -178,7 +195,7 @@ namespace DMM_Hide_Launcher.Others
             {
                 string errorMessage = "WebView2初始化过程异常: " + ex.Message;
                 App.LogError("WebView2初始化过程异常", ex);
-                OnLoginCompleted(errorMessage);
+                Login_KEY_7KQQ = errorMessage;
                 this.Close();
             }
         }
@@ -233,6 +250,7 @@ namespace DMM_Hide_Launcher.Others
                 // 实时监测特定网址并输出Cookie（支持HTTP和HTTPS）
                 if (url.Contains(TARGET_GAME_URL))
                 {
+                    webView.Visibility = System.Windows.Visibility.Collapsed;
                     App.Log("检测到目标游戏页面！正在获取Cookie...");
                     
                     // 检查是否已经获取到必要的cookie，无论当前URL是什么
@@ -253,8 +271,10 @@ namespace DMM_Hide_Launcher.Others
                         // 获取登录参数
                         string loginResult = await GetLoginParamsFromCoreToGame();
                         
+                        // 存储登录结果
+                        Login_KEY_7KQQ = loginResult;
+                        
                         // 关闭窗口
-                        OnLoginCompleted(loginResult);
                         this.Close();
                     }
                     else
@@ -473,7 +493,7 @@ namespace DMM_Hide_Launcher.Others
                             {
                                 Application.Current.Dispatcher.Invoke(() =>
                                 {
-                                    MessageBox.Show("当前账户未实名认证", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                    // MessageBox.Show("当前账户未实名认证", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                                 });
                             }
                             string errorMsg = "当前账户未实名认证";
@@ -590,13 +610,6 @@ namespace DMM_Hide_Launcher.Others
             return $"ID={userId},Key={keyStr},PID=7K7K_,PROCPARA=66666,Channel=PC7K7K";
         }
 
-        /// <summary>
-        /// 触发登录完成事件
-        /// </summary>
-        /// <param name="result">登录结果</param>
-        protected virtual void OnLoginCompleted(string result)
-        {
-            LoginCompleted?.Invoke(this, result);
-        }
+
     }
 }

@@ -7,64 +7,88 @@
         xmlns:adonisControls="clr-namespace:AdonisUI.Controls;assembly=AdonisUI"
         xmlns:adonisExtensions="clr-namespace:AdonisUI.Extensions;assembly=AdonisUI"
         mc:Ignorable="d"
-        Title="第三方登录" Height="600" Width="900"
+        Title="第三方登录" Height="500" Width="730" MinHeight="500" MinWidth="730" MaxHeight="500" MaxWidth="730"
         WindowStartupLocation="CenterOwner" 
-                             FontFamily="{DynamicResource MiSansFont}"
-                             IconVisibility="Collapsed"
-                             >
-    <Grid>
+        FontFamily="{DynamicResource MiSansFont}"
+        IconVisibility="Collapsed"
+        TitleVisibility="Collapsed" 
+        ShowInTaskbar="False"
+        ResizeMode="CanResizeWithGrip"
+        >
+    <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
-        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+        <TextBlock Grid.Row="0" 
+                   Text="选择登录方式" 
+                   FontSize="18" 
+                   FontWeight="SemiBold" 
+                   Foreground="{DynamicResource {x:Static adonisUi:Brushes.ForegroundBrush}}"
+                   Margin="0,0,0,15"
+                   HorizontalAlignment="Center"/>
+        
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
             <Button 
                 x:Name="BtnQQLogin" 
                 Content="QQ登录" 
-                Width="120" 
-                Height="35" 
-                Margin="0,0,10,0" 
+                Width="100" 
+                Height="32" 
+                Margin="0,0,8,0" 
                 Click="BtnQQLogin_Click"
-                adonisExtensions:CornerRadiusExtension.CornerRadius="4"
+                adonisExtensions:CornerRadiusExtension.CornerRadius="6"
                 adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4"
                 adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10"
+                FontSize="13"
                 />
             <Button 
                 x:Name="BtnWeChatLogin" 
                 Content="微信登录" 
-                Width="120" 
-                Height="35" 
-                Margin="10,0,10,0" 
+                Width="100" 
+                Height="32" 
+                Margin="8,0,8,0" 
                 Click="BtnWeChatLogin_Click"
-                adonisExtensions:CornerRadiusExtension.CornerRadius="4"
+                adonisExtensions:CornerRadiusExtension.CornerRadius="6"
                 adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4"
                 adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10"
+                FontSize="13"
                 />
             <Button 
                 x:Name="BtnLastLogin" 
                 Content="上一次登录" 
-                Width="120" 
-                Height="35" 
-                Margin="10,0,10,0" 
+                Width="100" 
+                Height="32" 
+                Margin="8,0,8,0" 
                 Click="BtnLastLogin_Click"
-                adonisExtensions:CornerRadiusExtension.CornerRadius="4"
+                adonisExtensions:CornerRadiusExtension.CornerRadius="6"
                 adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4"
                 adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10"
+                FontSize="13"
                 />
             <Button 
                 x:Name="BtnClose" 
                 Content="关闭" 
-                Width="100" 
-                Height="35" 
-                Margin="10,0,0,0" 
+                Width="80" 
+                Height="32" 
+                Margin="8,0,0,0" 
                 Click="BtnClose_Click" 
-                adonisExtensions:CornerRadiusExtension.CornerRadius="4"
+                adonisExtensions:CornerRadiusExtension.CornerRadius="6"
                 adonisExtensions:CursorSpotlightExtension.RelativeSpotlightSize="0.4"
                 adonisExtensions:CursorSpotlightExtension.MaxBlurRadius="10"
+                FontSize="13"
                 />
         </StackPanel>
         
-        <WebBrowser x:Name="webBrowser" Navigated="webBrowser_Navigated" Grid.Row="1" Margin="10"/>
+        <Border Grid.Row="2" 
+                CornerRadius="8" 
+                BorderThickness="1" 
+                BorderBrush="{DynamicResource {x:Static adonisUi:Brushes.Layer3BorderBrush}}"
+                Background="{DynamicResource {x:Static adonisUi:Brushes.Layer2BackgroundBrush}}"
+                Padding="5"
+                HorizontalAlignment="Center" Width="662" Height="362">
+            <WebBrowser x:Name="webBrowser" Navigated="webBrowser_Navigated" Width="650" Height="350" HorizontalAlignment="Center"/>
+        </Border>
     </Grid>
 </adonisControls:AdonisWindow>

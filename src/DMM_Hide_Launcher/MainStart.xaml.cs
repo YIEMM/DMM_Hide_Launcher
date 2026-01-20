@@ -513,7 +513,7 @@ namespace DMM_Hide_Launcher
         }
         private async void Start_Game_7k7k_byQQ_Click(object sender, RoutedEventArgs e)
         {
-            App.Log("开始7K-QQ登录方式启动游戏");
+            App.Log("开始第三方登录方式启动游戏");
             try
             {
                 // 首先获取并验证游戏路径
@@ -590,26 +590,26 @@ namespace DMM_Hide_Launcher
                 
                 if (!string.IsNullOrEmpty(Login_KEY) && !Login_KEY.StartsWith("ERROR:"))
                 {
-                    App.Log($"获取到7K-QQ登录响应: {Login_KEY}");
+                    App.Log($"获取到第三方登录响应: {Login_KEY}");
                     
                     string gameExePath = files[0];
                     App.Log($"找到游戏可执行文件: {gameExePath}");
                     
                     // 使用解析后的响应内容启动游戏
-                    App.Log($"使用7K-QQ登录响应启动游戏: {gameExePath} 启动参数: {Login_KEY}");
+                    App.Log($"使用第三方登录响应启动游戏: {gameExePath} 启动参数: {Login_KEY}");
                     Process.Start(gameExePath, Login_KEY);
-                    App.Log("7K-QQ登录启动成功，等待窗口");
+                    App.Log("第三方登录启动成功，等待窗口");
                     CheckGameWindow();
                 }
-                else
+                else if (!DMM_Hide_Launcher.Others.QQLoginWindow.UserClosed)
                 {
-                    App.Log("7K-QQ登录响应无效或为空");
-                    Growl.Warning("7K-QQ登录失败，请重试");
+                    App.Log("第三方登录响应无效或为空");
+                    Growl.Warning("第三方登录失败，请重试");
                 }
             }
             catch (Exception ex)
             {
-                App.LogError("7K-QQ登录方式启动游戏时出错", ex);
+                App.LogError("第三方登录方式启动游戏时出错", ex);
                 Growl.Warning($"启动游戏时出错: {ex.Message}");
             }
         }

@@ -1,5 +1,10 @@
 # DMM_Hide_Launcher
-一款简洁且shit的DMM游戏启动器
+
+一款简洁且实用的DMM游戏启动器
+
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/)
+[![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)](https://www.microsoft.com/windows)
 
 ## 📋 项目简介
 
@@ -19,18 +24,11 @@ DMM_Hide_Launcher 是一款专为DMM游戏打造的启动器，旨在简化游�
 ## 🚀 快速开始
 
 ### 方法一：直接使用编译好的程序
-1. 前往 [build/DMM_Hide_Launcher-1.1.0.exe](build/DMM_Hide_Launcher-1.1.0.exe) 下载最新版本的可执行文件
-2. 前往 [Release](https://github.com/YIEMM/DMM_Hide_Launcher/releases) 页面下载
+1. 前往 [build](build)或[publish](publish) 目录下载最新版本的可执行文件
+2. 前往 [Release](https://github.com/YIEMM/DMM_Hide_Launcher/releases) 页面下载最新发布版本
 
 ### 方法二：从源码编译
-1. `方法一-Curl`
-   ```bash
-   #加速链接
-   curl -L -o DMM_Hide_Launcher.zip https://edgeone.gh-proxy.com/https://github.com/YIEMM/DMM_Hide_Launcher/archive/refs/heads/main.zip
-   #原始链接
-   curl -L -o DMM_Hide_Launcher.zip https://github.com/YIEMM/DMM_Hide_Launcher/archive/refs/heads/main.zip
-   ```
-   `方法二-Git`
+1. 克隆仓库
    ```bash
    #加速链接
    git clone https://edgeone.gh-proxy.com/https://github.com/YIEMM/DMM_Hide_Launcher.git
@@ -38,10 +36,22 @@ DMM_Hide_Launcher 是一款专为DMM游戏打造的启动器，旨在简化游�
    git clone https://github.com/YIEMM/DMM_Hide_Launcher.git
    ```
 2. 确保您的电脑上已安装 [Visual Studio 2022](https://visualstudio.microsoft.com/) 或更高版本
-3. 打开 `DMM_Hide_Launcher.sln` 解决方案文件
+3. 打开 `src/DMM_Hide_Launcher.sln` 解决方案文件
 4. 在Visual Studio中还原NuGet包依赖
 5. 点击"生成" > "生成解决方案" 编译项目
-6. 在 `scr/DMM_Hide_Launcher/bin/Debug/` 或 `scr/DMM_Hide_Launcher/bin/Release/` 目录下找到编译好的可执行文件
+6. 在 `src/DMM_Hide_Launcher/bin/Debug/` 或 `src/DMM_Hide_Launcher/bin/Release/` 目录下找到编译好的可执行文件
+
+### 方法三：使用构建脚本
+1. 克隆仓库（同上）
+2. 运行构建脚本：
+   ```bash
+   # 使用PowerShell
+   .\build.ps1
+   
+   # 或使用批处理文件
+   .\build.bat
+   ```
+3. 构建完成后，可执行文件将位于 `publish` 目录中
 
 ## 📖 使用指南
 
@@ -137,12 +147,48 @@ DMM_Hide_Launcher.exe --log
 本项目基于[AGPL-3.0](LICENSE)许可证开源，您可以在遵守许可证条款的前提下自由使用、修改和分发本项目的代码，但禁止任何形式的商业收费。
 
 ## 🔧 技术栈
+
 - **开发框架**：.NET 8.0 + WPF
 - **UI框架**：AdonisUI + HandyControl
 - **资源打包**：Costura.Fody
 - **加密算法**：AES-128位
+- **日志系统**：Serilog
+- **配置管理**：JSON格式存储
+
+## 📋 系统要求
+
+- **操作系统**：Windows 7 及以上版本
+- **运行环境**：.NET 8.0 Runtime
+- **推荐配置**：Windows 10/11，64位系统
+
+## 🛠️ 项目结构
+
+```
+DMM_Hide_Launcher/
+├── src/                          # 源代码目录
+│   ├── DMM_Hide_Launcher/        # 主项目（标准版本）
+│   └── DMM_Hide_Launcher_Webview2/ # WebView2版本
+├── build/                        # 编译好的可执行文件
+├── publish/                      # 发布版本
+├── .github/workflows/            # GitHub Actions工作流
+├── .vscode/                      # VS Code配置
+└── Licenses/                     # 许可证文件
+```
 
 ## 📋 更新日志
+
+### 版本 1.2.2
+- **QQ登录功能全面重构**
+  - 本次更改全面支持了7K所有登录方式
+  - 支持微信登录
+    - webview2版本支持电脑端在已经登录的微信上直接登录
+  - 支持上次登录
+  - 支持账号密码登录
+  - webview2版本数据存放路径为 `%LocalAppData%\HDL`
+- **支持游戏更新**
+  - 新增游戏更新功能，支持自动检查并下载最新版本
+  - 游戏更新进度显示，用户可实时查看下载进度
+- **性能优化**
 
 ### 版本 1.2.1
 - **新增游戏窗口调整工具**
@@ -218,9 +264,25 @@ DMM_Hide_Launcher.exe --log
 
 ## 🤝 贡献指南
 
-欢迎对本项目提出建议和改进。如果您发现Bug或有新功能想法，请提交Issue
+欢迎对本项目提出建议和改进！如果您想为项目做出贡献，请遵循以下步骤：
+
+1. Fork 本仓库
+2. 创建您的特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交您的更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启一个 Pull Request
+
+如果您发现Bug或有新功能想法，请提交Issue。
+
+## 📞 联系方式
+
+如有问题或建议，请通过以下方式联系：
+
+- 提交 [Issue](https://github.com/YIEMM/DMM_Hide_Launcher/issues)
+- 发送邮件至：[您的邮箱]
 
 ---
 
-**更新日期**：2025-12-26
+**更新日期**：2025-01-20  
+**项目状态**：积极维护中  
 **README为AI生成，可能存在错误**
